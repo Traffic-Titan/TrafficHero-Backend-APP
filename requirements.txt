@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+selenium
+webdriver-manager
+shapely
+selenium
+geopy
+python-dotenv
+openai
+apscheduler
