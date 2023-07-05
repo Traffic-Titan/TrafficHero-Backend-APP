@@ -1,9 +1,9 @@
-from pymongo import *
+import pymongo
 import os
 
 def connectDB():
     try:
-        client = MongoClient(os.getenv('MongoDB_URI'))
+        client = pymongo.MongoClient(os.getenv('MongoDB_URI'))
         db = client['TrafficHero']
         return db
     except Exception as e:
