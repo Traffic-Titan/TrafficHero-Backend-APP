@@ -3,66 +3,21 @@
 2. 缺大眾運輸最新消息
 """
 from fastapi import APIRouter
-import os
-import requests
-import json
+from TDX import get_data_response
 
 News_Router = APIRouter(tags=["2.最新消息"],prefix="/News")
 
-def get_data_response(url):
-    auth_url = "https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token"
-    app_id = os.getenv('TDX_app_id')
-    app_key = os.getenv('TDX_app_key')
-    auth = Auth(app_id, app_key)
-    try:
-        auth_response = requests.post(auth_url, auth.get_auth_header())
-        d = Data(app_id, app_key, auth_response)
-        data_response = requests.get(url, headers=d.get_data_header())
-    except Exception as e:
-        print(f"Error occurred: {str(e)}")
-        return None
-    data_all = json.loads(data_response.text)
-    return data_all
-class Auth():
-    def __init__(self, app_id, app_key):
-        self.app_id = app_id
-        self.app_key = app_key
-
-    def get_auth_header(self):
-        content_type = 'application/x-www-form-urlencoded'
-        grant_type = 'client_credentials'
-
-        return {
-            'content-type': content_type,
-            'grant_type': grant_type,
-            'client_id': self.app_id,
-            'client_secret': self.app_key
-        }
-class Data():
-    def __init__(self, app_id, app_key, auth_response):
-        self.app_id = app_id
-        self.app_key = app_key
-        self.auth_response = auth_response
-
-    def get_data_header(self):
-        auth_JSON = json.loads(self.auth_response.text)
-        access_token = auth_JSON.get('access_token')
-        return {
-            'authorization': 'Bearer '+access_token
-        }
-
-
 """
 1.資料來源:省道最新消息
-    https://tdx.transportdata.tw/api/basic/v2/Road/Traffic/Live/News/Highway?%24top=30&%24format=JSON
+    https://tdx.transportdata.tw/api-service/swagger/basic/7f07d940-91a4-495d-9465-1c9df89d709c#/HighwayTraffic/Live_News_Highway
 """
-@News_Router.get("/provincialWayNews",summary="從TDX上獲取省道最新消息")
-async def provincialWayNews():
+@News_Router.get("/provincialWay",summary="從TDX上獲取省道最新消息")
+async def provincialWay():
     #省道最新消息
     url = "https://tdx.transportdata.tw/api/basic/v2/Road/Traffic/Live/News/Highway?%24top=30&%24format=JSON"
     dataAll = get_data_response(url)
     
-    # allInfo:包全部的資料、 newsArray:包Context(內文)的陣列、 Context:內文，有Title(標題)跟Description(描述)
+    # allInfo:包全部的資料、 newsArray:包Context(內文)的陣列、 Context:內文，有Title(標題)、Description(描述)、UpdateTime(更新時間)、NewsCategory(消息分類)
     allInfo = {}
     newsArray = []
     Context= {}
@@ -71,6 +26,42 @@ async def provincialWayNews():
     for info in dataAll['Newses']:
         Context['Title'] = info['Title']
         Context['Description'] = info['Description']
-        newsArray.append({'Title':Context['Title'],'Description':Context['Description']})
+        Context['UpdateTime'] = info['UpdateTime'][0:10]
+        Context['NewsCategory'] = info['NewsCategory']
+        newsArray.append({'Title':Context['Title'],'Description':Context['Description'],'UpdateTime':Context['UpdateTime'],'NewsCategory':Context['NewsCategory']})
     allInfo['Newses'] = newsArray
     return (allInfo)
+
+"""
+2.資料來源:大眾運輸最新消息
+    各市區公車：https://tdx.transportdata.tw/api-service/swagger/basic/2998e851-81d0-40f5-b26d-77e2f5ac4118#/CityBus/CityBusApi_News_2044
+    高鐵：https://tdx.transportdata.tw/api-service/swagger/basic/268fc230-2e04-471b-a728-a726167c1cfc#/THSR/THSRApi_News_2128
+    台鐵：https://tdx.transportdata.tw/api-service/swagger/basic/5fa88b0c-120b-43f1-b188-c379ddb2593d#/TRA/NewsApiController_Get_3217
+    捷運（TRTC:臺北捷運,KRTC:高雄捷運,TYMC:桃園捷運,KLRT:高雄輕軌）：https://tdx.transportdata.tw/api-service/swagger/basic/268fc230-2e04-471b-a728-a726167c1cfc#/Metro/MetroApi_News_2106
+
+"""
+
+@News_Router.get("/cityBus/{cityName}",summary="從TDX上獲取各市區公車最新消息")
+async def cityBus(cityName:str):
+    #各市區公車最新消息
+    url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/"+ cityName +"?%24top=30&%24format=JSON"
+    dataAll = get_data_response(url)
+    return dataAll
+@News_Router.get("/THSR",summary="從TDX上獲取高鐵最新消息")
+async def THSR():
+    #高鐵最新消息
+    url = "https://tdx.transportdata.tw/api/basic/v2/Rail/THSR/News?%24top=30&%24format=JSON"
+    dataAll = get_data_response(url)
+    return dataAll
+@News_Router.get("/TR",summary="從TDX上獲取台鐵最新消息")
+async def TR():
+    #台鐵最新消息
+    url = "https://tdx.transportdata.tw/api/basic/v3/Rail/TRA/News?%24top=30&%24format=JSON"
+    dataAll = get_data_response(url)
+    return dataAll
+@News_Router.get("/Metro/{MetroName}",summary="從TDX上獲取各捷運的最新消息")
+async def Metro(MetroName:str):
+    #各市區公車最新消息
+    url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/"+ MetroName +"?%24top=30&%24format=JSON"
+    dataAll = get_data_response(url)
+    return dataAll
