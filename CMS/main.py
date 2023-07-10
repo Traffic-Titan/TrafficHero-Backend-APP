@@ -1,6 +1,6 @@
 # 暫時性檔案，放Router用
 from fastapi import APIRouter
-from TDX import get_data_response
+from Services.TDX import get_data_response
 CMS_Router = APIRouter(tags=["3.即時訊息推播"],prefix="/CMS")
 
 @CMS_Router.get("/serviceArea",summary="從TDX上獲取服務區剩餘位置")

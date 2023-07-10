@@ -7,6 +7,10 @@ import os
 import datetime
 import threading
 from dotenv import load_dotenv
+import time
+from apscheduler.schedulers.blocking import BlockingScheduler
+
+from Services.Email_Service import Email_Service_Router
 from Account.main import Account_Router
 from Smart_Assistant.main import Smart_Assistant_Router
 from Home.main import Home_Router
@@ -16,10 +20,10 @@ from CMS import Speed_Enforcement, Technical_Enforcement,PBS
 from Road_Information.main import Road_Information_Router
 from Tourism_Information.main import Tourism_Information_Router
 from Public_Transport_Information.main import Public_Transport_Information_Router
-import time
-from apscheduler.schedulers.blocking import BlockingScheduler
+
 app = FastAPI()
 
+app.include_router(Email_Service_Router)
 app.include_router(Account_Router)
 app.include_router(Smart_Assistant_Router)
 app.include_router(Home_Router)

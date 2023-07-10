@@ -3,7 +3,7 @@
 2. 缺大眾運輸最新消息
 """
 from fastapi import APIRouter
-from TDX import get_data_response
+from Services.TDX import get_data_response
 
 News_Router = APIRouter(tags=["2.最新消息"],prefix="/News")
 

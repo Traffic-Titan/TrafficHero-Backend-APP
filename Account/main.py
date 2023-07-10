@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from fastapi import HTTPException
 from pydantic import BaseModel
 import hashlib
-from MongoDB import connectDB
+from Services.MongoDB import connectDB
 
 Account_Router = APIRouter(tags=["0.會員管理"],prefix="/Account")
 
