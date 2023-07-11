@@ -35,9 +35,6 @@ async def startup_event():
     setInterval(Speed_Enforcement.getData())
     setInterval(Technical_Enforcement.getData())
     setInterval(PBS.getData())
-    # Speed_Enforcement.getData()
-    # Technical_Enforcement.getData()
-    # PBS.getData()
 
 #每天0點0分定時執行Function
 def setInterval(function):
