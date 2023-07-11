@@ -1,3 +1,4 @@
+# main.py
 """
 1. 目前設定為每次啟動時，會將資料庫清空，並重新抓取資料，以後必需按照來源狀況，設定更新資料的時間
 """
@@ -10,7 +11,10 @@ from dotenv import load_dotenv
 import time
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-from Services.Email_Service import Email_Service_Router
+from Services.Email_Service import Services_Router as Email_Service_Router
+from Services.Email_Service import connectSMTPServer
+from Services.Google_Maps import Services_Router as Google_Maps_Router
+from Services.TDX import Services_Router as TDX_Router
 from Account.main import Account_Router
 from Smart_Assistant.main import Smart_Assistant_Router
 from Home.main import Home_Router
@@ -24,6 +28,8 @@ from Public_Transport_Information.main import Public_Transport_Information_Route
 app = FastAPI()
 
 app.include_router(Email_Service_Router)
+app.include_router(Google_Maps_Router)
+app.include_router(TDX_Router)
 app.include_router(Account_Router)
 app.include_router(Smart_Assistant_Router)
 app.include_router(Home_Router)
@@ -36,12 +42,21 @@ app.include_router(Tourism_Information_Router)
 @app.on_event("startup")
 async def startup_event():
     load_dotenv()
-    setInterval(Speed_Enforcement.getData())
-    setInterval(Technical_Enforcement.getData())
-    setInterval(PBS.getData())
+    
+    # 連線到Gmail SMTP Server
+    connectSMTPServer()
+    
+    # setInterval(Speed_Enforcement.getData())
+    # setInterval(Technical_Enforcement.getData())
+    # setInterval(PBS.getData())
     # Speed_Enforcement.getData()
     # Technical_Enforcement.getData()
     # PBS.getData()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    # 在應用程式關閉時斷開連線
+    email_server.quit()
 
 #每天0點0分定時執行Function
 def setInterval(function):

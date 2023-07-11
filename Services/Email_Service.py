@@ -1,36 +1,38 @@
-# 暫時性檔案，放Router用
+# Email_Service.py
 from fastapi import APIRouter
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel
 from smtplib import SMTP_SSL
 from email.mime.text import MIMEText
+import os
 
-Email_Service_Router = APIRouter(tags=["#.寄信服務(For Development Only)"],prefix="/Email_Service")
+Services_Router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Services/Email")
 
 class EmailBody(BaseModel):
     to: str
     subject: str
     message: str
 
-@Email_Service_Router.post("/email")
+def connectSMTPServer():
+    # 連線到Gmail SMTP Server
+    global email_server
+    email_server = SMTP_SSL("smtp.gmail.com", 465)
+    email_server.login(os.getenv('Email_Username'), os.getenv('Email_Password'))
+
+@Services_Router.post("/send_email")
 async def send_email(body: EmailBody):
     try:
+        # 新增郵件內容
         msg = MIMEText(body.message, "html")
         msg['Subject'] = body.subject
-        msg['From'] = f'Traffic Hero <{OWN_EMAIL}>'
+        msg['From'] = "Traffic Hero " + os.getenv('Email_Username')
         msg['To'] = body.to
 
-        # Connect to the email server
-        server = SMTP_SSL("smtp.gmail.com", 465)
-        server.login(OWN_EMAIL, OWN_EMAIL_PASSWORD)
-
-        # Send the email
-        server.send_message(msg)
-        server.quit()
-        return {"message": "Email sent successfully"}
+        # 寄送郵件
+        email_server.send_message(msg)
+        return {"message": "寄件成功"}
 
     except AttributeError as e:
-        raise HTTPException(status_code=500, detail="Failed to send email. Invalid attribute: " + str(e))
-
+        raise HTTPException(status_code=500, detail="無法寄送電子郵件。無效的屬性: " + str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to send email: " + str(e))
+        raise HTTPException(status_code=500, detail="無法寄送電子郵件: " + str(e))

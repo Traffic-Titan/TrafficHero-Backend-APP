@@ -1,11 +1,12 @@
-"""
-TDX 驗證
-"""
-
 import os
 import requests
 import json
-def get_data_response(url):
+from fastapi import APIRouter
+
+Services_Router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Services/TDX")
+
+@Services_Router.post("/getData")
+def getData(url):
     auth_url = "https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token"
     app_id = os.getenv('TDX_app_id')
     app_key = os.getenv('TDX_app_key')
@@ -17,8 +18,8 @@ def get_data_response(url):
     except Exception as e:
         print(f"Error occurred: {str(e)}")
         return None
-    data_all = json.loads(data_response.text)
-    return data_all
+    return json.loads(data_response.text)
+
 class Auth():
     def __init__(self, app_id, app_key):
         self.app_id = app_id
@@ -34,6 +35,7 @@ class Auth():
             'client_id': self.app_id,
             'client_secret': self.app_key
         }
+
 class Data():
     def __init__(self, app_id, app_key, auth_response):
         self.app_id = app_id
