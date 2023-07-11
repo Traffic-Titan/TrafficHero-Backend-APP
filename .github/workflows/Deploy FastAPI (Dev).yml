@@ -3,7 +3,7 @@ name: 更新專案並啟動 FastAPI 服務
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   Cancel_Previous_Workflows:
