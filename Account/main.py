@@ -152,7 +152,7 @@ async def forgot_password(user: ForgetPasswordModel):
     Collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})
 
     # 寄送郵件
-    response = await send_email(user.email,"重設密碼驗證碼","您的驗證碼是：" + verification_code)
+    response = await send_email(user.email,"重設密碼","您的驗證碼是：" + verification_code)
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail=response.detail)
 
