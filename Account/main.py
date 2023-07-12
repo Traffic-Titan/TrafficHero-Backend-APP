@@ -6,6 +6,9 @@ from Services.MongoDB import connectDB
 from jose import jwt
 from datetime import datetime, timedelta
 from Services.Token import generate_token
+from Services.Email_Service import send_email
+import time
+import random
 
 Account_Router = APIRouter(tags=["0.會員管理"],prefix="/Account")
 
@@ -112,7 +115,7 @@ async def change_password(user: ChangePasswordModel):
     if result is None:
         raise HTTPException(status_code=401, detail="舊密碼錯誤")
 
-    # 對新密碼進行哈希處理
+    # 對新密碼進行Hash處理
     hashed_new_password = hashlib.sha256(user.new_password.encode()).hexdigest()
 
     # 更新使用者文件中的密碼
@@ -123,83 +126,34 @@ async def change_password(user: ChangePasswordModel):
 
     return {"message": "密碼已成功更改"}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class ResetPasswordRequest(BaseModel):
+class ForgetPasswordModel(BaseModel):
     email: str
 
-class VerifyCodeRequest(BaseModel):
-    email: str
-    code: str
+@Account_Router.post("/forgot_password")
+async def forgot_password(user: ForgetPasswordModel):
+    # 檢查電子郵件是否存在於資料庫中
+    Collection = connectDB().Users
+    result = Collection.find_one({"email": user.email})
+    if result is None:
+        raise HTTPException(status_code=404, detail="此電子郵件不存在")
 
-# 存儲驗證碼的字典
-stored_codes = {}
+    # 獲取當前時間戳
+    current_time = time.time()
 
-@Account_Router.post("/reset_password")
-def verify_code(request: VerifyCodeRequest):
-    
-    # 獲取儲存的驗證碼
-    stored_code = stored_codes.get(request.email)
+    # 檢查該電子郵件是否在一分鐘內發出過請求
+    last_request_timestamp = result.get("timestamp")
+    if last_request_timestamp and current_time - last_request_timestamp < 60:
+        raise HTTPException(status_code=429, detail="請求過於頻繁，請稍後再試")
 
-    if not stored_code:
-        raise HTTPException(status_code=400, detail="無效的電子郵件")
+    # 生成驗證碼
+    verification_code = str(random.randint(100000, 999999))
 
-    if request.code != stored_code:
-        raise HTTPException(status_code=400, detail="無效的驗證碼")
+    # 將驗證碼存儲到資料庫中
+    Collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})
 
-    # 驗證通過，可以允許使用者重設密碼
-    # 執行重設密碼邏輯
+    # 寄送郵件
+    response = await send_email(user.email,"重設密碼驗證碼","您的驗證碼是：" + verification_code)
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail=response.detail)
 
-    # 重設密碼後，從儲存中刪除驗證碼
-    del stored_codes[request.email]
-
-    return {"message": "驗證碼驗證通過，可以重設密碼"}
-
-
-@Account_Router.post("/send_reset_password_verify_code")
-def send_reset_password_verify_code(request: ResetPasswordRequest):
-    # 生成6位隨機數字碼
-    code = ''.join(random.choices(string.digits, k=6))
-
-    # 儲存驗證碼
-    stored_codes[request.email] = code
-
-    subject = "重設密碼"
-    body = f"您的重設驗證碼是：{code}"
-
-    msg = MIMEMultipart()
-    msg["From"] = sender_email
-    msg["To"] = request.email
-    msg["Subject"] = subject
-
-    msg.attach(MIMEText(body, "plain"))
-
-    try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
-            server.login(sender_email, sender_password)
-            server.send_message(msg)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="無法發送電子郵件")
-
-    return {"message": "重設驗證碼已發送至您的電子郵件"}
+    return {"message": "已發送驗證碼"}
