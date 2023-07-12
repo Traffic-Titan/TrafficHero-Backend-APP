@@ -7,7 +7,7 @@
 
 from urllib import request
 import json
-from MongoDB import connectDB
+from Services.MongoDB import connectDB
 
 #讀取警廣API資料
 def getData():
