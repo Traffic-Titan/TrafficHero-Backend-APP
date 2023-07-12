@@ -15,6 +15,7 @@ from Services.Email_Service import Services_Router as Email_Service_Router
 from Services.Email_Service import connectSMTPServer
 from Services.Google_Maps import Services_Router as Google_Maps_Router
 from Services.TDX import Services_Router as TDX_Router
+from Services.Token import Services_Router as Token_Router
 from Account.main import Account_Router
 from Smart_Assistant.main import Smart_Assistant_Router
 from Home.main import Home_Router
@@ -27,9 +28,6 @@ from Public_Transport_Information.main import Public_Transport_Information_Route
 
 app = FastAPI()
 
-app.include_router(Email_Service_Router)
-app.include_router(Google_Maps_Router)
-app.include_router(TDX_Router)
 app.include_router(Account_Router)
 app.include_router(Smart_Assistant_Router)
 app.include_router(Home_Router)
@@ -38,6 +36,11 @@ app.include_router(CMS_Router)
 app.include_router(Road_Information_Router)
 app.include_router(Public_Transport_Information_Router)
 app.include_router(Tourism_Information_Router)
+
+app.include_router(Email_Service_Router)
+app.include_router(Google_Maps_Router)
+app.include_router(TDX_Router)
+app.include_router(Token_Router)
 
 @app.on_event("startup")
 async def startup_event():

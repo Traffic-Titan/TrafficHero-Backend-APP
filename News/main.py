@@ -2,35 +2,42 @@
 1. 缺國道最新消息
 2. 缺大眾運輸最新消息
 """
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 from Services.TDX import getData
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from Services.Token import verify_user_token
 
 News_Router = APIRouter(tags=["2.最新消息"],prefix="/News")
+
+security = HTTPBearer()
 
 """
 1.資料來源:省道最新消息
     https://tdx.transportdata.tw/api-service/swagger/basic/7f07d940-91a4-495d-9465-1c9df89d709c#/HighwayTraffic/Live_News_Highway
 """
 @News_Router.get("/provincialWay",summary="從TDX上獲取省道最新消息")
-async def provincialWay():
-    #省道最新消息
-    url = "https://tdx.transportdata.tw/api/basic/v2/Road/Traffic/Live/News/Highway?%24top=30&%24format=JSON"
-    dataAll = getData(url)
-    
-    # allInfo:包全部的資料、 newsArray:包Context(內文)的陣列、 Context:內文，有Title(標題)、Description(描述)、UpdateTime(更新時間)、NewsCategory(消息分類)
-    allInfo = {}
-    newsArray = []
-    Context= {}
+async def provincialWay(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if verify_user_token(credentials.credentials): 
+        #省道最新消息
+        url = "https://tdx.transportdata.tw/api/basic/v2/Road/Traffic/Live/News/Highway?%24top=30&%24format=JSON"
+        dataAll = getData(url)
+        
+        # allInfo:包全部的資料、 newsArray:包Context(內文)的陣列、 Context:內文，有Title(標題)、Description(描述)、UpdateTime(更新時間)、NewsCategory(消息分類)
+        allInfo = {}
+        newsArray = []
+        Context= {}
 
-    #將資料讀出並存進陣列
-    for info in dataAll['Newses']:
-        Context['Title'] = info['Title']
-        Context['Description'] = info['Description']
-        Context['UpdateTime'] = info['UpdateTime'][0:10]
-        Context['NewsCategory'] = info['NewsCategory']
-        newsArray.append({'Title':Context['Title'],'Description':Context['Description'],'UpdateTime':Context['UpdateTime'],'NewsCategory':Context['NewsCategory']})
-    allInfo['Newses'] = newsArray
-    return (allInfo)
+        #將資料讀出並存進陣列
+        for info in dataAll['Newses']:
+            Context['Title'] = info['Title']
+            Context['Description'] = info['Description']
+            Context['UpdateTime'] = info['UpdateTime'][0:10]
+            Context['NewsCategory'] = info['NewsCategory']
+            newsArray.append({'Title':Context['Title'],'Description':Context['Description'],'UpdateTime':Context['UpdateTime'],'NewsCategory':Context['NewsCategory']})
+        allInfo['Newses'] = newsArray
+        return (allInfo)
+    else:
+        raise HTTPException(status_code=403, detail="驗證失敗")
 
 """
 2.資料來源:大眾運輸最新消息
@@ -42,26 +49,41 @@ async def provincialWay():
 """
 
 @News_Router.get("/cityBus/{cityName}",summary="從TDX上獲取各市區公車最新消息")
-async def cityBus(cityName:str):
-    #各市區公車最新消息
-    url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/"+ cityName +"?%24top=30&%24format=JSON"
-    dataAll = getData(url)
-    return dataAll
+async def cityBus(cityName:str, credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if verify_user_token(credentials.credentials):
+        #各市區公車最新消息
+        url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/"+ cityName +"?%24top=30&%24format=JSON"
+        dataAll = getData(url)
+        return dataAll
+    else:
+        raise HTTPException(status_code=403, detail="驗證失敗")
+
 @News_Router.get("/THSR",summary="從TDX上獲取高鐵最新消息")
-async def THSR():
-    #高鐵最新消息
-    url = "https://tdx.transportdata.tw/api/basic/v2/Rail/THSR/News?%24top=30&%24format=JSON"
-    dataAll = getData(url)
-    return dataAll
+async def THSR(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if verify_user_token(credentials.credentials):
+        #高鐵最新消息
+        url = "https://tdx.transportdata.tw/api/basic/v2/Rail/THSR/News?%24top=30&%24format=JSON"
+        dataAll = getData(url)
+        return dataAll
+    else:
+        raise HTTPException(status_code=403, detail="驗證失敗")
+
 @News_Router.get("/TR",summary="從TDX上獲取台鐵最新消息")
-async def TR():
-    #台鐵最新消息
-    url = "https://tdx.transportdata.tw/api/basic/v3/Rail/TRA/News?%24top=30&%24format=JSON"
-    dataAll = getData(url)
-    return dataAll
+async def TR(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if verify_user_token(credentials.credentials):
+        #台鐵最新消息
+        url = "https://tdx.transportdata.tw/api/basic/v3/Rail/TRA/News?%24top=30&%24format=JSON"
+        dataAll = getData(url)
+        return dataAll
+    else:
+        raise HTTPException(status_code=403, detail="驗證失敗")
+
 @News_Router.get("/Metro/{MetroName}",summary="從TDX上獲取各捷運的最新消息")
-async def Metro(MetroName:str):
-    #各市區公車最新消息
-    url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/"+ MetroName +"?%24top=30&%24format=JSON"
-    dataAll = getData(url)
-    return dataAll
+async def Metro(MetroName:str, credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if verify_user_token(credentials.credentials):
+        #各市區公車最新消息
+        url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/"+ MetroName +"?%24top=30&%24format=JSON"
+        dataAll = getData(url)
+        return dataAll
+    else:
+        raise HTTPException(status_code=403, detail="驗證失敗")
