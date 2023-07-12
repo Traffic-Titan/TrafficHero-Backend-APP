@@ -45,13 +45,11 @@ app.include_router(Token_Router)
 @app.on_event("startup")
 async def startup_event():
     load_dotenv()
+    connectSMTPServer() # 連線到Gmail SMTP Server
     
-    # 連線到Gmail SMTP Server
-    connectSMTPServer()
-    
-    # setInterval(Speed_Enforcement.getData())
-    # setInterval(Technical_Enforcement.getData())
-    # setInterval(PBS.getData())
+    setInterval(Speed_Enforcement.getData())
+    setInterval(Technical_Enforcement.getData())
+    setInterval(PBS.getData())
     # Speed_Enforcement.getData()
     # Technical_Enforcement.getData()
     # PBS.getData()
