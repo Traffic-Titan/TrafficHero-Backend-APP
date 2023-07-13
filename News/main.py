@@ -7,8 +7,8 @@ from Services.TDX import getData
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Services.Token import verify_user_token
 from fastapi import APIRouter
-from TDX import get_data_response
-from MongoDB import connectDB
+from Services.TDX import getData
+from Services.MongoDB import connectDB
 import re
 import csv
 import os
@@ -48,20 +48,20 @@ async def provincialWay(credentials: HTTPAuthorizationCredentials = Depends(secu
         newsArray = []
         Context= {}
 
-      Collection = connectDB().ProvincialWaysCatergory
-      #將資料讀出並存進陣列
-      for info in dataAll['Newses']:
-          Context['Title'] = info['Title']
-          Context['Description'] = info['Description']
-          Context['UpdateTime'] = info['UpdateTime'][0:10]
-          Context['NewsCategory'] = info['NewsCategory']
+        Collection = connectDB().ProvincialWaysCatergory
+        #將資料讀出並存進陣列
+        for info in dataAll['Newses']:
+            Context['Title'] = info['Title']
+            Context['Description'] = info['Description']
+            Context['UpdateTime'] = info['UpdateTime'][0:10]
+            Context['NewsCategory'] = info['NewsCategory']
 
-          #與資料庫的全部省道名稱比對，Title有包含的就挑出來
-          for db_provincialWayName in Collection.find({}):
-              if(db_provincialWayName['省道名稱'] in info['Title']):
-                  newsArray.append({'Title':Context['Title'],'Description':Context['Description'],'UpdateTime':Context['UpdateTime'],'NewsCategory':Context['NewsCategory'],'CountryLocated':getCountry(Context['Title'],db_provincialWayName['省道名稱'])})
-      allInfo['Newses'] = newsArray
-      return (allInfo)
+            #與資料庫的全部省道名稱比對，Title有包含的就挑出來
+            for db_provincialWayName in Collection.find({}):
+                if(db_provincialWayName['省道名稱'] in info['Title']):
+                    newsArray.append({'Title':Context['Title'],'Description':Context['Description'],'UpdateTime':Context['UpdateTime'],'NewsCategory':Context['NewsCategory'],'CountryLocated':getCountry(Context['Title'],db_provincialWayName['省道名稱'])})
+        allInfo['Newses'] = newsArray
+        return (allInfo)
     else:
         raise HTTPException(status_code=403, detail="驗證失敗")
 

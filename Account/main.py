@@ -12,6 +12,9 @@ import random
 
 Account_Router = APIRouter(tags=["0.會員管理"],prefix="/Account")
 
+def generate_verification_code():
+    return str(random.randint(100000, 999999))
+
 class LoginModel(BaseModel):
     email: str
     password: str
@@ -62,7 +65,13 @@ async def login(user: LoginModel):
         }
         Collection.update_one({"email": user.email}, update_data)
 
-        token = generate_token(result["name"], result["email"], result["gender"], result["birthday"])
+        data = {
+            "name": result["name"],
+            "email": result["email"],
+            "gender": result["gender"],
+            "birthday": result["birthday"]
+        }
+        token = generate_token(data, 60)
         return {"access_token": token}
 
 
@@ -109,22 +118,29 @@ async def change_password(user: ChangePasswordModel):
     # 連線MongoDB
     Collection = connectDB().Users
 
-    # 檢查舊密碼是否正確
-    hashed_old_password = hashlib.sha256(user.old_password.encode()).hexdigest()
-    result = Collection.find_one({"email": user.email, "password": hashed_old_password})
+    # 查詢使用者記錄，同時驗證舊密碼和Token的有效性
+    result = Collection.find_one({
+        "email": user.email,
+        "$or": [
+            {"password": hashlib.sha256(user.old_password.encode()).hexdigest()},
+            {"token": user.old_password}
+        ]
+    })
+    
     if result is None:
         raise HTTPException(status_code=401, detail="舊密碼錯誤")
-
-    # 對新密碼進行Hash處理
-    hashed_new_password = hashlib.sha256(user.new_password.encode()).hexdigest()
-
-    # 更新使用者文件中的密碼
-    Collection.update_one(
-        {"email": user.email},
-        {"$set": {"password": hashed_new_password}}
-    )
-
-    return {"message": "密碼已成功更改"}
+    else:
+        # 儲存新密碼並刪除與忘記密碼相關資料
+        hashed_new_password = hashlib.sha256(user.new_password.encode()).hexdigest()
+        Collection.update_one(
+            {"email": user.email},
+            {
+                "$set": {"password": hashed_new_password},
+                "$unset": {"timestamp": "", "verification_code": "", "token": ""}
+            }
+        )
+        return {"message": "密碼已成功更改"}
+    
 
 class ForgetPasswordModel(BaseModel):
     email: str
@@ -146,7 +162,7 @@ async def forgot_password(user: ForgetPasswordModel):
         raise HTTPException(status_code=429, detail="請求過於頻繁，請稍後再試")
 
     # 生成驗證碼
-    verification_code = str(random.randint(100000, 999999))
+    verification_code = generate_verification_code()
 
     # 將驗證碼存儲到資料庫中
     Collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})
@@ -157,3 +173,36 @@ async def forgot_password(user: ForgetPasswordModel):
         raise HTTPException(status_code=response.status_code, detail=response.detail)
 
     return {"message": "已發送驗證碼"}
+
+class VerifyCodeModel(BaseModel):
+    email: str
+    code : str
+
+@Account_Router.post("/verify_code")
+async def verify_code(user: VerifyCodeModel):
+    # 檢查電子郵件是否存在於資料庫中
+    Collection = connectDB().Users
+    result = Collection.find_one({"email": user.email})
+    if result is None:
+        raise HTTPException(status_code=404, detail="此電子郵件不存在")
+
+    # 檢查驗證碼是否正確
+    verification_code = result.get("verification_code")
+    if verification_code != user.code:
+        raise HTTPException(status_code=400, detail="驗證碼不正確")
+
+    # 檢查驗證碼是否已過期
+    current_time = time.time()
+    timestamp = result.get("timestamp")
+    if timestamp and current_time - timestamp > 600:
+        raise HTTPException(status_code=400, detail="驗證碼已過期")
+
+    # 驗證碼驗證成功，生成並儲存 token
+    payload = {
+        "email": user.email,
+        "verification_code": generate_verification_code(),
+    }
+    token = generate_token(payload, 10)
+    Collection.update_one({"email": user.email}, {"$set": {"token": token}})
+
+    return {"message": "驗證碼驗證成功", "token": token}

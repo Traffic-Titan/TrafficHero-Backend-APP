@@ -11,7 +11,7 @@ security = HTTPBearer()
 async def serviceArea(credentials: HTTPAuthorizationCredentials = Depends(security)):
     if verify_user_token(credentials.credentials): 
         url = "https://tdx.transportdata.tw/api/basic/v1/Parking/OffStreet/ParkingAvailability/Road/Freeway/ServiceArea?%24top=30&%24format=JSON"
-        dataAll = getData(url)
+        dataAll = getData(url, )
         serviceAreaSpace = []
         for service in dataAll["ParkingAvailabilities"]:
             serviceAreaSpace.append(service["CarParkName"]["Zh_tw"]+"剩餘車位："+ str(service["AvailableSpaces"]))
