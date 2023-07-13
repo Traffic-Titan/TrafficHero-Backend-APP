@@ -7,16 +7,13 @@ from fastapi import APIRouter
 Services_Router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Services/JWT")
 
 @Services_Router.post("/generate_token")
-def generate_token(name: str, email: str, gender: str, birthday: str):
+def generate_token(data: list, expiration_minutes: int):
     load_dotenv()
     secret_key = os.getenv("JWT_Secret")
     payload = {
-        "name": name,
-        "email": email,
-        "gender": gender,
-        "birthday": birthday,
+        "data": data,  # List of data items
         "iat": datetime.utcnow(),  # Token生成時間
-        "exp": datetime.utcnow() + timedelta(hours=1)  # Token過期時間
+        "exp": datetime.utcnow() + timedelta(minutes=expiration_minutes)  # Token過期時間
     }
     token = jwt.encode(payload, secret_key, algorithm="HS256")
     return token

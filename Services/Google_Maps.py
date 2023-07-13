@@ -9,14 +9,11 @@ Services_Router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Services/Go
 
 security = HTTPBearer()
 
-@Services_Router.post("/geocode")
+@Services_Router.post("/geocode", dependencies=[Depends(verify_admin_token)])
 def geocode(item:str, credentials: HTTPAuthorizationCredentials = Depends(security)):
-    if verify_admin_token(credentials.credentials): 
         url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + parse.quote(item) + "&key=" + os.getenv('Google_Maps_Key')
         response = request.urlopen(url)
         result = json.load(response)["results"]
 
         for item in result:
             return item['geometry']['location']
-    else:
-        raise HTTPException(status_code=403, detail="驗證失敗")
