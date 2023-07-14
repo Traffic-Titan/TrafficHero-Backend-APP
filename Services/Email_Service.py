@@ -20,7 +20,7 @@ class EmailBody(BaseModel):
     subject: str
     message: str
 
-# @Services_Router.post("/send_email")
+@Services_Router.post("/send_email")
 async def send_email(to : str, subject : str, message : str):
     try:
         # 新增郵件內容
