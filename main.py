@@ -37,10 +37,13 @@ app.include_router(Road_Information_Router)
 app.include_router(Public_Transport_Information_Router)
 app.include_router(Tourism_Information_Router)
 
-app.include_router(Email_Service_Router)
-app.include_router(Google_Maps_Router)
-app.include_router(TDX_Router)
-app.include_router(Token_Router)
+# 外部服務(Dev Only) - 開始
+# app.include_router(Email_Service_Router)
+# app.include_router(Google_Maps_Router)
+# app.include_router(TDX_Router)
+# app.include_router(Token_Router)
+# 外部服務(Dev Only) - 結束
+
 
 @app.on_event("startup")
 async def startup_event():

@@ -5,7 +5,7 @@ import hashlib
 from Services.MongoDB import connectDB
 from jose import jwt
 from datetime import datetime, timedelta
-from Services.Token import generate_token
+from Services.Token import encode_token
 from Services.Email_Service import send_email
 import time
 import random
@@ -71,9 +71,8 @@ async def login(user: LoginModel):
             "gender": result["gender"],
             "birthday": result["birthday"]
         }
-        token = generate_token(data, 60)
+        token = encode_token(data, 1)
         return {"access_token": token}
-
 
 class RegistrationModel(BaseModel):
     name: str
@@ -82,7 +81,7 @@ class RegistrationModel(BaseModel):
     gender: str
     birthday: str
 
-@Account_Router.post("/register")
+@Account_Router.post("/register") # 目前註冊驗證尚未完成
 async def register(user: RegistrationModel):
     # 連線MongoDB
     Collection = connectDB().Users
@@ -106,6 +105,13 @@ async def register(user: RegistrationModel):
     
     # 新增使用者文件至資料庫
     Collection.insert_one(data)
+    
+    # 寄送郵件
+    verification_code = generate_verification_code()
+    response = await send_email(user.email,"電子郵件驗證","感謝您註冊Traffic Hero會員，您的驗證碼是：" + verification_code + "，請至APP上輸入此驗證碼以完成註冊，謝謝您。")
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail=response.detail)
+    
     return {"message": "註冊成功"}
 
 class ChangePasswordModel(BaseModel):
@@ -141,7 +147,6 @@ async def change_password(user: ChangePasswordModel):
         )
         return {"message": "密碼已成功更改"}
     
-
 class ForgetPasswordModel(BaseModel):
     email: str
 
@@ -202,7 +207,7 @@ async def verify_code(user: VerifyCodeModel):
         "email": user.email,
         "verification_code": generate_verification_code(),
     }
-    token = generate_token(payload, 10)
+    token = encode_token(payload, 10)
     Collection.update_one({"email": user.email}, {"$set": {"token": token}})
 
     return {"message": "驗證碼驗證成功", "token": token}
