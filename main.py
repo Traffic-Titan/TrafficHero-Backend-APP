@@ -81,3 +81,23 @@ def setInterval(function):
 
     timer = threading.Timer(timerStartTime,function)
     timer.start()
+#檢查目前資料庫內的版本與最新的版本有沒有差異，若有的話，通知User更新
+# def CheckUpdate_SpeedEnforcement():
+#     #連接DataBase
+#     # 0715：connectDB()後面的Collection名稱沒辦法當變數
+#     Collection = connectDB().Speed_Enforcement
+
+#     #讀取DataBase內的資料，並存進document
+#     document = []
+#     count = 0
+#     for info in Collection.find({}):
+#         document.append(info)
+#     #判斷Speed_Enforcement.getData()的經緯度 與 document的經緯度 有無相同。如果全部相同，count應為 2098
+#     for speedEnforcement in Speed_Enforcement.getData():
+#         for doc in document:
+#             if((speedEnforcement['Latitude'],speedEnforcement['Longitude']) == (doc['Latitude'],doc['Longitude'])):
+#                 count = count + 1
+#     if(count == 2098):
+#         print("資料同步")
+#     else:
+#         print("資料需要更新")
