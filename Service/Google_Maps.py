@@ -3,13 +3,13 @@ import json
 from urllib import request, parse
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Services.Token import decode_token
+from Service.Token import decode_token
 
-Services_Router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Services/Google_Maps")
+router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/Google_Maps")
 
 security = HTTPBearer()
 
-@Services_Router.post("/geocode")
+@router.post("/geocode")
 def geocode(item:str):
         url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + parse.quote(item) + "&key=" + os.getenv('Google_Maps_Key')
         response = request.urlopen(url)

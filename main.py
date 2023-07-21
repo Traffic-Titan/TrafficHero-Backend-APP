@@ -1,8 +1,6 @@
-# main.py
 """
 1. 目前設定為每次啟動時，會將資料庫清空，並重新抓取資料，以後必需按照來源狀況，設定更新資料的時間
 """
-
 from fastapi import FastAPI
 import os
 import datetime
@@ -11,45 +9,55 @@ from dotenv import load_dotenv
 import time
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-from Services.Email_Service import Services_Router as Email_Service_Router
-from Services.Email_Service import connectSMTPServer
-from Services.Google_Maps import Services_Router as Google_Maps_Router
-from Services.TDX import Services_Router as TDX_Router
-from Services.Token import Services_Router as Token_Router
-from Account.main import Account_Router
-from Smart_Assistant.main import Smart_Assistant_Router
-from Home.main import Home_Router
-from News.main import News_Router
-from CMS.main import CMS_Router
-from CMS import Speed_Enforcement, Technical_Enforcement,PBS
-from Road_Information.main import Road_Information_Router
-from Tourism_Information.main import Tourism_Information_Router
-from Public_Transport_Information.main import Public_Transport_Information_Router
-
 app = FastAPI()
 
-app.include_router(Account_Router)
+# 外部服務(Dev Only)
+# from Service import Email_Service, Google_Maps, TDX, Token
+# app.include_router(Email_Service.router)
+# app.include_router(Google_Maps.router)
+# app.include_router(TDX.router)
+# app.include_router(Token.router)
+
+# 0.會員管理
+from Account import login, register, profile, password, code
+app.include_router(login.router)
+app.include_router(register.router)
+app.include_router(password.router)
+app.include_router(code.router)
+app.include_router(profile.router)
+
+# 0.智慧助理
+from Smart_Assistant.main import Smart_Assistant_Router
 app.include_router(Smart_Assistant_Router)
+
+# 1.首頁
+from Home.main import Home_Router
 app.include_router(Home_Router)
+
+# 2.最新消息
+from News.main import News_Router
 app.include_router(News_Router)
+
+# 3.即時訊息推播
+from CMS.main import CMS_Router
+from CMS import Speed_Enforcement, Technical_Enforcement,PBS
 app.include_router(CMS_Router)
+
+# 4-1.道路資訊
+from Road_Information.main import Road_Information_Router
 app.include_router(Road_Information_Router)
+
+# 4-2.大眾運輸資訊
+from Public_Transport_Information.main import Public_Transport_Information_Router
 app.include_router(Public_Transport_Information_Router)
+
+# 5.觀光資訊
+from Tourism_Information.main import Tourism_Information_Router
 app.include_router(Tourism_Information_Router)
-
-# 外部服務(Dev Only) - 開始
-# app.include_router(Email_Service_Router)
-# app.include_router(Google_Maps_Router)
-# app.include_router(TDX_Router)
-# app.include_router(Token_Router)
-# 外部服務(Dev Only) - 結束
-
 
 @app.on_event("startup")
 async def startup_event():
     load_dotenv()
-    connectSMTPServer() # 連線到Gmail SMTP Server
-    
     # setInterval(Speed_Enforcement.getData())
     # setInterval(Technical_Enforcement.getData())
     # setInterval(PBS.getData())

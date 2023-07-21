@@ -5,7 +5,7 @@
 
 import urllib.request as request
 import json
-from Services.MongoDB import connectDB
+from Service.MongoDB import connectDB
 from pymongo import InsertOne
 
 """

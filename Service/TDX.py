@@ -3,11 +3,11 @@ import requests
 import json
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Services.Token import decode_token
+from Service.Token import decode_token
 
-Services_Router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Services/TDX")
+router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/TDX")
 
-@Services_Router.post("/getData")
+@router.post("/getData")
 def getData(url):
     auth_url = "https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token"
     app_id = os.getenv('TDX_app_id')

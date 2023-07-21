@@ -5,8 +5,8 @@
 4. 其他縣市等查明後再撰寫
 """
 
-from Services.MongoDB import connectDB
-from Services.Google_Maps import *
+from Service.MongoDB import connectDB
+from Service.Google_Maps import *
 import json
 from urllib import request
 

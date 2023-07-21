@@ -1,7 +1,7 @@
 # 暫時性檔案，放Router用
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Services.Token import decode_token
+from Service.Token import decode_token
 
 Tourism_Information_Router = APIRouter(tags=["5.觀光資訊"],prefix="/Tourism_Information")
 
