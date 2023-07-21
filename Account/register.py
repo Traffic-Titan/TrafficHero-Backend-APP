@@ -18,6 +18,7 @@ class ProfileModel(BaseModel):
     password: str
     gender: str
     birthday: str
+    Google_ID: str = None
 
 @router.post("/register")
 async def register(user: ProfileModel):
@@ -39,6 +40,7 @@ async def register(user: ProfileModel):
             "password": hashed_password,
             "gender": user.gender,
             "birthday": user.birthday,
+            "Google_ID": user.Google_ID,
             "role": "user"
     }
     
