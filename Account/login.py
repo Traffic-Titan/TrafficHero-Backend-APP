@@ -62,7 +62,7 @@ async def login(user: LoginModel):
         Collection.update_one({"email": user.email}, update_data)
 
         data = {
-            "email": result["email"]
+            "email": user.email
         }
         token = encode_token(data, 10)
         return {"Token": token}
