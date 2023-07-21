@@ -1,8 +1,6 @@
-# main.py
 """
 1. 目前設定為每次啟動時，會將資料庫清空，並重新抓取資料，以後必需按照來源狀況，設定更新資料的時間
 """
-
 from fastapi import FastAPI
 import os
 import datetime
@@ -28,34 +26,43 @@ from Public_Transport_Information.main import Public_Transport_Information_Route
 
 app = FastAPI()
 
-# 0.會員管理 - 開始
+# 外部服務(Dev Only)
+# app.include_router(Email_Service_Router)
+# app.include_router(Google_Maps_Router)
+# app.include_router(TDX_Router)
+# app.include_router(Token_Router)
+
+# 0.會員管理
 app.include_router(login.Account_Router)
 app.include_router(register.Account_Router)
 app.include_router(password.Account_Router)
 app.include_router(code.Account_Router)
 app.include_router(profile.Account_Router)
-# 0.會員管理 - 結束
 
+# 0.智慧助理
 app.include_router(Smart_Assistant_Router)
+
+# 1.首頁
 app.include_router(Home_Router)
+
+# 2.最新消息
 app.include_router(News_Router)
+
+# 3.即時訊息推播
 app.include_router(CMS_Router)
+
+# 4-1.道路資訊
 app.include_router(Road_Information_Router)
+
+# 4-2.大眾運輸資訊
 app.include_router(Public_Transport_Information_Router)
+
+# 5.觀光資訊
 app.include_router(Tourism_Information_Router)
-
-# 外部服務(Dev Only) - 開始
-# app.include_router(Email_Service_Router)
-# app.include_router(Google_Maps_Router)
-# app.include_router(TDX_Router)
-# app.include_router(Token_Router)
-# 外部服務(Dev Only) - 結束
-
 
 @app.on_event("startup")
 async def startup_event():
     load_dotenv()
-    
     # setInterval(Speed_Enforcement.getData())
     # setInterval(Technical_Enforcement.getData())
     # setInterval(PBS.getData())

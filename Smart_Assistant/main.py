@@ -1,4 +1,3 @@
-# 暫時性檔案，放Router用
 import openai
 import os
 from fastapi import APIRouter, Depends
