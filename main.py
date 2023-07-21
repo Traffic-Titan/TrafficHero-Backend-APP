@@ -16,7 +16,7 @@ from Services.Email_Service import connectSMTPServer
 from Services.Google_Maps import Services_Router as Google_Maps_Router
 from Services.TDX import Services_Router as TDX_Router
 from Services.Token import Services_Router as Token_Router
-from Account.main import Account_Router
+from Account import login, register, profile, password, code
 from Smart_Assistant.main import Smart_Assistant_Router
 from Home.main import Home_Router
 from News.main import News_Router
@@ -28,7 +28,14 @@ from Public_Transport_Information.main import Public_Transport_Information_Route
 
 app = FastAPI()
 
-app.include_router(Account_Router)
+# 0.會員管理 - 開始
+app.include_router(login.Account_Router)
+app.include_router(register.Account_Router)
+app.include_router(password.Account_Router)
+app.include_router(code.Account_Router)
+app.include_router(profile.Account_Router)
+# 0.會員管理 - 結束
+
 app.include_router(Smart_Assistant_Router)
 app.include_router(Home_Router)
 app.include_router(News_Router)
