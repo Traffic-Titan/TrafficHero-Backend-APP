@@ -7,7 +7,7 @@ from email.mime.text import MIMEText
 import os
 from fastapi.responses import JSONResponse
 
-Services_Router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Services/Email")
+router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/Email")
 
 def connectSMTPServer():
     # 連線到Gmail SMTP Server
@@ -20,7 +20,7 @@ class EmailBody(BaseModel):
     subject: str
     message: str
 
-@Services_Router.post("/send_email")
+@router.post("/send_email")
 async def send_email(to : str, subject : str, message : str):
     try:
         # 連線到Gmail SMTP Server

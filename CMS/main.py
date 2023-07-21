@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from Services.TDX import getData
+from Service.TDX import getData
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Services.Token import decode_token
+from Service.Token import decode_token
 
 CMS_Router = APIRouter(tags=["3.即時訊息推播"],prefix="/CMS")
 

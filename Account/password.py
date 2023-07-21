@@ -2,14 +2,14 @@ from fastapi import APIRouter, HTTPException
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
 import hashlib
-from Services.MongoDB import connectDB
+from Service.MongoDB import connectDB
 from datetime import datetime, timedelta
-from Services.Token import encode_token, decode_token
-from Services.Email_Service import send_email
+from Service.Token import encode_token, decode_token
+from Service.Email_Service import send_email
 import time
 from Account.function import generate_verification_code
 
-Account_Router = APIRouter(tags=["0.會員管理"],prefix="/Account")
+router = APIRouter(tags=["0.會員管理"],prefix="/Account")
 security = HTTPBearer()
 
 class ChangePasswordModel(BaseModel):
@@ -17,7 +17,7 @@ class ChangePasswordModel(BaseModel):
     old_password: str
     new_password: str
     
-@Account_Router.put("/change_password")
+@router.put("/change_password")
 async def change_password(user: ChangePasswordModel):
     # 連線MongoDB
     Collection = connectDB().Users
@@ -49,7 +49,7 @@ class ForgetPasswordModel(BaseModel):
     email: EmailStr
     birthday: str
 
-@Account_Router.post("/forgot_password")
+@router.post("/forgot_password")
 async def forgot_password(user: ForgetPasswordModel):
     # 檢查電子郵件是否存在於資料庫中
     Collection = connectDB().Users

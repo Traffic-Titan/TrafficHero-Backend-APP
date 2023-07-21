@@ -2,14 +2,14 @@ from fastapi import APIRouter, HTTPException
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr
 import hashlib
-from Services.MongoDB import connectDB
+from Service.MongoDB import connectDB
 from datetime import datetime, timedelta
-from Services.Token import encode_token, decode_token
-from Services.Email_Service import send_email
+from Service.Token import encode_token, decode_token
+from Service.Email_Service import send_email
 import time
 from Account.function import generate_verification_code
 
-Account_Router = APIRouter(tags=["0.會員管理"],prefix="/Account")
+router = APIRouter(tags=["0.會員管理"],prefix="/Account")
 security = HTTPBearer()
 
 class ProfileModel(BaseModel):
@@ -19,7 +19,7 @@ class ProfileModel(BaseModel):
     gender: str
     birthday: str
 
-@Account_Router.post("/register")
+@router.post("/register")
 async def register(user: ProfileModel):
     # 連線MongoDB
     Collection = connectDB().Users

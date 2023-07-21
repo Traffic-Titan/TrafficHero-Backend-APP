@@ -4,11 +4,11 @@
 """
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Services.Token import decode_token
+from Service.Token import decode_token
 from enum import Enum
 from pydantic import BaseModel
-from Services.TDX import getData
-from Services.MongoDB import connectDB
+from Service.TDX import getData
+from Service.MongoDB import connectDB
 
 Home_Router = APIRouter(tags=["1.首頁"],prefix="/Home")
 

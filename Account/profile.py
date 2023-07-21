@@ -1,15 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr, Field
-from Services.MongoDB import connectDB
+from Service.MongoDB import connectDB
 from jose import jwt
 from datetime import datetime, timedelta
-from Services.Token import encode_token, decode_token
-from Services.Email_Service import send_email
+from Service.Token import encode_token, decode_token
+from Service.Email_Service import send_email
 import time
 from Account.function import generate_verification_code
 
-Account_Router = APIRouter(tags=["0.會員管理"],prefix="/Account")
+router = APIRouter(tags=["0.會員管理"],prefix="/Account")
 security = HTTPBearer()
 
 def generate_verification_code():
@@ -22,7 +22,7 @@ class ProfileModel(BaseModel):
     gender: str
     birthday: str
 
-@Account_Router.get("/profile")
+@router.get("/profile")
 async def view_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     # JWT驗證
     payload = decode_token(token.credentials)
@@ -39,7 +39,7 @@ async def view_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer(
     
     return data
 
-@Account_Router.put("/profile")
+@router.put("/profile")
 async def update_profile(user: ProfileModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     # JWT驗證
     payload = decode_token(token.credentials)
@@ -58,7 +58,7 @@ async def update_profile(user: ProfileModel, token: HTTPAuthorizationCredentials
     
     return {"message": "會員資料更新成功"}
 
-@Account_Router.delete("/profile")
+@router.delete("/profile")
 async def delete_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     # JWT驗證
     payload = decode_token(token.credentials)
@@ -73,7 +73,7 @@ class UpdateEmailModel(BaseModel):
     old_email: EmailStr
     new_email: EmailStr
 
-@Account_Router.patch("/profile/email") # 尚未處理Bug，應該是要在新Email驗證成功後才能更新
+@router.patch("/profile/email") # 尚未處理Bug，應該是要在新Email驗證成功後才能更新
 async def update_email(user: UpdateEmailModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     # JWT驗證
     payload = decode_token(token.credentials)

@@ -2,18 +2,18 @@ from fastapi import APIRouter, HTTPException
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr
 import hashlib
-from Services.MongoDB import connectDB
+from Service.MongoDB import connectDB
 from datetime import datetime, timedelta
-from Services.Token import encode_token, decode_token
+from Service.Token import encode_token, decode_token
 
-Account_Router = APIRouter(tags=["0.會員管理"],prefix="/Account")
+router = APIRouter(tags=["0.會員管理"],prefix="/Account")
 security = HTTPBearer()
 
 class LoginModel(BaseModel):
     email: EmailStr
     password: str
 
-@Account_Router.post("/login")
+@router.post("/login")
 async def login(user: LoginModel):
     # 連線MongoDB
     Collection = connectDB().Users

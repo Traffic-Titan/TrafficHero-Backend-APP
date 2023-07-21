@@ -1,7 +1,7 @@
 # 暫時性檔案，放Router用
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Services.Token import decode_token
+from Service.Token import decode_token
 
 Public_Transport_Information_Router = APIRouter(tags=["4-2.大眾運輸資訊"],prefix="/Public_Transport_Information")
 

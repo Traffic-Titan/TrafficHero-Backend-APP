@@ -5,9 +5,9 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter
 from fastapi import HTTPException
 
-Services_Router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Services/JWT")
+router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/JWT")
 
-@Services_Router.post("/encode_token")
+@router.post("/encode_token")
 def encode_token(data: list, expiration_minutes: int):
     load_dotenv()
     secret_key = os.getenv("JWT_Secret")
@@ -19,7 +19,7 @@ def encode_token(data: list, expiration_minutes: int):
     token = jwt.encode(payload, secret_key, algorithm="HS256")
     return token
 
-@Services_Router.post("/decode_token")
+@router.post("/decode_token")
 def decode_token(token: str):
     load_dotenv()
     secret_key = os.getenv("JWT_Secret")
