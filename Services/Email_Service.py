@@ -23,6 +23,9 @@ class EmailBody(BaseModel):
 @Services_Router.post("/send_email")
 async def send_email(to : str, subject : str, message : str):
     try:
+        # 連線到Gmail SMTP Server
+        connectSMTPServer()
+        
         # 新增郵件內容
         msg = MIMEText(message, "html")
         msg['Subject'] = "Traffic Hero - " + subject
