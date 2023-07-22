@@ -4,10 +4,11 @@ from pydantic import BaseModel, EmailStr
 import hashlib
 from Service.MongoDB import connectDB
 from datetime import datetime, timedelta
-from Service.Token import encode_token, decode_token
-from Service.Email_Service import send_email
-import time
-from Account.function import generate_verification_code
+from Service.Token import *
+from Service.Email_Service import *
+import Function.time as time
+import Function.blob as blob
+import Function.verification_code as code
 
 router = APIRouter(tags=["0.會員管理"],prefix="/Account")
 security = HTTPBearer()
@@ -41,6 +42,7 @@ async def register(user: ProfileModel):
             "gender": user.gender,
             "birthday": user.birthday,
             "Google_ID": user.Google_ID,
+            "avatar": blob.generate_default_avatar(user.name), # 預設大頭貼
             "role": "user"
     }
     
@@ -48,9 +50,9 @@ async def register(user: ProfileModel):
     Collection.insert_one(data)
     
     # 生成驗證碼、寄送郵件、存到資料庫
-    verification_code = generate_verification_code()
+    verification_code = code.generate_verification_code()
     
-    current_time = time.time() # 獲取當前時間戳
+    current_time = time.get_current_timestamp() # 獲取當前時間戳
     expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)  # 計算驗證碼的過期時間
     expiration_time_str = expiration_time.strftime("%Y/%m/%d %H:%M")  # 格式化過期時間(YYYY/MM/DD HH:MM)
     

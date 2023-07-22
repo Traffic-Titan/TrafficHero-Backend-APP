@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
-from Service.MongoDB import connectDB
-from Service.Token import encode_token, decode_token
-import time
-from Account.function import generate_verification_code
+from Service.MongoDB import *
+from Service.Token import *
+import Function.time
+import Function.verification_code
 
 router = APIRouter(tags=["0.會員管理"],prefix="/Account")
 security = HTTPBearer()
@@ -27,14 +27,22 @@ async def verify_code(user: VerifyCodeModel):
         raise HTTPException(status_code=400, detail="驗證碼不正確")
 
     # 檢查驗證碼是否已過期
-    current_time = time.time()
+    current_time = time.get_current_timestamp()
     timestamp = result.get("timestamp")
     if timestamp and current_time - timestamp > 600:
         raise HTTPException(status_code=400, detail="驗證碼已過期")
 
     # 驗證碼驗證成功，生成並儲存 token
     if result.get("email_confirmed") == False: # 如果是註冊驗證，則將email_confirmed改為True
-        Collection.update_one({"email": user.email}, {"$set": {"email_confirmed": True}, "$unset": {"timestamp": "", "verification_code": ""}})
+        Collection.update_one(
+            {
+                "email": user.email
+            },
+            {
+                "$set": {"email_confirmed": True}, 
+                "$unset": {"timestamp": "", "verification_code": ""}
+            }
+        )
 
         return {"message": "Email驗證成功"}
     else: # 如果是忘記密碼驗證，則生成token

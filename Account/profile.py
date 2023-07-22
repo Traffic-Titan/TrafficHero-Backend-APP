@@ -7,13 +7,11 @@ from datetime import datetime, timedelta
 from Service.Token import encode_token, decode_token
 from Service.Email_Service import send_email
 import time
-from Account.function import generate_verification_code
+import Function.time as time
+import Function.verification_code as code
 
 router = APIRouter(tags=["0.會員管理"],prefix="/Account")
 security = HTTPBearer()
-
-def generate_verification_code():
-    return str(random.randint(100000, 999999))
 
 class ProfileModel(BaseModel):
     name: str
@@ -82,9 +80,9 @@ async def update_email(user: UpdateEmailModel, token: HTTPAuthorizationCredentia
     Collection = connectDB().Users
     if user.old_email == payload["data"]["email"]:
         # 生成驗證碼、寄送郵件、存到資料庫
-        verification_code = generate_verification_code()
+        verification_code = code.generate_verification_code()
         
-        current_time = time.time() # 獲取當前時間戳
+        current_time = time.get_current_timestamp() # 獲取當前時間戳
         expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)  # 計算驗證碼的過期時間
         expiration_time_str = expiration_time.strftime("%Y/%m/%d %H:%M")  # 格式化過期時間(YYYY/MM/DD HH:MM)
         
@@ -103,3 +101,17 @@ async def update_email(user: UpdateEmailModel, token: HTTPAuthorizationCredentia
         return {"message": "請至Email收取驗證信已更新Email"}
     else:
         raise HTTPException(status_code=403, detail="請勿使用不合法的Token")
+    
+@router.get("/profile/avatar")
+async def view_profile_avatar(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    # JWT驗證
+    payload = decode_token(token.credentials)
+    
+    # 取得使用者資料
+    Collection = connectDB().Users
+    result = Collection.find_one({"email": payload["data"]["email"]})
+    data = {
+        "avatar": result["avatar"]
+    }
+    
+    return data
