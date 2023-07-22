@@ -19,6 +19,7 @@ class ProfileModel(BaseModel):
     password: str
     gender: str
     birthday: str
+    Google_ID: str = None
 
 @router.get("/profile")
 async def view_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
@@ -50,7 +51,8 @@ async def update_profile(user: ProfileModel, token: HTTPAuthorizationCredentials
     updated_data = {
         "name": user.name,
         "gender": user.gender,
-        "birthday": user.birthday
+        "birthday": user.birthday,
+        "Google_ID": user.Google_ID if user.Google_ID else result["Google_ID"] # 如果沒有傳入Google_ID，則使用原本的Google_ID
     }
     Collection.update_one({"email": payload["data"]["email"]}, {"$set": updated_data})
     
