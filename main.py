@@ -22,10 +22,10 @@ app = FastAPI()
 from Account import login, register, profile, password, code, SSO
 app.include_router(login.router)
 app.include_router(register.router)
+app.include_router(SSO.router)
 app.include_router(password.router)
 app.include_router(code.router)
 app.include_router(profile.router)
-app.include_router(SSO.router)
 
 # 0.智慧助理
 from Smart_Assistant.main import Smart_Assistant_Router

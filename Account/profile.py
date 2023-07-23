@@ -7,20 +7,21 @@ from datetime import datetime, timedelta
 from Service.Token import encode_token, decode_token
 from Service.Email_Service import send_email
 import time
-from Account.function import generate_verification_code
+import Function.time as time
+import Function.verification_code as code
+import Function.blob as blob
+from typing import Optional
 
 router = APIRouter(tags=["0.會員管理"],prefix="/Account")
 security = HTTPBearer()
 
-def generate_verification_code():
-    return str(random.randint(100000, 999999))
-
 class ProfileModel(BaseModel):
-    name: str
+    name: Optional[str]
     email: EmailStr
-    password: str
-    gender: str
-    birthday: str
+    password: Optional[str]
+    gender: Optional[str]
+    birthday: Optional[str]
+    Google_ID: str = None
 
 @router.get("/profile")
 async def view_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
@@ -34,7 +35,9 @@ async def view_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer(
         "name": result["name"],
         "email": result["email"],
         "gender": result["gender"],
-        "birthday": result["birthday"]
+        "birthday": result["birthday"],
+        "Google_ID": result["Google_ID"],
+        "avatar" : blob.encode_image_to_base64(result["avatar"])
     }
     
     return data
@@ -52,7 +55,8 @@ async def update_profile(user: ProfileModel, token: HTTPAuthorizationCredentials
     updated_data = {
         "name": user.name,
         "gender": user.gender,
-        "birthday": user.birthday
+        "birthday": user.birthday,
+        "Google_ID": user.Google_ID if user.Google_ID else result["Google_ID"] # 如果沒有傳入Google_ID，則使用原本的Google_ID
     }
     Collection.update_one({"email": payload["data"]["email"]}, {"$set": updated_data})
     
@@ -82,9 +86,9 @@ async def update_email(user: UpdateEmailModel, token: HTTPAuthorizationCredentia
     Collection = connectDB().Users
     if user.old_email == payload["data"]["email"]:
         # 生成驗證碼、寄送郵件、存到資料庫
-        verification_code = generate_verification_code()
+        verification_code = code.generate_verification_code()
         
-        current_time = time.time() # 獲取當前時間戳
+        current_time = time.get_current_timestamp() # 獲取當前時間戳
         expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)  # 計算驗證碼的過期時間
         expiration_time_str = expiration_time.strftime("%Y/%m/%d %H:%M")  # 格式化過期時間(YYYY/MM/DD HH:MM)
         

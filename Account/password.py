@@ -6,8 +6,7 @@ from Service.MongoDB import connectDB
 from datetime import datetime, timedelta
 from Service.Token import encode_token, decode_token
 from Service.Email_Service import send_email
-import time
-from Account.function import generate_verification_code
+import Function.time as time
 
 router = APIRouter(tags=["0.會員管理"],prefix="/Account")
 security = HTTPBearer()
@@ -58,7 +57,7 @@ async def forgot_password(user: ForgetPasswordModel):
         raise HTTPException(status_code=404, detail="查無此帳號，請重新輸入")
 
     # 獲取當前時間戳
-    current_time = time.time()
+    current_time = time.get_current_timestamp()
 
     # 檢查該電子郵件是否在一分鐘內發出過請求
     last_request_timestamp = result.get("timestamp")
@@ -72,7 +71,7 @@ async def forgot_password(user: ForgetPasswordModel):
     Collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})
 
     # 寄送郵件
-    current_time = time.time() # 獲取當前時間戳
+    current_time = time.get_current_timestamp() # 獲取當前時間戳
     expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)  # 計算驗證碼的過期時間
     expiration_time_str = expiration_time.strftime("%Y/%m/%d %H:%M")  # 格式化過期時間(YYYY/MM/DD HH:MM)
     
