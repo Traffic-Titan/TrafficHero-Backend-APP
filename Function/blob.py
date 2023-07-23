@@ -1,5 +1,6 @@
 import requests
 from PIL import Image, ImageDraw, ImageFont
+import base64
 
 def image_url_to_blob(image_url):
     try:
@@ -36,3 +37,8 @@ def encode_image(image):
     # 將圖片轉換成二進制數據
     blob_data = image.tobytes()
     return blob_data
+
+def encode_image_to_base64(image):
+    # 將圖片轉換成 Base64 編碼
+    base64_data = base64.b64encode(image)
+    return base64_data

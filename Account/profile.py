@@ -9,16 +9,18 @@ from Service.Email_Service import send_email
 import time
 import Function.time as time
 import Function.verification_code as code
+import Function.blob as blob
+from typing import Optional
 
 router = APIRouter(tags=["0.會員管理"],prefix="/Account")
 security = HTTPBearer()
 
 class ProfileModel(BaseModel):
-    name: str
+    name: Optional[str]
     email: EmailStr
-    password: str
-    gender: str
-    birthday: str
+    password: Optional[str]
+    gender: Optional[str]
+    birthday: Optional[str]
     Google_ID: str = None
 
 @router.get("/profile")
@@ -33,7 +35,9 @@ async def view_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer(
         "name": result["name"],
         "email": result["email"],
         "gender": result["gender"],
-        "birthday": result["birthday"]
+        "birthday": result["birthday"],
+        "Google_ID": result["Google_ID"],
+        "avatar" : blob.encode_image_to_base64(result["avatar"])
     }
     
     return data
@@ -103,17 +107,3 @@ async def update_email(user: UpdateEmailModel, token: HTTPAuthorizationCredentia
         return {"message": "請至Email收取驗證信已更新Email"}
     else:
         raise HTTPException(status_code=403, detail="請勿使用不合法的Token")
-    
-@router.get("/profile/avatar")
-async def view_profile_avatar(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    # JWT驗證
-    payload = decode_token(token.credentials)
-    
-    # 取得使用者資料
-    Collection = connectDB().Users
-    result = Collection.find_one({"email": payload["data"]["email"]})
-    data = {
-        "avatar": result["avatar"]
-    }
-    
-    return data
