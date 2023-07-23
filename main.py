@@ -36,8 +36,8 @@ from Home.main import Home_Router
 app.include_router(Home_Router)
 
 # 2.最新消息
-from News.main import News_Router
-app.include_router(News_Router)
+from News import THSR
+app.include_router(THSR.router)
 
 # 3.即時訊息推播
 from CMS.main import CMS_Router
@@ -94,7 +94,7 @@ def setInterval(function):
 # def CheckUpdate_SpeedEnforcement():
 #     #連接DataBase
 #     # 0715：connectDB()後面的Collection名稱沒辦法當變數
-#     Collection = connectDB().Speed_Enforcement
+#     Collection = connectDB("Speed_Enforcement")
 
 #     #讀取DataBase內的資料，並存進document
 #     document = []
