@@ -50,7 +50,7 @@ async def provincialWay(token: HTTPAuthorizationCredentials = Depends(security))
     newsArray = []
     Context= {}
 
-    Collection = connectDB().ProvincialWaysCatergory
+    Collection = connectDB("ProvincialWaysCatergory")
     #將資料讀出並存進陣列
     for info in dataAll['Newses']:
         Context['Title'] = info['Title']
@@ -81,16 +81,6 @@ async def cityBus(cityName:str, token: HTTPAuthorizationCredentials = Depends(se
     
     # 各市區公車最新消息
     url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/"+ cityName +"?%24top=30&%24format=JSON"
-    dataAll = getData(url)
-    return dataAll
-
-@News_Router.get("/THSR",summary="從TDX上獲取高鐵最新消息")
-async def THSR(token: HTTPAuthorizationCredentials = Depends(security)):
-    # JWT驗證
-    decode_token(token.credentials)
-    
-    # 高鐵最新消息
-    url = "https://tdx.transportdata.tw/api/basic/v2/Rail/THSR/News?%24top=30&%24format=JSON"
     dataAll = getData(url)
     return dataAll
 

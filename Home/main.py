@@ -31,7 +31,7 @@ def ParkingFee(CarID,CarType, token: HTTPAuthorizationCredentials = Depends(secu
     TotalAmount = 0
 
     # 連線MongoDB
-    Collection = connectDB().ParkingFee_Country
+    Collection = connectDB("ParkingFee_Country")
     for country in Collection.find({}):
 
         #取得資料庫內每個縣市的URL，並將車牌及種類修改進新的URL
