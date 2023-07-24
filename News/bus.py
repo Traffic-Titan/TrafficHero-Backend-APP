@@ -13,8 +13,8 @@ import urllib.request as request
 router = APIRouter(tags=["2.最新消息"],prefix="/News")
 security = HTTPBearer()
 
-@router.get("/THSR",summary="高鐵")
-async def THSR(token: HTTPAuthorizationCredentials = Depends(security)):
+@router.get("/bus/{city}",summary="公車")
+async def bus(city: str, token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     # decode_token(token.credentials)
     
@@ -40,7 +40,7 @@ async def THSR(token: HTTPAuthorizationCredentials = Depends(security)):
         documents.append(document)
 
     # 將資料存入MongoDB
-    Collection = Service.MongoDB.connectDB("2.THSR")
+    Collection = Service.MongoDB.connectDB("2.Bus_{}".format(city))
     Collection.drop()
     Collection.insert_many(documents)
     

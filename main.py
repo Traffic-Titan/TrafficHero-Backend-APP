@@ -36,8 +36,11 @@ from Home.main import Home_Router
 app.include_router(Home_Router)
 
 # 2.最新消息
-from News import THSR
+from News import THSR, MRT, TRA, bus
 app.include_router(THSR.router)
+app.include_router(MRT.router)
+app.include_router(TRA.router)
+app.include_router(bus.router)
 
 # 3.即時訊息推播
 from CMS.main import CMS_Router
