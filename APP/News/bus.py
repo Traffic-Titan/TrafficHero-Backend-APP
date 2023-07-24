@@ -10,7 +10,7 @@ import os
 import json
 import urllib.request as request
 
-router = APIRouter(tags=["2.最新消息"],prefix="/News")
+router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
 security = HTTPBearer()
 
 @router.get("/bus/{city}",summary="公車")

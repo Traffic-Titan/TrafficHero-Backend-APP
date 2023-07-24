@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from Service.Token import encode_token, decode_token
 from Function.blob import *
 
-router = APIRouter(tags=["0.會員管理"],prefix="/Account")
+router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()
 
 class LoginModel(BaseModel):

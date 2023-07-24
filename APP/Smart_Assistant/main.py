@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 
-Smart_Assistant_Router = APIRouter(tags=["0.智慧助理"],prefix="/Smart_Assistant")
+Smart_Assistant_Router = APIRouter(tags=["0.智慧助理(APP)"],prefix="/APP/Smart_Assistant")
 
 security = HTTPBearer()
 

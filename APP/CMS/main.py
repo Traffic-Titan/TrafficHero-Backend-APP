@@ -3,7 +3,7 @@ from Service.TDX import getData
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 
-CMS_Router = APIRouter(tags=["3.即時訊息推播"],prefix="/CMS")
+CMS_Router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
 
 security = HTTPBearer()
 

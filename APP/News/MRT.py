@@ -14,7 +14,7 @@ import json
 import urllib.request as request
 from typing import Optional
 
-router = APIRouter(tags=["2.最新消息"],prefix="/News")
+router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
 security = HTTPBearer()
 
 @router.get("/MRT",summary="捷運")

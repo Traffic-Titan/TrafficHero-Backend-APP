@@ -12,7 +12,7 @@ import Function.verification_code as code
 import Function.blob as blob
 from typing import Optional
 
-router = APIRouter(tags=["0.會員管理"],prefix="/Account")
+router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()
 
 class ProfileModel(BaseModel):

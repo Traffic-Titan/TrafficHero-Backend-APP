@@ -6,7 +6,7 @@ from Service.Token import encode_token, decode_token
 import Function.hash as hash
 import Function.time as time
 
-router = APIRouter(tags=["0.會員管理"],prefix="/Account")
+router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()
 
 class LoginModel(BaseModel):

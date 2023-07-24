@@ -1,13 +1,12 @@
-# 暫時性檔案，放Router用
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 
-Road_Information_Router = APIRouter(tags=["4-1.道路資訊(APP)"],prefix="/APP/Road_Information")
+router = APIRouter(tags=["最新消息(Website)"],prefix="/Website/News")
 
 security = HTTPBearer()
- 
-@Road_Information_Router.get("/test")
+
+@router.get("/test")
 def test(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)

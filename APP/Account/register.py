@@ -10,7 +10,7 @@ import Function.time as time
 import Function.blob as blob
 import Function.verification_code as code
 
-router = APIRouter(tags=["0.會員管理"],prefix="/Account")
+router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()
 
 class ProfileModel(BaseModel):

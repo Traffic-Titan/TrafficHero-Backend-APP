@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from Service.TDX import getData
 from Service.MongoDB import connectDB
 
-Home_Router = APIRouter(tags=["1.首頁"],prefix="/Home")
+Home_Router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 
 security = HTTPBearer()
 

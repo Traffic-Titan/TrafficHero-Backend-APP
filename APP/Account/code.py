@@ -6,7 +6,7 @@ from Service.Token import *
 import Function.time
 import Function.verification_code
 
-router = APIRouter(tags=["0.會員管理"],prefix="/Account")
+router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()
 
 class VerifyCodeModel(BaseModel):

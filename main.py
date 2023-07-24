@@ -59,6 +59,10 @@ app.include_router(Public_Transport_Information_Router)
 from APP.Tourism_Information.main import Tourism_Information_Router
 app.include_router(Tourism_Information_Router)
 
+# 管理者介面
+from Website.News import MRT
+app.include_router(MRT.router)
+
 @app.on_event("startup")
 async def startup_event():
     load_dotenv()

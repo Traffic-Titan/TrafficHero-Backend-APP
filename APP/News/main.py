@@ -12,7 +12,7 @@ import re
 import csv
 import os
 
-News_Router = APIRouter(tags=["2.最新消息"],prefix="/News")
+News_Router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
 
 security = HTTPBearer()
 

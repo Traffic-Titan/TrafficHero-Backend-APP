@@ -8,7 +8,7 @@ from Service.Token import encode_token, decode_token
 from Service.Email_Service import send_email
 import Function.time as time
 
-router = APIRouter(tags=["0.會員管理"],prefix="/Account")
+router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()
 
 class ChangePasswordModel(BaseModel):
