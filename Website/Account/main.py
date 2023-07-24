@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 
-router = APIRouter(tags=["最新消息(Website)"],prefix="/Website/News")
+router = APIRouter(tags=["0.會員管理(Website)"],prefix="/Website/Account")
 
 security = HTTPBearer()
 

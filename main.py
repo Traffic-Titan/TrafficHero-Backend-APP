@@ -18,7 +18,7 @@ app = FastAPI()
 # app.include_router(TDX.router)
 # app.include_router(Token.router)
 
-# 0.會員管理
+# 0.會員管理(APP)
 from APP.Account import login, register, profile, password, code, SSO
 app.include_router(login.router)
 app.include_router(register.router)
@@ -27,41 +27,73 @@ app.include_router(password.router)
 app.include_router(code.router)
 app.include_router(profile.router)
 
-# 0.智慧助理
-from APP.Smart_Assistant.main import Smart_Assistant_Router
+# 0.群組通訊(APP)
+from APP.Chat.main import Smart_Assistant_Router
 app.include_router(Smart_Assistant_Router)
 
-# 1.首頁
+# 1.首頁(APP)
 from APP.Home.main import Home_Router
 app.include_router(Home_Router)
 
-# 2.最新消息
+# 2.最新消息(APP)
 from APP.News import THSR, MRT, TRA, bus
 app.include_router(THSR.router)
 app.include_router(MRT.router)
 app.include_router(TRA.router)
 app.include_router(bus.router)
 
-# 3.即時訊息推播
+# 3.即時訊息推播(APP)
 from APP.CMS.main import CMS_Router
 from APP.CMS import Speed_Enforcement, Technical_Enforcement,PBS
 app.include_router(CMS_Router)
 
-# 4-1.道路資訊
+# 4-1.道路資訊(APP)
 from APP.Road_Information.main import Road_Information_Router
 app.include_router(Road_Information_Router)
 
-# 4-2.大眾運輸資訊
+# 4-2.大眾運輸資訊(APP)
 from APP.Public_Transport_Information.main import Public_Transport_Information_Router
 app.include_router(Public_Transport_Information_Router)
 
-# 5.觀光資訊
+# 5.觀光資訊(APP)
 from APP.Tourism_Information.main import Tourism_Information_Router
 app.include_router(Tourism_Information_Router)
 
-# 管理者介面
-from Website.News import MRT
-app.include_router(MRT.router)
+# ---------------------------------------------------------------
+
+# 0.會員管理(Website)
+from Website.Account import main
+app.include_router(main.router)
+
+# 0.群組通訊(Website)
+from Website.Chat import main
+app.include_router(main.router)
+
+# 1.首頁(Website)
+from Website.Home import main
+app.include_router(main.router)
+
+# 2.最新消息(Website)
+from Website.News import main
+app.include_router(main.router)
+
+# 3.即時訊息推播(Website)
+from Website.CMS import main
+app.include_router(main.router)
+
+# 4-1.道路資訊(Website)
+from Website.Road_Information import main
+app.include_router(main.router)
+
+# 4-2.大眾運輸資訊(Website)
+from Website.Public_Transport_Information import main
+app.include_router(main.router)
+
+# 5.觀光資訊(Website)
+from Website.Tourism_Information import main
+app.include_router(main.router)
+
+# ---------------------------------------------------------------
 
 @app.on_event("startup")
 async def startup_event():
