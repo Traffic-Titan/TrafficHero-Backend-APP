@@ -38,7 +38,7 @@ def getData():
         documents.append(document)
     
     # 將資料存入MongoDB  
-    Collection = connectDB("PBS")
+    Collection = connectDB("TrafficHero","PBS")
     Collection.drop()
     Collection.insert_many(documents)
 

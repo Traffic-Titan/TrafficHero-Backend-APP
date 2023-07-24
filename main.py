@@ -8,15 +8,16 @@ import threading
 from dotenv import load_dotenv
 import time
 from apscheduler.schedulers.blocking import BlockingScheduler
+import Service.Scheduler as Scheduler
 
 app = FastAPI()
 
 # 外部服務(Dev Only)
-# from Service import Email_Service, Google_Maps, TDX, Token
-# app.include_router(Email_Service.router)
-# app.include_router(Google_Maps.router)
-# app.include_router(TDX.router)
-# app.include_router(Token.router)
+from Service import Email_Service, Google_Maps, TDX, Token
+app.include_router(Email_Service.router)
+app.include_router(Google_Maps.router)
+app.include_router(TDX.router)
+app.include_router(Token.router)
 
 # 0.會員管理(APP)
 from APP.Account import login, register, profile, password, code, SSO
@@ -36,11 +37,8 @@ from APP.Home.main import Home_Router
 app.include_router(Home_Router)
 
 # 2.最新消息(APP)
-from APP.News import THSR, MRT, TRA, bus
-app.include_router(THSR.router)
-app.include_router(MRT.router)
-app.include_router(TRA.router)
-app.include_router(bus.router)
+from APP.News import main
+app.include_router(main.router)
 
 # 3.即時訊息推播(APP)
 from APP.CMS.main import CMS_Router
@@ -74,8 +72,11 @@ from Website.Home import main
 app.include_router(main.router)
 
 # 2.最新消息(Website)
-from Website.News import main
-app.include_router(main.router)
+from Website.News import THSR, MRT, TRA , bus
+app.include_router(THSR.router)
+app.include_router(MRT.router)
+app.include_router(TRA.router)
+app.include_router(bus.router)
 
 # 3.即時訊息推播(Website)
 from Website.CMS import main
@@ -98,6 +99,7 @@ app.include_router(main.router)
 @app.on_event("startup")
 async def startup_event():
     load_dotenv()
+    # Scheduler.start() # 啟動排程
     # setInterval(Speed_Enforcement.getData())
     # setInterval(Technical_Enforcement.getData())
     # setInterval(PBS.getData())

@@ -10,11 +10,11 @@ import os
 import json
 import urllib.request as request
 
-router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
+router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-@router.get("/bus/{city}",summary="公車")
-async def bus(city: str, token: HTTPAuthorizationCredentials = Depends(security)):
+@router.get("/THSR",summary="高鐵")
+async def THSR(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     # decode_token(token.credentials)
     
@@ -27,11 +27,9 @@ async def bus(city: str, token: HTTPAuthorizationCredentials = Depends(security)
     for d in data:
         document = {
             "NewsID": d['NewsID'],
-            "Language": d['Language'],
             "NewsCategory": d['NewsCategory'],
             "Title": d['Title'],
             "Description": d['Description'],
-            "NewsURL": d['NewsUrl'],
             "StartTime": d['StartTime'],
             "EndTime": d['EndTime'],
             "PublishTime": d['PublishTime'],
@@ -40,7 +38,7 @@ async def bus(city: str, token: HTTPAuthorizationCredentials = Depends(security)
         documents.append(document)
 
     # 將資料存入MongoDB
-    Collection = Service.MongoDB.connectDB("2.Bus_{}".format(city))
+    Collection = Service.MongoDB.connectDB("2_最新消息","THSR")
     Collection.drop()
     Collection.insert_many(documents)
     

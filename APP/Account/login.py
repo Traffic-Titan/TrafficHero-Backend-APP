@@ -16,7 +16,7 @@ class LoginModel(BaseModel):
 @router.post("/login")
 async def login(user: LoginModel):
     # 連線MongoDB
-    Collection = connectDB("0.Users")
+    Collection = connectDB("0_會員管理","Users")
     
     # 如果查詢結果為None，表示無此帳號
     result = Collection.find_one({"email": user.email})

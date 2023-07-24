@@ -34,6 +34,6 @@ def getData():
         documents.append(document)
 
     # 將資料存入MongoDB
-    Collection = connectDB("Speed_Enforcement")
+    Collection = connectDB("TrafficHero","Speed_Enforcement")
     Collection.drop()
     Collection.insert_many(documents)

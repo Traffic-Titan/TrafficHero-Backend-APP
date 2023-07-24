@@ -12,7 +12,7 @@ import re
 import csv
 import os
 
-News_Router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
+router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
 
 security = HTTPBearer()
 
@@ -36,7 +36,7 @@ def getCountry(title:str,matchName:str):
         return None
     
     
-@News_Router.get("/provincialWay",summary="從TDX上獲取省道最新消息")
+@router.get("/provincialWay",summary="從TDX上獲取省道最新消息")
 async def provincialWay(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
@@ -50,7 +50,7 @@ async def provincialWay(token: HTTPAuthorizationCredentials = Depends(security))
     newsArray = []
     Context= {}
 
-    Collection = connectDB("ProvincialWaysCatergory")
+    Collection = connectDB("TrafficHero","ProvincialWaysCatergory")
     #將資料讀出並存進陣列
     for info in dataAll['Newses']:
         Context['Title'] = info['Title']
