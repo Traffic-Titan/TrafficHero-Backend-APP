@@ -19,7 +19,7 @@ app = FastAPI()
 # app.include_router(Token.router)
 
 # 0.會員管理
-from Account import login, register, profile, password, code, SSO
+from APP.Account import login, register, profile, password, code, SSO
 app.include_router(login.router)
 app.include_router(register.router)
 app.include_router(SSO.router)
@@ -28,35 +28,35 @@ app.include_router(code.router)
 app.include_router(profile.router)
 
 # 0.智慧助理
-from Smart_Assistant.main import Smart_Assistant_Router
+from APP.Smart_Assistant.main import Smart_Assistant_Router
 app.include_router(Smart_Assistant_Router)
 
 # 1.首頁
-from Home.main import Home_Router
+from APP.Home.main import Home_Router
 app.include_router(Home_Router)
 
 # 2.最新消息
-from News import THSR, MRT, TRA, bus
+from APP.News import THSR, MRT, TRA, bus
 app.include_router(THSR.router)
 app.include_router(MRT.router)
 app.include_router(TRA.router)
 app.include_router(bus.router)
 
 # 3.即時訊息推播
-from CMS.main import CMS_Router
-from CMS import Speed_Enforcement, Technical_Enforcement,PBS
+from APP.CMS.main import CMS_Router
+from APP.CMS import Speed_Enforcement, Technical_Enforcement,PBS
 app.include_router(CMS_Router)
 
 # 4-1.道路資訊
-from Road_Information.main import Road_Information_Router
+from APP.Road_Information.main import Road_Information_Router
 app.include_router(Road_Information_Router)
 
 # 4-2.大眾運輸資訊
-from Public_Transport_Information.main import Public_Transport_Information_Router
+from APP.Public_Transport_Information.main import Public_Transport_Information_Router
 app.include_router(Public_Transport_Information_Router)
 
 # 5.觀光資訊
-from Tourism_Information.main import Tourism_Information_Router
+from APP.Tourism_Information.main import Tourism_Information_Router
 app.include_router(Tourism_Information_Router)
 
 @app.on_event("startup")
