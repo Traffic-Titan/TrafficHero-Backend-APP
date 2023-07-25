@@ -24,7 +24,7 @@ class ProfileModel(BaseModel):
 @router.post("/register")
 async def register(user: ProfileModel):
     # 連線MongoDB
-    Collection = connectDB("APP","0.Users")
+    Collection = connectDB("0_APP","0.Users")
 
     # 檢查 Email 是否已經存在
     if Collection.find_one({"email": user.email}, {"email_confirmed": True}):

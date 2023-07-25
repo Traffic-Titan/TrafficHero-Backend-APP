@@ -18,7 +18,7 @@ class LoginModel(BaseModel):
 @router.post("/Google_SSO")
 async def google_Login_OR_Register(user: LoginModel):
     # 連線MongoDB
-    Collection = connectDB("APP","0.Users")
+    Collection = connectDB("0_APP","0.Users")
     
     # 如果查詢結果為None，表示無此帳號
     result = Collection.find_one({"email": user.email})

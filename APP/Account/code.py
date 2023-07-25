@@ -16,7 +16,7 @@ class VerifyCodeModel(BaseModel):
 @router.post("/verify_code")
 async def verify_code(user: VerifyCodeModel):
     # 檢查電子郵件是否存在於資料庫中
-    Collection = connectDB("APP","0.Users")
+    Collection = connectDB("0_APP","0.Users")
     result = Collection.find_one({"email": user.email})
     if result is None:
         raise HTTPException(status_code=404, detail="此電子郵件不存在")

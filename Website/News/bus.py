@@ -197,7 +197,7 @@ def data2MongoDB(data: dict, regionName: str):
         documents.append(document)
 
     # 將資料存入MongoDB
-    Collection = connectDB("APP","2.Bus")
+    Collection = connectDB("0_APP","2.Bus")
     # Collection.drop()
     Collection.insert_many(documents)
     

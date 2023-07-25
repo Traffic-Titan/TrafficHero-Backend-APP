@@ -6,153 +6,68 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 from Service.TDX import getData
 from Service.MongoDB import connectDB
-from typing import Optional
+from typing import Optional, List, Union
 import json
+from pydantic import BaseModel, HttpUrl
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-@router.put("/MRT_News",summary="臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT, 全部更新: All")
-def getMRTNews(region: Optional[str] = "All", token: HTTPAuthorizationCredentials = Depends(security)):
+class MRTNewsLinkModel(BaseModel):
+    Region_EN: str
+    Region_ZH: Optional[str]
+    URL: Optional[HttpUrl]
+
+@router.post("/MRT/link",summary="TDX-各捷運最新消息-資料來源連結")
+def addMRTNewsLink(data: Union[List[MRTNewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     # decode_token(token.credentials)
     
-    # 取得TDX資料
-    match region:
-        case "TRTC": # 臺北捷運
-            Collection = connectDB("APP","2.MRT")
-            delete_result = Collection.delete_many({"Region": "TRTC"})
-            print("已刪除" + str(delete_result.deleted_count) + "筆資料")
-            TRTC()
-        case "TYMC": # 桃園捷運
-            Collection = connectDB("APP","2.MRT")
-            delete_result = Collection.delete_many({"Region": "TRTC"})
-            print("已刪除" + str(delete_result.deleted_count) + "筆資料")
-            TYMC()
-        case "KRTC": # 高雄捷運
-            Collection = connectDB("APP","2.MRT")
-            delete_result = Collection.delete_many({"Region": "TRTC"})
-            print("已刪除" + str(delete_result.deleted_count) + "筆資料")
-            KRTC()
-        case "KLRT": # 高雄輕軌
-            Collection = connectDB("APP","2.MRT")
-            delete_result = Collection.delete_many({"Region": "TRTC"})
-            print("已刪除" + str(delete_result.deleted_count) + "筆資料")
-            KLRT()
-        case _: # 全部更新
-            Collection = connectDB("APP","2.MRT")
-            Collection.drop()
-            TRTC()
-            TYMC()
-            KRTC()
-            KLRT()
+    # 將資料存入MongoDB
+    Collection = connectDB("1_Website","2.MRT")
+    Collection.insert_many([d.dict() for d in data])
     
     return "Success"
 
-
-@router.put("/MRT_Logo",summary="捷運Logo")
-def setMRTLogo(token: HTTPAuthorizationCredentials = Depends(security)):
+@router.get("/MRT/link",summary="TDX-各捷運最新消息-資料來源連結")
+def getMRTNewsLink(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     # decode_token(token.credentials)
     
-    Collection = connectDB("APP","2.MRT_Logo")
-    Collection.drop()
+    Collection = connectDB("1_Website","2.MRT")
     
-    documents = [
-        {
-            "Region_EN": "TRTC",
-            "Region_ZH": "臺北捷運",
-            "Logo": "https://upload.wikimedia.org/wikipedia/zh/d/d1/Taipei_Metro_Logo.svg"
-        },
-        {
-            "Region_EN": "TYMC",
-            "Region_ZH": "桃園捷運",
-            "Logo": "https://upload.wikimedia.org/wikipedia/zh/2/29/Taoyuan_Metro_logo.svg"
-        },
-        {
-            "Region_EN": "KRTC",
-            "Region_ZH": "高雄捷運",
-            "Logo": "https://upload.wikimedia.org/wikipedia/zh/7/7f/Kaohsiung_Metro_Logo%28Logo_Only%29.svg"
-        },
-        {
-            "Region_EN": "KLRT",
-            "Region_ZH": "高雄輕軌",
-            "Logo": "https://upload.wikimedia.org/wikipedia/zh/7/7f/Kaohsiung_Metro_Logo%28Logo_Only%29.svg"
-        },
-    ]
-
-    Collection.insert_many(documents)
-    return "Success"
-
-
-def TRTC(): # 臺北捷運
-    url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/TRTC?%24format=JSON"
-    data = getData(url)
-    data2MongoDB(data,"TRTC")
-    
-def TYMC(): # 桃園捷運
-    url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/TYMC?%24format=JSON"
-    data = getData(url)
-    data2MongoDB(data,"TYMC")
-    
-def KRTC(): # 高雄捷運
-    url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/KRTC?%24format=JSON"
-    data = getData(url)
-    data2MongoDB(data,"KRTC")
-    
-def KLRT(): # 高雄輕軌
-    url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/KLRT?%24format=JSON"
-    data = getData(url)
-    data2MongoDB(data,"KLRT")
-
-def data2MongoDB(data: dict, regionName: str):
-    # 將資料整理成MongoDB的格式
-    if len(data["Newses"]) == 0:
-        return "No Data"
+    result = Collection.find()
     
     documents = []
-    for d in data['Newses']:
-        document = {
-            "Region": regionName,
-            "NewsID": d['NewsID'],
-            "Title": d['Title'],
-            "NewsCategory": NewsCategory_Number2Text(d['NewsCategory']),
-            "Description": d['Description'],
-            "NewsURL": d['NewsURL'],
-            "StartTime": d['StartTime'],
-            "EndTime": d['EndTime'],
-            "PublishTime": d['PublishTime'],
-            "UpdateTime": d['UpdateTime']
-        }
-        documents.append(document)
+    for d in result:
+        d.pop("_id")  # Remove the '_id' field from the document
+        documents.append(d)
 
-    # 將資料存入MongoDB
-    Collection = connectDB("APP","2.MRT")
-    Collection.insert_many(documents)
+    return documents
+
+@router.put("/MRT/link",summary="TDX-各捷運最新消息-資料來源連結")
+def updateMRTNewsLink(data: List[MRTNewsLinkModel], token: HTTPAuthorizationCredentials = Depends(security)):
+    # JWT驗證
+    # decode_token(token.credentials)
+    
+    Collection = connectDB("1_Website","2.MRT")
+    
+    for d in data:
+        Collection.update_one(
+            {"Region_EN": d.Region_EN},
+            {"$set": d.dict()},
+            upsert=True
+        )
+    
+    return "success"
+
+@router.delete("/MRT/link",summary="TDX-各捷運最新消息-資料來源連結")
+def deleteMRTNewsLink(data: Union[List[MRTNewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
+    # JWT驗證
+    # decode_token(token.credentials)
+    
+    # 刪除資料
+    Collection = connectDB("1_Website","2.MRT")
+    result = Collection.delete_many({"Region_EN": {"$in": [item.Region_EN for item in data]}})
     
     return "Success"
-
-def NewsCategory_Number2Text(number : int):
-    match number:
-        case 1:
-            return "最新消息"
-        case 2:
-            return "新聞稿"
-        case 3:
-            return "營運資訊"
-        case 4:
-            return "轉乘資訊"
-        case 5:
-            return "活動訊息"
-        case 6:
-            return "系統公告"
-        case 7:
-            return "新服務上架"
-        case 8:
-            return "API修正"
-        case 9:
-            return "來源異常"
-        case 10:
-            return "資料更新"
-        case 99:
-            return "其他"
