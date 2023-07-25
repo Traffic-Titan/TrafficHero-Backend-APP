@@ -3,8 +3,8 @@ from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
 from Service.MongoDB import *
 from Service.Token import *
-import Function.time
-import Function.verification_code
+import Function.time as time
+import Function.verification_code as code
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()

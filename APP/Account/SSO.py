@@ -45,6 +45,6 @@ async def google_Login_OR_Register(user: LoginModel):
         data = {
             "email": user.email
         }
-        token = encode_token(data, 10)
+        token = encode_token(data, 43200)
         return {"Token": token}
     
