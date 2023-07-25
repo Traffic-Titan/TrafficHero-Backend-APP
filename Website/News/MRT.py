@@ -12,51 +12,98 @@ import json
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-@router.get("/MRT",summary="臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT, 全部更新: All")
-def getMRTNews(system: Optional[str] = "All", token: HTTPAuthorizationCredentials = Depends(security)):
+@router.put("/MRT_News",summary="臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT, 全部更新: All")
+def getMRTNews(region: Optional[str] = "All", token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     # decode_token(token.credentials)
     
     # 取得TDX資料
-    match system:
+    match region:
         case "TRTC": # 臺北捷運
-            url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/TRTC?%24format=JSON" 
-            data2MongoDB(getData(url),"TRTC")
+            Collection = connectDB("APP","2.MRT")
+            delete_result = Collection.delete_many({"Region": "TRTC"})
+            print("已刪除" + str(delete_result.deleted_count) + "筆資料")
+            TRTC()
         case "TYMC": # 桃園捷運
-            url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/TYMC?%24format=JSON" 
-            data2MongoDB(getData(url),"TYMC")
+            Collection = connectDB("APP","2.MRT")
+            delete_result = Collection.delete_many({"Region": "TRTC"})
+            print("已刪除" + str(delete_result.deleted_count) + "筆資料")
+            TYMC()
         case "KRTC": # 高雄捷運
-            url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/KRTC?%24format=JSON" 
-            data2MongoDB(getData(url),"KRTC")
+            Collection = connectDB("APP","2.MRT")
+            delete_result = Collection.delete_many({"Region": "TRTC"})
+            print("已刪除" + str(delete_result.deleted_count) + "筆資料")
+            KRTC()
         case "KLRT": # 高雄輕軌
-            url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/KLRT?%24format=JSON" 
-            data2MongoDB(getData(url),"KLRT")
+            Collection = connectDB("APP","2.MRT")
+            delete_result = Collection.delete_many({"Region": "TRTC"})
+            print("已刪除" + str(delete_result.deleted_count) + "筆資料")
+            KLRT()
         case _: # 全部更新
-            Collection = connectDB("2_最新消息","MRT")
+            Collection = connectDB("APP","2.MRT")
             Collection.drop()
-            # 臺北捷運
-            url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/TRTC?%24format=JSON"
-            data = getData(url)
-            data2MongoDB(data,"TRTC")
-            
-            # 桃園捷運
-            url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/TYMC?%24format=JSON"
-            data = getData(url)
-            data2MongoDB(data,"TYMC")
-            
-            # 高雄捷運
-            url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/KRTC?%24format=JSON"
-            data = getData(url)
-            data2MongoDB(data,"KRTC")
-            
-            # 高雄輕軌
-            url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/KLRT?%24format=JSON"
-            data = getData(url)
-            data2MongoDB(data,"KLRT")
+            TRTC()
+            TYMC()
+            KRTC()
+            KLRT()
     
     return "Success"
 
 
+@router.put("/MRT_Logo",summary="捷運Logo")
+def setMRTLogo(token: HTTPAuthorizationCredentials = Depends(security)):
+    # JWT驗證
+    # decode_token(token.credentials)
+    
+    Collection = connectDB("APP","2.MRT_Logo")
+    Collection.drop()
+    
+    documents = [
+        {
+            "Region_EN": "TRTC",
+            "Region_ZH": "臺北捷運",
+            "Logo": "https://upload.wikimedia.org/wikipedia/zh/d/d1/Taipei_Metro_Logo.svg"
+        },
+        {
+            "Region_EN": "TYMC",
+            "Region_ZH": "桃園捷運",
+            "Logo": "https://upload.wikimedia.org/wikipedia/zh/2/29/Taoyuan_Metro_logo.svg"
+        },
+        {
+            "Region_EN": "KRTC",
+            "Region_ZH": "高雄捷運",
+            "Logo": "https://upload.wikimedia.org/wikipedia/zh/7/7f/Kaohsiung_Metro_Logo%28Logo_Only%29.svg"
+        },
+        {
+            "Region_EN": "KLRT",
+            "Region_ZH": "高雄輕軌",
+            "Logo": "https://upload.wikimedia.org/wikipedia/zh/7/7f/Kaohsiung_Metro_Logo%28Logo_Only%29.svg"
+        },
+    ]
+
+    Collection.insert_many(documents)
+    return "Success"
+
+
+def TRTC(): # 臺北捷運
+    url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/TRTC?%24format=JSON"
+    data = getData(url)
+    data2MongoDB(data,"TRTC")
+    
+def TYMC(): # 桃園捷運
+    url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/TYMC?%24format=JSON"
+    data = getData(url)
+    data2MongoDB(data,"TYMC")
+    
+def KRTC(): # 高雄捷運
+    url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/KRTC?%24format=JSON"
+    data = getData(url)
+    data2MongoDB(data,"KRTC")
+    
+def KLRT(): # 高雄輕軌
+    url = "https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/News/KLRT?%24format=JSON"
+    data = getData(url)
+    data2MongoDB(data,"KLRT")
 
 def data2MongoDB(data: dict, regionName: str):
     # 將資料整理成MongoDB的格式
@@ -80,8 +127,7 @@ def data2MongoDB(data: dict, regionName: str):
         documents.append(document)
 
     # 將資料存入MongoDB
-    Collection = connectDB("2_最新消息","MRT")
-    # Collection.drop()
+    Collection = connectDB("APP","2.MRT")
     Collection.insert_many(documents)
     
     return "Success"

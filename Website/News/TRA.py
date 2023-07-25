@@ -40,7 +40,7 @@ async def TRA(token: HTTPAuthorizationCredentials = Depends(security)):
         documents.append(document)
 
     # 將資料存入MongoDB
-    Collection = Service.MongoDB.connectDB("2_最新消息","TRA")
+    Collection = Service.MongoDB.connectDB("APP","2.TRA")
     Collection.drop()
     Collection.insert_many(documents)
     

@@ -37,8 +37,9 @@ from APP.Home.main import Home_Router
 app.include_router(Home_Router)
 
 # 2.最新消息(APP)
-from APP.News import main
+from APP.News import main, MRT
 app.include_router(main.router)
+app.include_router(MRT.router)
 
 # 3.即時訊息推播(APP)
 from APP.CMS.main import CMS_Router
