@@ -3,11 +3,10 @@ from Service.TDX import getData
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 
-CMS_Router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
-
+router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
 security = HTTPBearer()
 
-@CMS_Router.get("/serviceArea",summary="從TDX上獲取服務區剩餘位置")
+@router.get("/serviceArea",summary="從TDX上獲取服務區剩餘位置")
 async def serviceArea(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)

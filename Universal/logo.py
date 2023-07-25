@@ -1,9 +1,9 @@
-# 暫時性檔案，放Router用
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 
-router = APIRouter(tags=["4-2.大眾運輸資訊(APP)"],prefix="/APP/Public_Transport_Information")
+router = APIRouter(tags=["通用功能"],prefix="/Universal/Logo")
+
 security = HTTPBearer()
 
 @router.get("/test")

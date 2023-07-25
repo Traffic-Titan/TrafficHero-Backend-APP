@@ -29,12 +29,12 @@ app.include_router(code.router)
 app.include_router(profile.router)
 
 # 0.群組通訊(APP)
-from APP.Chat.main import Smart_Assistant_Router
-app.include_router(Smart_Assistant_Router)
+from APP.Chat import main
+app.include_router(main.router)
 
 # 1.首頁(APP)
-from APP.Home.main import Home_Router
-app.include_router(Home_Router)
+from APP.Home import main
+app.include_router(main.router)
 
 # 2.最新消息(APP)
 from APP.News import main, MRT
@@ -42,21 +42,20 @@ app.include_router(main.router)
 app.include_router(MRT.router)
 
 # 3.即時訊息推播(APP)
-from APP.CMS.main import CMS_Router
-from APP.CMS import Speed_Enforcement, Technical_Enforcement,PBS
-app.include_router(CMS_Router)
+from APP.CMS import main, Speed_Enforcement, Technical_Enforcement,PBS
+app.include_router(main.router)
 
 # 4-1.道路資訊(APP)
-from APP.Road_Information.main import Road_Information_Router
-app.include_router(Road_Information_Router)
+from APP.Road_Information import main
+app.include_router(main.router)
 
 # 4-2.大眾運輸資訊(APP)
-from APP.Public_Transport_Information.main import Public_Transport_Information_Router
-app.include_router(Public_Transport_Information_Router)
+from APP.Public_Transport_Information import main
+app.include_router(main.router)
 
 # 5.觀光資訊(APP)
-from APP.Tourism_Information.main import Tourism_Information_Router
-app.include_router(Tourism_Information_Router)
+from APP.Tourism_Information import main
+app.include_router(main.router)
 
 # ---------------------------------------------------------------
 
@@ -94,6 +93,12 @@ app.include_router(main.router)
 # 5.觀光資訊(Website)
 from Website.Tourism_Information import main
 app.include_router(main.router)
+
+# ---------------------------------------------------------------
+
+# 通用功能
+from Universal import logo
+app.include_router(logo.router)
 
 # ---------------------------------------------------------------
 

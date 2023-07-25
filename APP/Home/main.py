@@ -10,8 +10,7 @@ from pydantic import BaseModel
 from Service.TDX import getData
 from Service.MongoDB import connectDB
 
-Home_Router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
-
+router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 security = HTTPBearer()
 
 """
@@ -22,7 +21,7 @@ class CarInfo(BaseModel):
     CarID: str
     CarType: str
 
-@Home_Router.get("/ParkingFee")
+@router.get("/ParkingFee")
 def ParkingFee(CarID,CarType, token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)

@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 
-Smart_Assistant_Router = APIRouter(tags=["0.群組通訊(APP)"],prefix="/APP/Chat")
+router = APIRouter(tags=["0.群組通訊(APP)"],prefix="/APP/Chat")
 
 security = HTTPBearer()
 
-@Smart_Assistant_Router.get("/ChatGPT")
+@router.get("/ChatGPT")
 def ChatGPT(str:str,token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
