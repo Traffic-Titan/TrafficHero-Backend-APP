@@ -34,16 +34,14 @@ def ParkingFee(CarInfo:CarInfo, token: HTTPAuthorizationCredentials = Depends(se
     # JWT驗證
     decode_token(token.credentials)
     
-    #字串、總額Initial
+    #總額 Initial、PaidDetail:存單一縣市的繳費資訊、all_PaidDetail:存全部縣市的繳費資訊
     TotalAmount = 0
-    count_differentCountry = 0
-    CountryName = []
-    EachCountryPaid = []
-    BillInfo = []
-    AllTextReturn = []
+    PaidDetail = {}
+    all_PaidDetail = []
+
 
     # 連線MongoDB
-    Collection = connectDB().ParkingFee_Country
+    Collection = connectDB("TrafficHero","ParkingFee_Country")
     for country in Collection.find({}):
 
         #取得資料庫內每個縣市的URL，並將車牌及種類修改進新的URL
@@ -56,37 +54,26 @@ def ParkingFee(CarInfo:CarInfo, token: HTTPAuthorizationCredentials = Depends(se
             #回傳查詢狀態，如果Result有東西就將TotalAmount累加
             if(dataAll['Status'] == 'SUCCESS'):
                 if(dataAll['Result']):
+                    #全部欠費的總額
                     TotalAmount = dataAll['Result']['TotalAmount'] + TotalAmount
-                    CountryName.append(country['Country'])
-                    EachCountryPaid.append(dataAll['Result']['TotalAmount'])
-                    for bill in dataAll['Result']['Bills']:
-                        BillInfo.append(bill)
-                        
-                    #在帳單內加入空白字串：分隔縣市不同的帳單
-                    BillInfo.append(" ") 
+                    
+                    #以縣市為dict的key，value為該縣市的欠費、bill資訊
+                    PaidDetail = {country['Country']:{"Amount":dataAll['Result']['TotalAmount'],"Bill":dataAll['Result']['Bills']}}
+                    
+                    #將該縣市加進陣列裡方便回傳
+                    all_PaidDetail.append(PaidDetail)   
             else:
                 return dataAll['Message']
         except:
             pass
-    AllTextReturn.append("總額："+str(TotalAmount))
-    for count in range(0,len(CountryName)):
-        AllTextReturn.append(CountryName[count]+"："+str(EachCountryPaid[count]))
-
-        for count_bill in BillInfo:
-            count_differentCountry = count_differentCountry + 1 
-            if(count_bill != " "):
-                AllTextReturn.append(str(count_bill))
-            else:
-                del BillInfo[0:count_differentCountry]
-                pass
-    return AllTextReturn
+    return "總額："+ str(TotalAmount) , all_PaidDetail
 
 """
 1.資料來源:加油站服務資訊
     https://data.gov.tw/dataset/6065
 """
 class Gas_Station(BaseModel):
-    #CurrentLat:目前緯度 、CurrentLng:目前經度 、Type: 直營or加盟
+    #CurrentLat:目前緯度 、CurrentLng:目前經度 、Type: 加盟站 or 自營站
     CurrentLat:float
     CurrentLng:float
     Type:str
@@ -101,7 +88,7 @@ def get_Gas_Station_LatLng(CurrentLat:str,CurrentLng:str,Type:str):
         Points_After_Output.append(geodesic(kilometers=1).destination((CurrentLat, CurrentLng),bearing = angle))
 
     #讀檔 中油加油站清冊.csv
-    with open(r'./Home/中油加油站清冊.csv',encoding="utf-8") as csvfile:
+    with open(r'./APP/Home/中油加油站清冊.csv',encoding="utf-8") as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
             try:
@@ -137,7 +124,7 @@ def get_ConvenientStore(CurrentLat:str,CurrentLng:str):
         Points_After_Output.append(geodesic(kilometers=1).destination((CurrentLat, CurrentLng),bearing = angle))
     
     #讀檔 全國五大超商資料集.csv
-    with open(r'./Home/全國5大超商資料集.csv',encoding="utf-8") as csvfile:
+    with open(r'./APP/Home/全國5大超商資料集.csv',encoding="utf-8") as csvfile:
         reader = csv.reader(csvfile)
         # writer = csv.writer(csvfile)
 
