@@ -17,7 +17,7 @@ from shapely.geometry.polygon import Polygon
 from Service.Google_Maps import geocode
 import openpyxl
 
-Home_Router = APIRouter(tags=["1.首頁"],prefix="/Home")
+router = APIRouter(tags=["1.首頁"],prefix="/Home")
 
 security = HTTPBearer()
 
@@ -29,7 +29,7 @@ class CarInfo(BaseModel):
     CarID: str
     CarType: str
 
-@Home_Router.post("/ParkingFee")
+@router.post("/ParkingFee")
 def ParkingFee(CarInfo:CarInfo, token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
@@ -99,7 +99,7 @@ def get_Gas_Station_LatLng(CurrentLat:str,CurrentLng:str,Type:str):
                 pass
     return match_Station      
 
-@Home_Router.post("/QuickSearch/Gas_Station")
+@router.post("/QuickSearch/Gas_Station")
 def QuickSearch_Gas_Station(gas:Gas_Station, token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
@@ -139,7 +139,7 @@ def get_ConvenientStore(CurrentLat:str,CurrentLng:str):
 
     return match_Station
     
-@Home_Router.post("/QuickSearch/ConvenientStore")
+@router.post("/QuickSearch/ConvenientStore")
 def QuickSearch_ConvenientStore(convenient:ConvenientStore, token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)

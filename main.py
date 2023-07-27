@@ -34,7 +34,7 @@ app.include_router(main.router)
 
 # 1.首頁(APP)
 from APP.Home import main
-app.include_router(main.Home_Router)
+app.include_router(main.router)
 
 # 2.最新消息(APP)
 from APP.News import main, MRT
