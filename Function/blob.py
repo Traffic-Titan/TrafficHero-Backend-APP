@@ -30,7 +30,7 @@ def generate_default_avatar(account_name):
     y = (size - text_height) / 2
     draw.text((x, y), text, font=font, fill='black')
     
-    image.show() # 顯示圖片(Dev Only)
+    # image.show() # 顯示圖片(Dev Only)
     return encode_image(image)
 
 def encode_image(image):

@@ -17,7 +17,7 @@ from shapely.geometry.polygon import Polygon
 from Service.Google_Maps import geocode
 import openpyxl
 
-router = APIRouter(tags=["1.首頁"],prefix="/Home")
+router = APIRouter(tags=["1.首頁(APP)"],prefix="/Home")
 
 security = HTTPBearer()
 
