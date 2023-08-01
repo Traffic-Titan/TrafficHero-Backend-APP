@@ -8,6 +8,14 @@
 from urllib import request
 import json
 from Service.MongoDB import connectDB
+import requests
+from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+
 
 #讀取警廣API資料
 def getData():
@@ -63,3 +71,48 @@ def getData():
     #     else:
     #         AfterNLP.delete_one(item)
 
+"""
+1.資料來源:開放路肩即時資料
+    https://1968.freeway.gov.tw/n_shline
+"""
+def getHardShoulder():
+
+    #Initial
+    documents = []
+
+    #連接DataBase
+    collection = connectDB("TrafficHero","Road_Hard_Shoulder_Info")
+    collection.drop()
+    
+    #Python Selenium 
+    chrome_options = Options()
+    service = Service()
+    chrome_options.add_argument("--headless")
+    browser = webdriver.Chrome(service=service, options=chrome_options)
+    browser.get("https://1968.freeway.gov.tw/n_shline")
+
+    #定位查詢按鈕
+    search_button = browser.find_element(By.XPATH, '//*[@id="idScrollTarget"]/div/div[3]/div[2]/div/button')
+    #定位select
+    select_all = Select(browser.find_element(By.ID,'freeway'))
+
+    for count in range(1,len(select_all.options)):
+        #定位每一個道路後再點擊查詢
+        select_all.select_by_index(count)
+        search_button.click()
+
+        #定位開放路段、方向、車種
+        OpenSection = browser.find_elements(By.CLASS_NAME, 'sec_txt')
+        OpenDirection = browser.find_elements(By.CLASS_NAME, 'shl_time')
+        OpenType = browser.find_elements(By.CLASS_NAME, 'shl_type')
+
+        if(len(OpenSection)!=0):
+            for data in range(len(OpenSection)):
+                document = {
+                    "道路":select_all.first_selected_option.text,
+                    "開放路段":OpenSection[data].text,
+                    "方向":OpenDirection[data].text,
+                    "開放車種":OpenType[data+1].text
+                }
+                documents.append(document)
+    collection.insert_many(documents)

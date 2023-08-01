@@ -10,3 +10,4 @@ openai
 apscheduler
 python-jose
 pydantic[email]
+openpyxl
