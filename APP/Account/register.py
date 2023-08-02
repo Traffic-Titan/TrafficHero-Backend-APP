@@ -33,7 +33,7 @@ async def register(user: ProfileModel):
     
     # 對密碼進行Hash處理
     hashed_password = hashlib.sha256(user.password.encode()).hexdigest()
-    
+
     if user.Google_ID is None: # 一般註冊
         # 建立新的使用者文件
         data = {
@@ -84,3 +84,4 @@ async def register(user: ProfileModel):
         
         return {"detail": message.get("Sign up with Google")}
     
+
