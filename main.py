@@ -15,11 +15,11 @@ import Service.Scheduler as Scheduler
 app = FastAPI()
 
 # 外部服務(Dev Only)
-from Service import Email_Service, Google_Maps, TDX, Token
-app.include_router(Email_Service.router)
-app.include_router(Google_Maps.router)
-app.include_router(TDX.router)
-app.include_router(Token.router)
+# from Service import Email_Service, Google_Maps, TDX, Token
+# app.include_router(Email_Service.router)
+# app.include_router(Google_Maps.router)
+# app.include_router(TDX.router)
+# app.include_router(Token.router)
 
 # 0.會員管理(APP)
 from APP.Account import login, register, profile, password, code, SSO
