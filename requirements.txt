@@ -8,3 +8,6 @@ geopy
 python-dotenv
 openai
 apscheduler
+python-jose
+pydantic[email]
+openpyxl
