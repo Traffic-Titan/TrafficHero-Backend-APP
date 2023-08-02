@@ -8,6 +8,7 @@ import threading
 from dotenv import load_dotenv
 import time
 from APP.CMS.PBS import getHardShoulder
+from APP.CMS.SpeedLimit import ExpressWay,FreeWayTunnel
 from apscheduler.schedulers.blocking import BlockingScheduler
 import Service.Scheduler as Scheduler
 
@@ -106,6 +107,8 @@ app.include_router(logo.router)
 @app.on_event("startup")
 async def startup_event():
     load_dotenv()
+    # ExpressWay()
+    FreeWayTunnel()
     # getHardShoulder()
     # Scheduler.start() # 啟動排程
     # setInterval(Speed_Enforcement.getData())

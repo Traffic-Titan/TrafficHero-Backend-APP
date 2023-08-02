@@ -42,7 +42,7 @@ async def register(user: ProfileModel):
             "gender": user.gender,
             "birthday": user.birthday,
             "Google_ID": user.Google_ID,
-            # "avatar": blob.generate_default_avatar(user.name), # 預設大頭貼
+            "avatar": blob.generate_default_avatar(user.name), # 預設大頭貼
             "role": "user"
     }
     

@@ -18,6 +18,10 @@ from selenium.webdriver.support.ui import Select
 
 
 #讀取警廣API資料
+"""
+1.資料來源:警廣即時路況
+    https://data.gov.tw/dataset/15221
+"""
 def getData():
     url="https://od.moi.gov.tw/MOI/v1/pbs"
     data =json.load(request.urlopen(url))
