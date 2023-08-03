@@ -21,7 +21,7 @@ class MRTNewsLinkModel(BaseModel):
 @router.post("/MRT/link",summary="TDX-各捷運最新消息-資料來源連結")
 def addMRTNewsLink(data: Union[List[MRTNewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
-    # decode_token(token.credentials)
+    decode_token(token.credentials)
     
     # 將資料存入MongoDB
     Collection = connectDB("1_Website","2.MRT")
@@ -32,7 +32,7 @@ def addMRTNewsLink(data: Union[List[MRTNewsLinkModel]], token: HTTPAuthorization
 @router.get("/MRT/link",summary="TDX-各捷運最新消息-資料來源連結")
 def getMRTNewsLink(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
-    # decode_token(token.credentials)
+    decode_token(token.credentials)
     
     Collection = connectDB("1_Website","2.MRT")
     
@@ -48,7 +48,7 @@ def getMRTNewsLink(token: HTTPAuthorizationCredentials = Depends(security)):
 @router.put("/MRT/link",summary="TDX-各捷運最新消息-資料來源連結")
 def updateMRTNewsLink(data: List[MRTNewsLinkModel], token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
-    # decode_token(token.credentials)
+    decode_token(token.credentials)
     
     Collection = connectDB("1_Website","2.MRT")
     
@@ -64,7 +64,7 @@ def updateMRTNewsLink(data: List[MRTNewsLinkModel], token: HTTPAuthorizationCred
 @router.delete("/MRT/link",summary="TDX-各捷運最新消息-資料來源連結")
 def deleteMRTNewsLink(data: Union[List[MRTNewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
-    # decode_token(token.credentials)
+    decode_token(token.credentials)
     
     # 刪除資料
     Collection = connectDB("1_Website","2.MRT")

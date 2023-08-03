@@ -10,7 +10,7 @@ security = HTTPBearer()
 @router.get("/MRT",summary="取得各捷運Logo, 臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT")
 def getMRTLogo(Region: str, token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
-    # decode_token(token.credentials)
+    decode_token(token.credentials)
     
     Collection = connectDB("2_Universal","Logo")
     
@@ -33,14 +33,14 @@ def getMRTLogo(Region: str, token: HTTPAuthorizationCredentials = Depends(securi
 @router.post("/MRT",summary="新增各捷運Logo, 臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT")
 def setMRTLogo(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
-    # decode_token(token.credentials)
+    decode_token(token.credentials)
     Collection = connectDB("2_Universal","Logo")
     
 
 @router.put("/MRT",summary="修改各捷運Logo, 臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT")
 def setMRTLogo(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
-    # decode_token(token.credentials)
+    decode_token(token.credentials)
     
     Collection = connectDB("2_Universal","Logo")
     Collection.drop()

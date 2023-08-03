@@ -16,7 +16,7 @@ security = HTTPBearer()
 @router.get("/THSR",summary="高鐵")
 async def THSR(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
-    # decode_token(token.credentials)
+    decode_token(token.credentials)
     
     # 取得TDX資料
     url = "https://tdx.transportdata.tw/api/basic/v2/Rail/THSR/News?%24format=JSON"

@@ -18,7 +18,7 @@ security = HTTPBearer()
 @router.get("/bus",summary="基隆市:Keelung, 臺北市:Taipei")
 async def bus(city: Optional[str] = "All", token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
-    # decode_token(token.credentials)
+    decode_token(token.credentials)
     
     # 取得TDX資料
     match city:

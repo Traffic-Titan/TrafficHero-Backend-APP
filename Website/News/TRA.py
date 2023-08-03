@@ -16,7 +16,7 @@ security = HTTPBearer()
 @router.get("/TRA",summary="臺鐵")
 async def TRA(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
-    # decode_token(token.credentials)
+    decode_token(token.credentials)
     
     # 取得TDX資料
     url = "https://tdx.transportdata.tw/api/basic/v3/Rail/TRA/News?%24format=JSON"

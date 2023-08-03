@@ -21,7 +21,7 @@ security = HTTPBearer()
 @router.get("/MRT",summary="測試資料(Dev)")
 async def MRT(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
-    # decode_token(token.credentials)
+    decode_token(token.credentials)
     
     Collection = connectDB("0_APP","2.MRT")
     result = Collection.find()
@@ -36,7 +36,7 @@ async def MRT(token: HTTPAuthorizationCredentials = Depends(security)):
 @router.put("/MRT",summary="臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT, 全部更新: All")
 def getMRTNews(region: Optional[str] = "All", token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
-    # decode_token(token.credentials)
+    decode_token(token.credentials)
     
     # 更新資料庫
     Collection = connectDB("0_APP","2.MRT")
