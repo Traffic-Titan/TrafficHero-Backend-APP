@@ -12,3 +12,4 @@ python-jose
 pydantic[email]
 openpyxl
 pymongo
+Pillow
