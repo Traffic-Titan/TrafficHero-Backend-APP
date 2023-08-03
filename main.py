@@ -11,8 +11,14 @@ from APP.CMS.PBS import getHardShoulder
 from APP.CMS.SpeedLimit import ExpressWay,FreeWayTunnel
 from apscheduler.schedulers.blocking import BlockingScheduler
 import Service.Scheduler as Scheduler
+from fastapi.responses import RedirectResponse
 
 app = FastAPI()
+
+# 自動導向Swagger
+@app.get("/", include_in_schema=False)
+async def root():
+    return RedirectResponse(url="/docs")
 
 # 外部服務(Dev Only)
 # from Service import Email_Service, Google_Maps, TDX, Token
@@ -108,7 +114,7 @@ app.include_router(logo.router)
 async def startup_event():
     load_dotenv()
     # ExpressWay()
-    FreeWayTunnel()
+    # FreeWayTunnel()
     # getHardShoulder()
     # Scheduler.start() # 啟動排程
     # setInterval(Speed_Enforcement.getData())
