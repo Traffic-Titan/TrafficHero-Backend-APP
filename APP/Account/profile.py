@@ -32,12 +32,12 @@ async def view_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer(
     Collection = connectDB("0_APP","0.Users")
     result = Collection.find_one({"email": payload["data"]["email"]})
     data = {
-        "name": result["name"],
-        "email": result["email"],
-        "gender": result["gender"],
-        "birthday": result["birthday"],
-        "Google_ID": result["Google_ID"],
-        "avatar" : blob.encode_image_to_base64(result["avatar"])
+        "name": result["name"] if "name" in result else None,
+        "email": result["email"] if "email" in result else None,
+        "gender": result["gender"] if "gender" in result else None,
+        "birthday": result["birthday"] if "birthday" in result else None,
+        "Google_ID": result["Google_ID"] if "Google_ID" in result else None,
+        "avatar": blob.encode_image_to_base64(result["avatar"]) if "avatar" in result else None
     }
     
     return data
