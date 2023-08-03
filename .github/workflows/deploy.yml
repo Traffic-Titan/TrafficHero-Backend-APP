@@ -1,0 +1,44 @@
+name: 更新專案並啟動 FastAPI 服務
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Cancel_Previous_Workflows:
+    runs-on: ubuntu-latest
+    permissions:
+          actions: write
+          
+    steps:
+      - name: 取消過去的Workflows
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+          
+  Deploy_FastAPI:
+    needs: Cancel_Previous_Workflows
+    runs-on: self-hosted
+
+    steps:
+      - name: 檢查程式碼
+        uses: actions/checkout@v3
+
+      - name: 更新專案
+        run: |
+          git pull
+
+      - name: 安裝相依套件
+        run: |
+          pip install -r requirements.txt
+          
+      - name: 寫入.env檔案
+        env:
+          ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
+        run: |
+          echo "${ENV_FILE_CONTENT}" > .env
+          
+      - name: 啟動FastAPI服務
+        run: |
+          python3 -m uvicorn main:app --host 0.0.0.0 --port 8000
