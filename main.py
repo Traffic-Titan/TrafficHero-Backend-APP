@@ -12,8 +12,10 @@ from APP.CMS.SpeedLimit import ExpressWay,FreeWayTunnel
 from apscheduler.schedulers.blocking import BlockingScheduler
 import Service.Scheduler as Scheduler
 from fastapi.responses import RedirectResponse
+from api_analytics.fastapi import Analytics
 
 app = FastAPI()
+app.add_middleware(Analytics, api_key="a2999611-b29a-4ade-a55b-2147b706da6e")  # Add middleware
 
 # 自動導向Swagger
 @app.get("/", include_in_schema=False)
@@ -45,9 +47,8 @@ from APP.Home import main
 app.include_router(main.router)
 
 # 2.最新消息(APP)
-from APP.News import main, MRT
+from APP.News import main
 app.include_router(main.router)
-app.include_router(MRT.router)
 
 # 3.即時訊息推播(APP)
 from APP.CMS import main, Speed_Enforcement, Technical_Enforcement,PBS
@@ -80,11 +81,14 @@ from Website.Home import main
 app.include_router(main.router)
 
 # 2.最新消息(Website)
-from Website.News import THSR, MRT, TRA , bus
+from Website.News import TRA, THSR, MRT, Bus, InterCityBus, Provincial_Highway, Link
+app.include_router(TRA.router)
 app.include_router(THSR.router)
 app.include_router(MRT.router)
-app.include_router(TRA.router)
-app.include_router(bus.router)
+app.include_router(Bus.router)
+app.include_router(InterCityBus.router)
+app.include_router(Provincial_Highway.router)
+app.include_router(Link.router)
 
 # 3.即時訊息推播(Website)
 from Website.CMS import main
