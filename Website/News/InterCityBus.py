@@ -15,13 +15,13 @@ import Function.link as link
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-@router.put("/THSR",summary="【更新】最新消息-高鐵")
+@router.put("/InterCityBus",summary="【更新】最新消息-公路客運")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
     
     # 取得TDX資料
-    url = link.get("News", "THSR_Link", "All")
+    url = link.get("News", "InterCityBus_Link", "All")
     data = getData(url)
     
     # 將資料整理成MongoDB的格式
@@ -29,10 +29,11 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     for d in data:
         document = {
             "NewsID": d['NewsID'],
-            "NewsCategory": d['NewsCategory'],
             "Title": d['Title'],
+            "NewsCategory": NewsCategory_Number2Text(d['NewsCategory']),
             "Description": d['Description'],
-            "NewsURL": d['NewsUrl'],
+            "NewsURL": d['NewsURL'],
+            # "AttachmentURL": d['AttachmentURL'],
             # "StartTime": d['StartTime'],
             # "EndTime": d['EndTime'],
             # "PublishTime": d['PublishTime'],
@@ -41,9 +42,33 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
         documents.append(document)
 
     # 將資料存入MongoDB
-    Collection = Service.MongoDB.connectDB("News","THSR")
+    Collection = Service.MongoDB.connectDB("News","InterCityBus")
     Collection.drop()
     Collection.insert_many(documents)
     
     return "Success"
-    
+
+def NewsCategory_Number2Text(number : int):
+    match number:
+        case 1:
+            return "最新消息"
+        case 2:
+            return "新聞稿"
+        case 3:
+            return "營運資訊"
+        case 4:
+            return "轉乘資訊"
+        case 5:
+            return "活動訊息"
+        case 6:
+            return "系統公告"
+        case 7:
+            return "新服務上架"
+        case 8:
+            return "API修正"
+        case 9:
+            return "來源異常"
+        case 10:
+            return "資料更新"
+        case 99:
+            return "其他"

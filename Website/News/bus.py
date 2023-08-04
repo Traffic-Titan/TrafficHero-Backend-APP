@@ -11,171 +11,90 @@ import json
 import urllib.request as request
 from typing import Optional
 from Service.MongoDB import connectDB
+import Function.time as time
+import Function.link as link
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-@router.get("/bus",summary="基隆市:Keelung, 臺北市:Taipei")
-async def bus(city: Optional[str] = "All", token: HTTPAuthorizationCredentials = Depends(security)):
+Collection = connectDB("News","Bus")
+
+@router.put("/Bus",summary="【更新】最新消息-公車")
+async def bus(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    基隆市公車:Keelung_City,臺北市公車:Taipei_City,桃園市公車:Taoyuan_City,新北市公車:New_Taipei_City,新竹市公車:Hsinchu_City,新竹縣公車:Hsinchu_County,苗栗縣公車:Miaoli_County,臺中市公車:Taichung_City,彰化縣公車:Changhua_County,南投縣公車:Nantou_County,雲林縣公車:Yunlin_County,嘉義市公車:Chiayi_City,嘉義縣公車:Chiayi_County,臺南市公車:Tainan_City,高雄市公車:Kaohsiung_City,屏東縣公車:Pingtung_County,臺東縣公車:Taitung_County,花蓮縣公車:Hualien_County,宜蘭縣公車:Yilan_County,澎湖縣公車:Penghu_County,金門縣公車:Kinmen_County
+    
+    全部更新:All_(預設)
+    """
+    
     # JWT驗證
     decode_token(token.credentials)
     
     # 取得TDX資料
-    match city:
-        case "Keelung": # 基隆市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Keelung?%24format=JSON"
-            data2MongoDB(getData(url),"Keelung")
-        case "Taipei": # 臺北市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Taipei?%24format=JSON"
-            data2MongoDB(getData(url),"Taipei")
-        case "NewTaipei": # 新北市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/NewTaipei?%24format=JSON"
-            data2MongoDB(getData(url),"NewTaipei")
-        case "Taoyuan": # 桃園市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Taoyuan?%24format=JSON"
-            data2MongoDB(getData(url),"Taoyuan")
-        case "Hsinchu": # 新竹市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Hsinchu?%24format=JSON"
-            data2MongoDB(getData(url),"Hsinchu")
-        case "HsinchuCounty": # 新竹縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/HsinchuCounty?%24format=JSON"
-            data2MongoDB(getData(url),"HsinchuCounty")
-        case "Miaoli": # 苗栗縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/MiaoliCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Miaoli")
-        case "Taichung": # 臺中市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Taichung?%24format=JSON"
-            data2MongoDB(getData(url),"Taichung")
-        case "Changhua": # 彰化縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/ChanghuaCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Changhua")
-        case "Nantou": # 南投縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/NantouCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Nantou")
-        case "Yunlin": # 雲林縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/YunlinCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Yunlin")
-        case "Chiayi": # 嘉義市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Chiayi?%24format=JSON"
-            data2MongoDB(getData(url),"Chiayi")
-        case "ChiayiCounty": # 嘉義縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/ChiayiCounty?%24format=JSON"
-            data2MongoDB(getData(url),"ChiayiCounty")
-        case "Tainan": # 臺南市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Tainan?%24format=JSON"
-            data2MongoDB(getData(url),"Tainan")
-        case "Kaohsiung": # 高雄市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Kaohsiung?%24format=JSON"
-            data2MongoDB(getData(url),"Kaohsiung")
-        case "Pingtung": # 屏東縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/PingtungCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Pingtung")
-        case "Taitung": # 臺東縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/TaitungCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Taitung")
-        case "Hualien": # 花蓮縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/HualienCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Hualien")
-        case "Yilan": # 宜蘭縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/YilanCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Yilan")
-        case "Penghu": # 澎湖縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/PenghuCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Penghu")
-        case "Kinmen": # 金門縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/KinmenCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Kinmen")
-        case _: # 全部更新
-            Collection = connectDB("2_最新消息","Bus")
-            Collection.drop()
-            
-            # 基隆市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Keelung?%24format=JSON"
-            data2MongoDB(getData(url),"Keelung")
-            
-            # 臺北市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Taipei?%24format=JSON"
-            data2MongoDB(getData(url),"Taipei")
-            
-            # 新北市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/NewTaipei?%24format=JSON"
-            data2MongoDB(getData(url),"NewTaipei")
-            
-            # 桃園市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Taoyuan?%24format=JSON"
-            data2MongoDB(getData(url),"Taoyuan")
-            
-            # 新竹市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Hsinchu?%24format=JSON"
-            data2MongoDB(getData(url),"Hsinchu")
-            
-            # 新竹縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/HsinchuCounty?%24format=JSON"
-            data2MongoDB(getData(url),"HsinchuCounty")
-            
-            # 苗栗縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/MiaoliCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Miaoli")
-            
-            # 臺中市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Taichung?%24format=JSON"
-            data2MongoDB(getData(url),"Taichung")
-            
-            # 彰化縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/ChanghuaCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Changhua")
-            
-            # 南投縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/NantouCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Nantou")
-            
-            # 雲林縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/YunlinCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Yunlin")
-            
-            # 嘉義市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Chiayi?%24format=JSON"
-            data2MongoDB(getData(url),"Chiayi")
-            
-            # 嘉義縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/ChiayiCounty?%24format=JSON"
-            data2MongoDB(getData(url),"ChiayiCounty")
-            
-            # 臺南市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Tainan?%24format=JSON"
-            data2MongoDB(getData(url),"Tainan")
-            
-            # 高雄市
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/Kaohsiung?%24format=JSON"
-            data2MongoDB(getData(url),"Kaohsiung")
-            
-            # 屏東縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/PingtungCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Pingtung")
-            
-            # 臺東縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/TaitungCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Taitung")
-            
-            # 花蓮縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/HualienCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Hualien")
-        
-            # 宜蘭縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/YilanCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Yilan")
-            
-            # 澎湖縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/PenghuCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Penghu")
-        
-            # 金門縣
-            url = "https://tdx.transportdata.tw/api/basic/v2/Bus/News/City/KinmenCounty?%24format=JSON"
-            data2MongoDB(getData(url),"Kinmen")
+    match Area:
+        case "Keelung_City": 
+            data2MongoDB("Keelung_City")
+        case "Taipei_City": 
+            data2MongoDB("Taipei_City")
+        case "New_Taipei_City": 
+            data2MongoDB("New_Taipei_City")
+        case "Taoyuan_City": 
+            data2MongoDB("Taoyuan_City")
+        case "Hsinchu_City": 
+            data2MongoDB("Hsinchu_City")
+        case "Hsinchu_County": 
+            data2MongoDB("Hsinchu_County")
+        case "Miaoli_County": 
+            data2MongoDB("Miaoli_County")
+        case "Taichung_City": 
+            data2MongoDB("Taichung_City")
+        case "Changhua_County": 
+            data2MongoDB("Changhua_County")
+        case "Nantou_County": 
+            data2MongoDB("Nantou_County")
+        case "Yunlin_County": 
+            data2MongoDB("Yunlin_County")
+        case "Chiayi_City": 
+            data2MongoDB("Chiayi_City")
+        case "Chiayi_County": 
+            data2MongoDB("Chiayi_County")
+        case "Tainan_City": 
+            data2MongoDB("Tainan_City")
+        case "Kaohsiung_City": 
+            data2MongoDB("Kaohsiung_City")
+        case "Pingtung_County": 
+            data2MongoDB("Pingtung_County")
+        case "Taitung_County": 
+            data2MongoDB("Taitung_County")
+        case "Hualien_County": 
+            data2MongoDB("Hualien_County")
+        case "Yilan_County": 
+            data2MongoDB("Yilan_County")
+        case "Penghu_County": 
+            data2MongoDB("Penghu_County")
+        case "Kinmen_County": 
+            data2MongoDB("Kinmen_County")
+        case "All": # 全部更新
+            areas = [
+                "Keelung_City", "Taipei_City", "New_Taipei_City", "Taoyuan_City",
+                "Hsinchu_City", "Hsinchu_County", "Miaoli_County", "Taichung_City",
+                "Changhua_County", "Nantou_County", "Yunlin_County", "Chiayi_City",
+                "Chiayi_County", "Tainan_City", "Kaohsiung_City", "Pingtung_County",
+                "Taitung_County", "Hualien_County", "Yilan_County", "Penghu_County",
+                "Kinmen_County"
+            ]
+
+            for area in areas:
+                data2MongoDB(area)
         
     return "Success"
-
-def data2MongoDB(data: dict, regionName: str):
+    
+def data2MongoDB(Area: str):
+    Collection.delete_many({"Area": Area})
+    
+    url = link.get("News", "Bus_Link", Area)
+    data = getData(url)
+    
     # 將資料整理成MongoDB的格式
     if not data:
         return "No Data"
@@ -183,22 +102,20 @@ def data2MongoDB(data: dict, regionName: str):
     documents = []
     for d in data:
         document = {
-            "Region": regionName,
+            "Area": Area,
             "NewsID": d['NewsID'],
             "Title": d['Title'],
             "NewsCategory": NewsCategory_Number2Text(d['NewsCategory']),
             "Description": d['Description'],
-            # "NewsURL": d['NewsURL'],
+            "NewsURL": d['NewsURL'] if 'NewsURL' in d else "",
             # "StartTime": d['StartTime'],
             # "EndTime": d['EndTime'],
-            "PublishTime": d['PublishTime'],
-            "UpdateTime": d['UpdateTime']
+            # "PublishTime": d['PublishTime'],
+            "UpdateTime": time.format_time(d['UpdateTime'])
         }
         documents.append(document)
 
     # 將資料存入MongoDB
-    Collection = connectDB("0_APP","2.Bus")
-    # Collection.drop()
     Collection.insert_many(documents)
     
     return "Success"
