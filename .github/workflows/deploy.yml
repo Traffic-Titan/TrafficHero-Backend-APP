@@ -41,7 +41,7 @@ jobs:
           
       - name: 啟動FastAPI服務
         run: |
-          gunicorn -w 4 -b 0.0.0.0:8000 main:app
+          gunicorn -w 4 -b 0.0.0.0:8000 main:app -k uvicorn.workers.UvicornWorker
 
       - name: 結束工作
         run: exit 0  # 結束工作，不會執行後續步驟
