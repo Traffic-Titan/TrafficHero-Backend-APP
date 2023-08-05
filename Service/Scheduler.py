@@ -1,5 +1,5 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
-from Website.News import THSR, MRT, TRA , bus
+from Website.News import THSR, MRT, TRA , Bus
 
 # 定義要執行的功能
 def update_function():
