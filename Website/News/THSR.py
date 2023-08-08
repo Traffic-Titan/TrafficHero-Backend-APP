@@ -21,7 +21,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     decode_token(token.credentials)
     
     # 取得TDX資料
-    url = link.get("Source", "News", "THSR", "All")
+    url = link.get("News", "THSR", "All")
     data = getData(url)
     
     # 將資料整理成MongoDB的格式

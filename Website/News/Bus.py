@@ -92,7 +92,7 @@ async def bus(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials =
 def data2MongoDB(Area: str):
     Collection.delete_many({"Area": Area})
     
-    url = link.get("Source", "News", "Bus", Area)
+    url = link.get("News", "Bus", Area)
     data = getData(url)
     
     # 將資料整理成MongoDB的格式
