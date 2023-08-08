@@ -51,7 +51,7 @@ def updateNews(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials 
 def data2MongoDB(Area: str):
     Collection.delete_many({"Area": Area})
     
-    url = link.get("News", "MRT_Link", Area)
+    url = link.get("Source", "News", "MRT", Area)
     data = getData(url)
     
     # 將資料整理成MongoDB的格式
