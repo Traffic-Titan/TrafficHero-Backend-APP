@@ -56,7 +56,10 @@ async def Car(areas: str = "All", types: str = "All", token: HTTPAuthorizationCr
         types = "Provincial_Highway"
     
     documents = []
-    for type in types.split(','):
+    types = types.split(',')
+    areas = areas.split(',')
+    
+    for type in types:
         if type == "Provincial_Highway":
             area = "All"
             Collection = connectDB("News", type)
@@ -69,7 +72,7 @@ async def Car(areas: str = "All", types: str = "All", token: HTTPAuthorizationCr
                 documents.append(d)   
         else:
             Collection = connectDB("News", type)
-            for area in areas.split(','):
+            for area in areas:
                 result = Collection.find({"Area": area})
                 logoURL = logo.get(type, area)
                 for d in result:
@@ -102,12 +105,8 @@ async def Public_Transport(areas: str = "All", types: str = "All", token: HTTPAu
         types = "TRA,THSR,MRT,Bus,InterCityBus"
     
     documents = []
-
     types = types.split(',')
     areas = areas.split(',')
-    
-    source = link.get("News", "Public_Transport", "All", "All")
-    health = map(TDX.getHealthStatus())
     
     for type in types:
         if type == "TRA" or type == "THSR" or type == "InterCityBus":
