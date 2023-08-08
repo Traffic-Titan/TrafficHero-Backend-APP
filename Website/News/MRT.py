@@ -67,10 +67,10 @@ def data2MongoDB(Area: str):
             "NewsCategory": Number2Text(d['NewsCategory']),
             "Description": d['Description'],
             "NewsURL": d['NewsURL'],
-            # "StartTime": time.format_time(d['StartTime']),
-            # "EndTime": time.format_time(d['EndTime']),
-            # "PublishTime": time.format_time(d['PublishTime']),
-            "UpdateTime": time.format_time(d['UpdateTime'])
+            # "StartTime": time.format(d['StartTime']),
+            # "EndTime": time.format(d['EndTime']),
+            # "PublishTime": time.format(d['PublishTime']),
+            "UpdateTime": time.format(d['UpdateTime'])
         }
         documents.append(document)
 

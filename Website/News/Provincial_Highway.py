@@ -56,7 +56,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
             # "StartTime": d['StartTime'],
             # "EndTime": d['EndTime'],
             # "PublishTime": d['PublishTime'],
-            "UpdateTime": time.format_time(d['UpdateTime'])
+            "UpdateTime": time.format(d['UpdateTime'])
         }
         documents.append(document)
 
