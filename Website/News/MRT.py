@@ -20,7 +20,7 @@ security = HTTPBearer()
 
 Collection = connectDB("News","MRT")
 
-@router.put("/MRT",summary="【更新】最新消息-捷運")
+@router.put("/MRT",summary="【Update】最新消息-捷運")
 def updateNews(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials = Depends(security)):
     """
     臺北捷運:Taipei City,桃園捷運:Taoyuan City,高雄捷運:Kaohsiung City

@@ -13,7 +13,7 @@ class LoginModel(BaseModel):
     email: EmailStr
     password: str
 
-@router.post("/login")
+@router.post("/login",summary="會員登入")
 async def login(user: LoginModel):
     # 連線MongoDB
     Collection = connectDB("0_APP","0.Users")

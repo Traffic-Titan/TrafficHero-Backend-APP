@@ -13,7 +13,7 @@ class VerifyCodeModel(BaseModel):
     email: EmailStr
     code : str = Field(min_length=6)
 
-@router.post("/verify_code")
+@router.post("/verify_code",summary="驗證碼驗證")
 async def verify_code(user: VerifyCodeModel):
     # 檢查電子郵件是否存在於資料庫中
     Collection = connectDB("0_APP","0.Users")

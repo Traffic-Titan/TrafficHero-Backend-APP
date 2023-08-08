@@ -23,7 +23,7 @@ class ProfileModel(BaseModel):
     birthday: Optional[str]
     Google_ID: str = None
 
-@router.get("/profile")
+@router.get("/profile",summary="【Read】會員資料")
 async def view_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     # JWT驗證
     payload = decode_token(token.credentials)
@@ -42,7 +42,7 @@ async def view_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer(
     
     return data
 
-@router.put("/profile")
+@router.put("/profile",summary="【Update】會員資料")
 async def update_profile(user: ProfileModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     # JWT驗證
     payload = decode_token(token.credentials)
@@ -62,7 +62,7 @@ async def update_profile(user: ProfileModel, token: HTTPAuthorizationCredentials
     
     return {"message": "會員資料更新成功"}
 
-@router.delete("/profile")
+@router.delete("/profile",summary="【Delete】會員資料")
 async def delete_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     # JWT驗證
     payload = decode_token(token.credentials)
@@ -77,7 +77,7 @@ class UpdateEmailModel(BaseModel):
     old_email: EmailStr
     new_email: EmailStr
 
-@router.patch("/profile/email") # 尚未處理Bug，應該是要在新Email驗證成功後才能更新
+@router.patch("/profile/email",summary="【Update】會員資料-Email(Dev)") # 尚未處理Bug，應該是要在新Email驗證成功後才能更新
 async def update_email(user: UpdateEmailModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     # JWT驗證
     payload = decode_token(token.credentials)
