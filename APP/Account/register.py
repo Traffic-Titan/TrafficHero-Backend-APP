@@ -22,7 +22,7 @@ class ProfileModel(BaseModel):
     birthday: str
     Google_ID: str = None
 
-@router.post("/register")
+@router.post("/register",summary="會員註冊")
 async def register(user: ProfileModel):
     # 連線MongoDB
     Collection = connectDB("0_APP","0.Users")

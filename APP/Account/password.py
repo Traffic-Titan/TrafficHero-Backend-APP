@@ -16,7 +16,7 @@ class ChangePasswordModel(BaseModel):
     old_password: str
     new_password: str
     
-@router.put("/change_password")
+@router.put("/change_password",summary="更改密碼")
 async def change_password(user: ChangePasswordModel):
     # 連線MongoDB
     Collection = connectDB("0_APP","0.Users")
@@ -48,7 +48,7 @@ class ForgetPasswordModel(BaseModel):
     email: EmailStr
     birthday: str
 
-@router.post("/forgot_password")
+@router.post("/forgot_password",summary="忘記密碼")
 async def forgot_password(user: ForgetPasswordModel):
     # 檢查電子郵件是否存在於資料庫中
     Collection = connectDB("0_APP","0.Users")

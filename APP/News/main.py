@@ -43,7 +43,7 @@ def process_data(type, areas, logoURL):
     
     return documents
 
-@router.get("/Car",summary="【讀取】最新消息-汽車")
+@router.get("/Car",summary="【Read】最新消息-汽車")
 async def Car(areas: str = "All", types: str = "All", token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
@@ -89,7 +89,7 @@ async def Car(areas: str = "All", types: str = "All", token: HTTPAuthorizationCr
     sorted_documents = sorted(documents, key=lambda x: x.get("UpdateTime", ""), reverse=True) # 依照UpdateTime排序
     return sorted_documents
 
-@router.get("/Public_Transport",summary="【讀取】最新消息-大眾運輸")
+@router.get("/Public_Transport",summary="【Read】最新消息-大眾運輸")
 async def Public_Transport(areas: str = "All", types: str = "All", token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
@@ -135,7 +135,7 @@ async def Public_Transport(areas: str = "All", types: str = "All", token: HTTPAu
     sorted_documents = sorted(documents, key=lambda x: x.get("UpdateTime", ""), reverse=True) # 依照UpdateTime排序
     return sorted_documents
 
-@router.get("/Public_Transport/YouBike/{county}",summary="【讀取】最新消息-大眾運輸-腳踏車")
+@router.get("/Public_Transport/YouBike/{county}",summary="【Read】最新消息-大眾運輸-腳踏車")
 async def Public_Transport_Youbike(county:str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     縣市列表：臺北市、新北市、桃園市、新竹縣、新竹市、新竹科學園區、苗栗縣、台中市、嘉義市、臺南市、高雄市、屏東縣
@@ -181,7 +181,7 @@ async def Public_Transport_Youbike(county:str, token: HTTPAuthorizationCredentia
         all_return_detail.append(return_detail)
     
     return all_return_detail
-@router.get("/Car/FreeWay",summary="【讀取】最新消息-汽車-國道最新消息")
+@router.get("/Car/FreeWay",summary="【Read】最新消息-汽車-國道最新消息")
 async def Car_FreeWay(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)

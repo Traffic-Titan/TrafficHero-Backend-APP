@@ -15,7 +15,7 @@ class LoginModel(BaseModel):
     Google_ID: str
     Google_Avatar: str = None
 
-@router.post("/Google_SSO")
+@router.post("/Google_SSO",summary="使用Google帳號登入(含註冊、綁定判斷)")
 async def google_Login_OR_Register(user: LoginModel):
     # 連線MongoDB
     Collection = connectDB("0_APP","0.Users")

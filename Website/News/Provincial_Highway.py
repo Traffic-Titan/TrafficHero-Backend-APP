@@ -34,7 +34,7 @@ def getCountry(title:str,matchName:str):
                 pass
         return None
 
-@router.put("/Provincial_Highway",summary="【更新】最新消息-省道")
+@router.put("/Provincial_Highway",summary="【Update】最新消息-省道")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)

@@ -15,7 +15,7 @@ import Function.link as link
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-@router.put("/InterCityBus",summary="【更新】最新消息-公路客運")
+@router.put("/InterCityBus",summary="【Update】最新消息-公路客運")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)

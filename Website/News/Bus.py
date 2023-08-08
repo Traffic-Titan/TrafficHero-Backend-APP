@@ -19,7 +19,7 @@ security = HTTPBearer()
 
 Collection = connectDB("News","Bus")
 
-@router.put("/Bus",summary="【更新】最新消息-公車")
+@router.put("/Bus",summary="【Update】最新消息-公車")
 async def bus(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials = Depends(security)):
     """
     基隆市公車:Keelung_City,臺北市公車:Taipei_City,桃園市公車:Taoyuan_City,新北市公車:New_Taipei_City,新竹市公車:Hsinchu_City,新竹縣公車:Hsinchu_County,苗栗縣公車:Miaoli_County,臺中市公車:Taichung_City,彰化縣公車:Changhua_County,南投縣公車:Nantou_County,雲林縣公車:Yunlin_County,嘉義市公車:Chiayi_City,嘉義縣公車:Chiayi_County,臺南市公車:Tainan_City,高雄市公車:Kaohsiung_City,屏東縣公車:Pingtung_County,臺東縣公車:Taitung_County,花蓮縣公車:Hualien_County,宜蘭縣公車:Yilan_County,澎湖縣公車:Penghu_County,金門縣公車:Kinmen_County

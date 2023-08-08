@@ -6,7 +6,7 @@ from Service.MongoDB import connectDB
 router = APIRouter(tags=["通用功能"],prefix="/Universal/Logo")
 security = HTTPBearer()
 
-@router.get("/get")
+@router.get("/get",summary="【Read】(Dev)")
 def get(Type: str, Area: str, token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
@@ -15,7 +15,7 @@ def get(Type: str, Area: str, token: HTTPAuthorizationCredentials = Depends(secu
     result = Collection.find_one({"Area": Area})
     return result["Logo"]
 
-@router.get("/MRT",summary="取得各捷運Logo, 臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT")
+@router.get("/MRT",summary="【Read】取得各捷運Logo, 臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT(Dev)")
 def getMRTLogo(Region: str, token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
@@ -38,14 +38,14 @@ def getMRTLogo(Region: str, token: HTTPAuthorizationCredentials = Depends(securi
         case _:
             return "No Data"
 
-@router.post("/MRT",summary="新增各捷運Logo, 臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT")
+@router.post("/MRT",summary="【Create】新增各捷運Logo, 臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT(Dev)")
 def setMRTLogo(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
     Collection = connectDB("2_Universal","Logo")
     
 
-@router.put("/MRT",summary="修改各捷運Logo, 臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT")
+@router.put("/MRT",summary="【Update】修改各捷運Logo, 臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT(Dev)")
 def setMRTLogo(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
