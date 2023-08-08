@@ -8,7 +8,7 @@ import Function.time as time
 
 router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/TDX")
 
-@router.post("/getData")
+@router.get("/getData",summary="【Read】取得TDX資料")
 def getData(url):
     auth_url = "https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token"
     app_id = os.getenv('TDX_app_id')
@@ -52,15 +52,18 @@ class Data():
             'authorization': 'Bearer '+ access_token
         }
 
+@router.get("/getHealthStatus",summary="【Read】TDX服務健康狀態")
 def getHealthStatus(url: str):
     result = getData(url + "&health=true")
     status = {
-        "Inbound_CheckTime": time.format(result["Inbound"]["CheckTime"]),
-        "Inbound_Status": Number2Text(result["Inbound"]["Status"]),
-        "Inbound_Reason": result["Inbound"]["Reason"] if result["Inbound"]["Reason"] != None else "",
-        "Outbound_CheckTime": time.format(result["Outbound"]["CheckTime"]),
-        "Outbound_Status": Number2Text(result["Outbound"]["Status"]),
-        "Outbound_Reason": result["Outbound"]["Reason"] if result["Outbound"]["Reason"] != None else "",
+        "ServiceID": result.get("ServiceID", ""),
+        "ServiceName": result.get("ServiceName", ""),
+        "Inbound_CheckTime": time.format(result["Inbound"].get("CheckTime", "")),
+        "Inbound_Status": Number2Text(result["Inbound"].get("Status", "")),
+        "Inbound_Reason": result["Inbound"].get("Reason", ""),
+        "Outbound_CheckTime": time.format(result["Outbound"].get("CheckTime", "")),
+        "Outbound_Status": Number2Text(result["Outbound"].get("Status", "")),
+        "Outbound_Reason": result["Outbound"].get("Reason", "")
     }
     return status
 

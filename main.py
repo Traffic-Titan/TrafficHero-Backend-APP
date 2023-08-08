@@ -15,7 +15,7 @@ from fastapi.responses import RedirectResponse
 from api_analytics.fastapi import Analytics
 
 app = FastAPI()
-app.add_middleware(Analytics, api_key="a2999611-b29a-4ade-a55b-2147b706da6e")  # Add middleware
+app.add_middleware(Analytics, api_key="a2999611-b29a-4ade-a55b-2147b706da6e")  # Add middleware(Dev)
 
 # 自動導向Swagger
 @app.get("/", include_in_schema=False)
