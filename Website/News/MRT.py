@@ -51,7 +51,7 @@ def updateNews(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials 
 def data2MongoDB(Area: str):
     Collection.delete_many({"Area": Area})
     
-    url = link.get("Source", "News", "MRT", Area)
+    url = link.get("News", "MRT", Area)
     data = getData(url)
     
     # 將資料整理成MongoDB的格式
@@ -67,10 +67,10 @@ def data2MongoDB(Area: str):
             "NewsCategory": Number2Text(d['NewsCategory']),
             "Description": d['Description'],
             "NewsURL": d['NewsURL'],
-            # "StartTime": time.format_time(d['StartTime']),
-            # "EndTime": time.format_time(d['EndTime']),
-            # "PublishTime": time.format_time(d['PublishTime']),
-            "UpdateTime": time.format_time(d['UpdateTime'])
+            # "StartTime": time.format(d['StartTime']),
+            # "EndTime": time.format(d['EndTime']),
+            # "PublishTime": time.format(d['PublishTime']),
+            "UpdateTime": time.format(d['UpdateTime'])
         }
         documents.append(document)
 

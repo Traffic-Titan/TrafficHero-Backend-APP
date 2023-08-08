@@ -4,6 +4,7 @@ import json
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
+import Function.time as time
 
 router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/TDX")
 
@@ -50,3 +51,24 @@ class Data():
         return {
             'authorization': 'Bearer '+ access_token
         }
+
+def getHealthStatus(url: str):
+    result = getData(url + "&health=true")
+    status = {
+        "Inbound_CheckTime": time.format(result["Inbound"]["CheckTime"]),
+        "Inbound_Status": Number2Text(result["Inbound"]["Status"]),
+        "Inbound_Reason": result["Inbound"]["Reason"] if result["Inbound"]["Reason"] != None else "",
+        "Outbound_CheckTime": time.format(result["Outbound"]["CheckTime"]),
+        "Outbound_Status": Number2Text(result["Outbound"]["Status"]),
+        "Outbound_Reason": result["Outbound"]["Reason"] if result["Outbound"]["Reason"] != None else "",
+    }
+    return status
+
+def Number2Text(number: int):
+    match number:
+        case 0:
+            return "失敗"
+        case 1:
+            return "成功"
+        case 2:
+            return "資料清洗中"

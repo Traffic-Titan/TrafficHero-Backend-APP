@@ -40,7 +40,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     decode_token(token.credentials)
     
     # 取得TDX資料
-    url = link.get("Source", "News", "Provincial_Highway", "All")
+    url = link.get("News", "Provincial_Highway", "All")
     data = getData(url)
     
     # 將資料整理成MongoDB的格式
@@ -56,7 +56,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
             # "StartTime": d['StartTime'],
             # "EndTime": d['EndTime'],
             # "PublishTime": d['PublishTime'],
-            "UpdateTime": time.format_time(d['UpdateTime'])
+            "UpdateTime": time.format(d['UpdateTime'])
         }
         documents.append(document)
 
