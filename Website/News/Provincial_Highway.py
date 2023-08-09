@@ -47,6 +47,8 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     documents = []
     for d in data["Newses"]:
         document = {
+            "Type": "Provincial_Highway",
+            "Area": "All",
             "NewsID": d['NewsID'],
             "Title": d['Title'],
             "NewsCategory": NewsCategory_Number2Text(d['NewsCategory']),
@@ -61,8 +63,8 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
         documents.append(document)
 
     # 將資料存入MongoDB
-    Collection = Service.MongoDB.connectDB("News","Provincial_Highway")
-    Collection.drop()
+    Collection = Service.MongoDB.connectDB("News","Car_and_Sccoter")
+    Collection.delete_many({"Type": "Provincial_Highway"})
     Collection.insert_many(documents)
     
     return "Success"
