@@ -7,7 +7,7 @@ import requests
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/Home/Weather")
 security = HTTPBearer()
 
-@router.get("/getLink", summary="【Read】天氣-取得中央氣象局連結(根據使用者定位)(Dev)")
+@router.get("/getLink", summary="【Read】天氣-取得中央氣象局連結(根據使用者定位)")
 async def getLink(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     Longitude: 經度, Latitude: 緯度\n\n
