@@ -1,9 +1,8 @@
 from Service.MongoDB import connectDB
 
-def get(type: str, area: str):
-    Collection = connectDB("Logo",type)
-    result = Collection.find_one({"Area": area})
-    
+def get(type: str, area: str = "All"):
+    Collection = connectDB("Source","Logo")
+    result = Collection.find_one({"Type": type,"Area": area}, {"_id": 0, "Logo": 1})
     if result:
         return result["Logo"]
     else:

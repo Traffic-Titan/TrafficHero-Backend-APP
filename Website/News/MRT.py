@@ -18,7 +18,7 @@ import Function.link as link
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = connectDB("News","MRT")
+Collection = connectDB("News","Public_Transport")
 
 @router.put("/MRT",summary="【Update】最新消息-捷運")
 def updateNews(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials = Depends(security)):
@@ -49,7 +49,7 @@ def updateNews(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials 
     return "Success"
 
 def data2MongoDB(Area: str):
-    Collection.delete_many({"Area": Area})
+    Collection.delete_many({"Type": "MRT", "Area": Area})
     
     url = link.get("News", "MRT", Area)
     data = getData(url)
@@ -61,6 +61,7 @@ def data2MongoDB(Area: str):
     documents = []
     for d in data["Newses"]:
         document = {
+            "Type": "MRT",
             "Area": Area,
             "NewsID": d['NewsID'],
             "Title": d['Title'],

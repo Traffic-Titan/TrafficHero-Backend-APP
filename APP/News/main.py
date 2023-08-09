@@ -12,7 +12,7 @@ import re
 import csv
 import os
 import Function.logo as logo
-from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
@@ -25,122 +25,126 @@ import Function.link as link
 router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
 security = HTTPBearer()
 
-# 創建一個線程池，用於並行處理
-executor = ThreadPoolExecutor()
-
-# 定義一個函數來處理單個類型的數據
-def process_data(type, areas, logoURL):
-    Collection = connectDB("News", type)
+def process_data(Collection, type, area):
     documents = []
-
-    for area in areas.split(','):
-        query = {"Area": area} if type not in ["TRA", "THSR"] else {}
-        result = Collection.find(query)
-        
-        for d in result:
-            d.pop("_id")
-            d["LogoURL"] = logoURL
-            documents.append(d)
-    
-    return documents
+    result = Collection.find({"Type": type,"Area": area}, {"_id": 0}) # 取得資料
+    logoURL = logo.get(type, area) # 取得Logo
+    for d in result:
+        d["LogoURL"] = logoURL # 新增Logo
+        documents.append(d) # 將資料存入documents
+    return documents # 回傳documents
 
 @router.get("/Car",summary="【Read】最新消息-汽車")
 async def Car(areas: str = "All", types: str = "All", token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
     
-    if areas == "All":
+    if areas == "All": # 全部縣市
         areas = "Keelung_City,Taipei_City,Taoyuan_City,New_Taipei_City,Hsinchu_City,Hsinchu_County,Miaoli_County,Taichung_City,Changhua_County,Nantou_County,Yunlin_County,Chiayi_City,Chiayi_County,Tainan_City,Kaohsiung_City,Pingtung_County,Taitung_County,Hualien_County,Yilan_County,Penghu_County,Kinmen_County"
     
-    if types == "All":
+    if types == "All": # 全部類型
         types = "Provincial_Highway"
-    
-    documents = []
-    types = types.split(',')
-    areas = areas.split(',')
-    
-    for type in types:
-        if type == "Provincial_Highway":
-            area = "All"
-            Collection = connectDB("News", type)
-            
-            result = Collection.find()
-            logoURL = logo.get(type, "All")
-            for d in result:
-                d.pop("_id")  # Remove the '_id' field from the document
-                d["LogoURL"] = logoURL  # 新增Logo
-                documents.append(d)   
-        else:
-            Collection = connectDB("News", type)
-            for area in areas:
-                result = Collection.find({"Area": area})
-                logoURL = logo.get(type, area)
-                for d in result:
-                    d.pop("_id")  # Remove the '_id' field from the document
-                    d["LogoURL"] = logoURL  # 新增Logo
-                    documents.append(d)      
-    
-    # tasks = []
+        
+    documents = [] # 回傳的資料
+    types = types.split(',') # 將types轉成陣列
+    areas = areas.split(',') # 將areas轉成陣列
+    Collection = connectDB("News", "Car_and_Sccoter") # 連接MongoDB
 
-    # for type in types.split(','):
-    #     areas_list = areas.split(',')
-    #     logoURL = logo.get(type, "All")
-    #     tasks.append(executor.submit(process_data, type, areas, logoURL))
+    task = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(types) * len(areas)) as executor: # 並行處理
+        for type in types:
+            if type == "Provincial_Highway" : # 無區域之分
+                area = "All"
+                task.append(executor.submit(process_data, Collection, type, area)) # 將任務加入任務清單
+            else:
+                for area in areas: # 有區域之分
+                    task.append(executor.submit(process_data, Collection, type, area)) # 將任務加入任務清單
+
+    for future in concurrent.futures.as_completed(task):
+        documents.extend(future.result()) # 將任務結果存入documents
+
+    documents.sort(key=lambda x: x.get("UpdateTime", ""), reverse=True) # 依照UpdateTime排序
+    return documents
+
+    # 原程式碼
+    # documents = []
+    # types = types.split(',')
+    # areas = areas.split(',')
     
-    # results = [task.result() for task in tasks]
-    # documents = [doc for sublist in results for doc in sublist]
+    # for type in types:
+    #     if type == "Provincial_Highway":
+    #         area = "All"
+    #         Collection = connectDB("News", type)
+            
+    #         result = Collection.find()
+    #         logoURL = logo.get(type, "All")
+    #         for d in result:
+    #             d.pop("_id")  # Remove the '_id' field from the document
+    #             d["LogoURL"] = logoURL  # 新增Logo
+    #             documents.append(d)   
+    #     else:
+    #         Collection = connectDB("News", type)
+    #         for area in areas:
+    #             result = Collection.find({"Area": area})
+    #             logoURL = logo.get(type, area)
+    #             for d in result:
+    #                 d.pop("_id")  # Remove the '_id' field from the document
+    #                 d["LogoURL"] = logoURL  # 新增Logo
+    #                 documents.append(d)
     
-    sorted_documents = sorted(documents, key=lambda x: x.get("UpdateTime", ""), reverse=True) # 依照UpdateTime排序
-    return sorted_documents
+    # sorted_documents = sorted(documents, key=lambda x: x.get("UpdateTime", ""), reverse=True) # 依照UpdateTime排序
+    # return sorted_documents
 
 @router.get("/Public_Transport",summary="【Read】最新消息-大眾運輸")
 async def Public_Transport(areas: str = "All", types: str = "All", token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
     
-    if areas == "All":
+    if areas == "All": # 全部縣市
         areas = "Keelung_City,Taipei_City,Taoyuan_City,New_Taipei_City,Hsinchu_City,Hsinchu_County,Miaoli_County,Taichung_City,Changhua_County,Nantou_County,Yunlin_County,Chiayi_City,Chiayi_County,Tainan_City,Kaohsiung_City,Pingtung_County,Taitung_County,Hualien_County,Yilan_County,Penghu_County,Kinmen_County"
     
-    if types == "All":
+    if types == "All": # 全部類型
         types = "TRA,THSR,MRT,Bus,InterCityBus"
     
-    documents = []
-    types = types.split(',')
-    areas = areas.split(',')
-    
-    for type in types:
-        if type == "TRA" or type == "THSR" or type == "InterCityBus":
-            area = "All"
-            Collection = connectDB("News", type)
-            
-            result = Collection.find()
-            logoURL = logo.get(type, "All")
-            for d in result:
-                d.pop("_id")  # Remove the '_id' field from the document
-                d["LogoURL"] = logoURL  # 新增Logo
-                documents.append(d)   
-        else:
-            Collection = connectDB("News", type)
-            for area in areas:
-                result = Collection.find({"Area": area})
-                logoURL = logo.get(type, area)
-                for d in result:
-                    d.pop("_id")  # Remove the '_id' field from the document
-                    d["LogoURL"] = logoURL  # 新增Logo
-                    documents.append(d)     
-    
-    # tasks = []
+    documents = [] # 回傳的資料
+    types = types.split(',') # 將types轉成陣列
+    areas = areas.split(',') # 將areas轉成陣列
+    Collection = connectDB("News", "Public_Transport") # 連接MongoDB
 
-    # for type in types.split(','):
-    #     areas_list = areas.split(',')
-    #     logoURL = logo.get(type, "All")
-    #     tasks.append(executor.submit(process_data, type, areas, logoURL))
+    task = [] # 任務清單
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(types) * len(areas)) as executor: # 並行處理
+        for type in types:
+            if type == "TRA" or type == "THSR" or type == "InterCityBus": # 無區域之分
+                area = "All"
+                task.append(executor.submit(process_data, Collection, type, area)) # 將任務加入任務清單
+            else:
+                for area in areas: # 有區域之分
+                    task.append(executor.submit(process_data, Collection, type, area)) # 將任務加入任務清單
+
+    for future in concurrent.futures.as_completed(task): 
+        documents.extend(future.result()) # 將任務結果存入documents
+
+    documents.sort(key=lambda x: x.get("UpdateTime", ""), reverse=True) # 依照UpdateTime排序
+    return documents
+
+    # 原程式碼
+    # documents = []
+    # types = types.split(',')
+    # areas = areas.split(',')
+    # Collection = connectDB("News","Public_Transport")
     
-    # results = [task.result() for task in tasks]
-    # documents = [doc for sublist in results for doc in sublist]
+    # for type in types:
+    #     if type == "TRA" or type == "THSR" or type == "InterCityBus":
+    #         area = "All"
+    #         documents.extend(process_data(Collection, type, area))
+    #     else:
+    #         for area in areas: 
+    #             documents.extend(process_data(Collection, type, area))
+    #             print(area)
+    #     print(type)
     
-    sorted_documents = sorted(documents, key=lambda x: x.get("UpdateTime", ""), reverse=True) # 依照UpdateTime排序
-    return sorted_documents
+    # documents.sort(key=lambda x: x.get("UpdateTime", ""), reverse=True) # 依照UpdateTime排序
+    # return documents
 
 @router.get("/Public_Transport/YouBike/{county}",summary="【Read】最新消息-大眾運輸-腳踏車")
 async def Public_Transport_Youbike(county:str, token: HTTPAuthorizationCredentials = Depends(security)):
