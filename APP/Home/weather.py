@@ -29,10 +29,10 @@ async def getLink(Longitude: str, Latitude: str, token: HTTPAuthorizationCredent
             return {"detail": "查無資料"}
         TownID = root.find('villageCode').text[0:7] # 僅取前7碼，ex: 10009010011 -> 1000901
         
-        if TownID[1] == "6": # 6開頭為6都，需刪除多餘的0，ex: 63000020 -> 6300200)
+        if TownID[0] == "6": # 6開頭為6都，需刪除多餘的0，ex: 63000020 -> 6300200)
             temp = TownID.split("0") # 用0分割，ex: 63000020 -> ["63", "", "", "", "2", ""]
             temp = [item for item in temp if item != ""] # 將空字串刪除，ex: ["63", "2"]
-            TownID = (temp[0].ljust(3, "0") + temp[1]).ljust(7, "0") # 前三字為縣市，後四字為鄉鎮市區，最後補0成7碼
+            TownID = temp[0].ljust(3, "0") + str(int(temp[1]) * 100).rjust(4, "0") # 前三字為縣市，後四字為鄉鎮市區，最後補0成7碼
             
         return {"URL": f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={TownID}"}
         
