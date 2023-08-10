@@ -22,53 +22,6 @@ router = APIRouter(tags=["1.首頁(APP)"],prefix="/Home")
 security = HTTPBearer()
 
 """
-1.資料來源:全國路邊停車費查詢API
-    https://tdx.transportdata.tw/api-service/parkingFee
-"""
-class CarInfo(BaseModel):
-    CarID: str
-    CarType: str
-
-@router.post("/ParkingFee")
-def ParkingFee(CarInfo:CarInfo, token: HTTPAuthorizationCredentials = Depends(security)):
-    # JWT驗證
-    decode_token(token.credentials)
-    
-    #總額 Initial、PaidDetail:存單一縣市的繳費資訊、all_PaidDetail:存全部縣市的繳費資訊
-    TotalAmount = 0
-    PaidDetail = {}
-    all_PaidDetail = []
-
-
-    # 連線MongoDB
-    Collection = connectDB("TrafficHero","ParkingFee_Country")
-    for country in Collection.find({}):
-
-        #取得資料庫內每個縣市的URL，並將車牌及種類修改進新的URL
-        url = country['URL']
-        url = url.replace("Insert_CarID",CarInfo.CarID)
-        url = url.replace("Insert_CarType",CarInfo.CarType)
-        try:
-            dataAll = getData(url)
-
-            #回傳查詢狀態，如果Result有東西就將TotalAmount累加
-            if(dataAll['Status'] == 'SUCCESS'):
-                if(dataAll['Result']):
-                    #全部欠費的總額
-                    TotalAmount = dataAll['Result']['TotalAmount'] + TotalAmount
-                    
-                    #以縣市為dict的key，value為該縣市的欠費、bill資訊
-                    PaidDetail = {country['Country']:{"Amount":dataAll['Result']['TotalAmount'],"Bill":dataAll['Result']['Bills']}}
-                    
-                    #將該縣市加進陣列裡方便回傳
-                    all_PaidDetail.append(PaidDetail)   
-            else:
-                return dataAll['Message']
-        except:
-            pass
-    return "總額："+ str(TotalAmount) , all_PaidDetail
-
-"""
 1.資料來源:加油站服務資訊
     https://data.gov.tw/dataset/6065
 """
