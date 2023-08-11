@@ -5,7 +5,7 @@
 4. 其他縣市等查明後再撰寫
 """
 
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 from Service.Google_Maps import *
 import json
 from urllib import request
@@ -35,6 +35,6 @@ def getData():
         documents.append(document)
     
     # 將資料存入MongoDB
-    Collection = connectDB("TrafficHero","Technical_Enforcement")
+    Collection = MongoDB.getCollection("TrafficHero","Technical_Enforcement")
     Collection.drop()
     Collection.insert_many(documents)

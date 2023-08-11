@@ -10,7 +10,7 @@ from enum import Enum
 import csv
 from pydantic import BaseModel
 from Service.TDX import getData
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 from shapely.geometry import Point
 from geopy.distance import geodesic
 from shapely.geometry.polygon import Polygon

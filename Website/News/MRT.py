@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 from Service.TDX import getData
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 from typing import Optional, List, Union
 import json
 from pydantic import BaseModel, HttpUrl
@@ -18,7 +18,7 @@ import Function.link as link
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = connectDB("News","Public_Transport")
+Collection = MongoDB.getCollection("News","Public_Transport")
 
 @router.put("/MRT",summary="【Update】最新消息-捷運")
 def updateNews(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials = Depends(security)):
@@ -32,7 +32,7 @@ def updateNews(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials 
     decode_token(token.credentials)
     
     # 更新資料庫
-    Collection = connectDB("News","MRT")
+    Collection = MongoDB.getCollection("News","MRT")
     
     match Area:
         case "Taipei_City": # 臺北捷運

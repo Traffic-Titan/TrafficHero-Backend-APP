@@ -5,7 +5,7 @@ import json
 import csv
 import re
 import time
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 
 """
 1.資料來源:快速公路通車情形與速限統計表
@@ -16,7 +16,7 @@ from Service.MongoDB import connectDB
 
 def ExpressWay():
     documents = []
-    collection = connectDB('TrafficHero','SpeedLimit_In_Each_Place')
+    collection = MongoDB.getCollection('TrafficHero','SpeedLimit_In_Each_Place')
     collection.drop()
     with open(r'./APP/CMS/快速公路通車情形與速限統計表.csv',encoding="utf-8") as csv_file:
         reader = csv.reader(csv_file)
@@ -51,7 +51,7 @@ def ExpressWay():
             collection.update_one({"路段":cursor['路段']},{"$set":{"Lat_Lng":Lat_Lng_array}})
 def FreeWayTunnel():
     documents = []
-    collection = connectDB('TrafficHero','FreeWay_Tunnel')
+    collection = MongoDB.getCollection('TrafficHero','FreeWay_Tunnel')
     collection.drop()
     with open(r'./APP/CMS/國道隧道一覽表.csv',encoding="Big5") as csv_file:
         reader = csv.reader(csv_file)

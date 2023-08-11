@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
 import hashlib
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 from datetime import datetime, timedelta
 from Service.Token import encode_token, decode_token
 from Service.Email_Service import send_email
@@ -19,7 +19,7 @@ class ChangePasswordModel(BaseModel):
 @router.put("/change_password",summary="更改密碼")
 async def change_password(user: ChangePasswordModel):
     # 連線MongoDB
-    Collection = connectDB("0_APP","0.Users")
+    Collection = MongoDB.getCollection("0_APP","0.Users")
 
     # 查詢使用者記錄，同時驗證舊密碼和Token的有效性
     result = Collection.find_one({
@@ -51,7 +51,7 @@ class ForgetPasswordModel(BaseModel):
 @router.post("/forgot_password",summary="忘記密碼")
 async def forgot_password(user: ForgetPasswordModel):
     # 檢查電子郵件是否存在於資料庫中
-    Collection = connectDB("0_APP","0.Users")
+    Collection = MongoDB.getCollection("0_APP","0.Users")
     result = Collection.find_one({"email": user.email, "email_confirmed": True, "birthday": user.birthday})
     if result is None:
         raise HTTPException(status_code=404, detail="查無此帳號，請重新輸入")

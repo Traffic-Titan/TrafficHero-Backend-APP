@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr
 import hashlib
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 from datetime import datetime, timedelta
 from Service.Token import encode_token, decode_token
 from Function.blob import *
@@ -18,7 +18,7 @@ class LoginModel(BaseModel):
 @router.post("/Google_SSO",summary="使用Google帳號登入(含註冊、綁定判斷)")
 async def google_Login_OR_Register(user: LoginModel):
     # 連線MongoDB
-    Collection = connectDB("0_APP","0.Users")
+    Collection = MongoDB.getCollection("0_APP","0.Users")
     
     # 如果查詢結果為None，表示無此帳號
     result = Collection.find_one({"email": user.email})

@@ -1,7 +1,7 @@
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 
 def get(collection_name : str, type: str, area: str):
-    Collection = connectDB("Source",collection_name)
+    Collection = MongoDB.getCollection("Source",collection_name)
     result = Collection.find_one({"Type": type, "Area": area})
     
     if result:

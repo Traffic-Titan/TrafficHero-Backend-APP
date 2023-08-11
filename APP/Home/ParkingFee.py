@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 import concurrent.futures
 import threading
 from pydantic import BaseModel
@@ -32,7 +32,7 @@ def ParkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(securit
     areas = areas.split(',') # 將areas轉成陣列
     
     # 連線MongoDB
-    Collection = connectDB("Source","ParkingFee")
+    Collection = MongoDB.getCollection("Source","ParkingFee")
     
     task = []
     with concurrent.futures.ThreadPoolExecutor(max_workers = len(areas)) as executor: # 並行處理，目前有11個縣市提供API

@@ -7,7 +7,7 @@
 
 from urllib import request
 import json
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 import requests
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
@@ -50,7 +50,7 @@ def getData():
         documents.append(document)
     
     # 將資料存入MongoDB  
-    Collection = connectDB("TrafficHero","PBS")
+    Collection = MongoDB.getCollection("TrafficHero","PBS")
     Collection.drop()
     Collection.insert_many(documents)
 
@@ -85,7 +85,7 @@ def getHardShoulder():
     documents = []
 
     #連接DataBase
-    collection = connectDB("TrafficHero","Road_Hard_Shoulder_Info")
+    collection = MongoDB.getCollection("TrafficHero","Road_Hard_Shoulder_Info")
     collection.drop()
     
     #Python Selenium 

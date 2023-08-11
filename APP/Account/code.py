@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
-from Service.MongoDB import *
 from Service.Token import *
 import Function.time as time
 import Function.verification_code as code
+from main import MongoDB # 引用MongoDB連線實例
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()
@@ -16,7 +16,7 @@ class VerifyCodeModel(BaseModel):
 @router.post("/verify_code",summary="驗證碼驗證")
 async def verify_code(user: VerifyCodeModel):
     # 檢查電子郵件是否存在於資料庫中
-    Collection = connectDB("0_APP","0.Users")
+    Collection = MongoDB.getCollection("0_APP","0.Users")
     result = Collection.find_one({"email": user.email})
     if result is None:
         raise HTTPException(status_code=404, detail="此電子郵件不存在")

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr, Field
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 from jose import jwt
 from datetime import datetime, timedelta
 from Service.Token import encode_token, decode_token
@@ -29,7 +29,7 @@ async def view_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer(
     payload = decode_token(token.credentials)
     
     # 取得使用者資料
-    Collection = connectDB("0_APP","0.Users")
+    Collection = MongoDB.getCollection("0_APP","0.Users")
     result = Collection.find_one({"email": payload["data"]["email"]})
     data = {
         "name": result["name"] if "name" in result else None,
@@ -48,7 +48,7 @@ async def update_profile(user: ProfileModel, token: HTTPAuthorizationCredentials
     payload = decode_token(token.credentials)
     
     # 取得使用者資料
-    Collection = connectDB("0_APP","0.Users")
+    Collection = MongoDB.getCollection("0_APP","0.Users")
     result = Collection.find_one({"email": payload["data"]["email"]})
     
     # 更新使用者資料
@@ -68,7 +68,7 @@ async def delete_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBeare
     payload = decode_token(token.credentials)
     
     # 刪除使用者資料
-    Collection = connectDB("0_APP","0.Users")
+    Collection = MongoDB.getCollection("0_APP","0.Users")
     Collection.delete_one({"email": payload["data"]["email"]})
     
     return {"message": "會員刪除成功"}
@@ -83,7 +83,7 @@ async def update_email(user: UpdateEmailModel, token: HTTPAuthorizationCredentia
     payload = decode_token(token.credentials)
 
     # Email驗證
-    Collection = connectDB("0_APP","0.Users")
+    Collection = MongoDB.getCollection("0_APP","0.Users")
     if user.old_email == payload["data"]["email"]:
         # 生成驗證碼、寄送郵件、存到資料庫
         verification_code = code.generate_verification_code()

@@ -10,14 +10,14 @@ import os
 import json
 import urllib.request as request
 from typing import Optional
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 import Function.time as time
 import Function.link as link
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = connectDB("News","Public_Transport")
+Collection = MongoDB.getCollection("News","Public_Transport")
 
 @router.put("/Bus",summary="【Update】最新消息-公車")
 async def bus(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials = Depends(security)):
