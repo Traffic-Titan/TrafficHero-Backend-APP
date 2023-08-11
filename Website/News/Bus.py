@@ -10,9 +10,9 @@ import os
 import json
 import urllib.request as request
 from typing import Optional
-from main import MongoDB # 引用MongoDB連線實例
-import Function.time as time
-import Function.link as link
+from Main import MongoDB # 引用MongoDB連線實例
+import Function.Time as Time
+import Function.Link as Link
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
@@ -20,7 +20,7 @@ security = HTTPBearer()
 Collection = MongoDB.getCollection("News","Public_Transport")
 
 @router.put("/Bus",summary="【Update】最新消息-公車")
-async def bus(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials = Depends(security)):
+async def updateNews(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials = Depends(security)):
     """
     基隆市公車:Keelung_City,臺北市公車:Taipei_City,桃園市公車:Taoyuan_City,新北市公車:New_Taipei_City,新竹市公車:Hsinchu_City,新竹縣公車:Hsinchu_County,苗栗縣公車:Miaoli_County,臺中市公車:Taichung_City,彰化縣公車:Changhua_County,南投縣公車:Nantou_County,雲林縣公車:Yunlin_County,嘉義市公車:Chiayi_City,嘉義縣公車:Chiayi_County,臺南市公車:Tainan_City,高雄市公車:Kaohsiung_City,屏東縣公車:Pingtung_County,臺東縣公車:Taitung_County,花蓮縣公車:Hualien_County,宜蘭縣公車:Yilan_County,澎湖縣公車:Penghu_County,金門縣公車:Kinmen_County
     
@@ -92,7 +92,7 @@ async def bus(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials =
 def data2MongoDB(Area: str):
     Collection.delete_many({"Type": "Bus", "Area": Area})
     
-    url = link.get("News", "Bus", Area)
+    url = Link.get("News", "Bus", Area)
     data = getData(url)
     
     # 將資料整理成MongoDB的格式
@@ -112,7 +112,7 @@ def data2MongoDB(Area: str):
             # "StartTime": d['StartTime'],
             # "EndTime": d['EndTime'],
             # "PublishTime": d['PublishTime'],
-            "UpdateTime": time.format(d['UpdateTime'])
+            "UpdateTime": Time.format(d['UpdateTime'])
         }
         documents.append(document)
 
@@ -121,7 +121,7 @@ def data2MongoDB(Area: str):
     
     return "Success"
 
-def NewsCategory_Number2Text(number : int):
+def newsCategory_Number2Text(number : int):
     match number:
         case 1:
             return "最新消息"

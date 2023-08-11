@@ -8,7 +8,7 @@ router = APIRouter(tags=["0.群組通訊(APP)"],prefix="/APP/Chat")
 
 security = HTTPBearer()
 
-@router.get("/ChatGPT")
+@router.get("/ChatGPT",summary="ChatGPT(Dev)")
 def ChatGPT(str:str,token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)

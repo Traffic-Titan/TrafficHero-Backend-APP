@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 
-router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/Google_Maps")
+router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/GoogleMaps")
 
 security = HTTPBearer()
 

@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 
-router = APIRouter(tags=["4-1.道路資訊(APP)"],prefix="/APP/Road_Information")
+router = APIRouter(tags=["4-1.道路資訊(APP)"],prefix="/APP/RoadInformation")
 security = HTTPBearer()
  
 @router.get("/test")

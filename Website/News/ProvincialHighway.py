@@ -9,9 +9,9 @@ import csv
 import os
 import json
 import urllib.request as request
-import Function.time as time
-import Function.link as link
-from main import MongoDB # 引用MongoDB連線實例
+import Function.Time as Time
+import Function.Link as Link
+from Main import MongoDB # 引用MongoDB連線實例
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
@@ -35,13 +35,13 @@ def getCountry(title:str,matchName:str):
                 pass
         return None
 
-@router.put("/Provincial_Highway",summary="【Update】最新消息-省道")
+@router.put("/ProvincialHighway",summary="【Update】最新消息-省道")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
     
     # 取得TDX資料
-    url = link.get("News", "Provincial_Highway", "All")
+    url = Link.get("News", "Provincial_Highway", "All")
     data = getData(url)
     
     # 將資料整理成MongoDB的格式
@@ -59,7 +59,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
             # "StartTime": d['StartTime'],
             # "EndTime": d['EndTime'],
             # "PublishTime": d['PublishTime'],
-            "UpdateTime": time.format(d['UpdateTime'])
+            "UpdateTime": Time.format(d['UpdateTime'])
         }
         documents.append(document)
 
@@ -70,7 +70,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     
     return "Success"
 
-def NewsCategory_Number2Text(number : int):
+def newsCategory_Number2Text(number : int):
     match number:
         case 1:
             return "最新消息"

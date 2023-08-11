@@ -5,8 +5,8 @@
 4. 其他縣市等查明後再撰寫
 """
 
-from main import MongoDB # 引用MongoDB連線實例
-from Service.Google_Maps import *
+from Main import MongoDB # 引用MongoDB連線實例
+from Service.GoogleMaps import *
 import json
 from urllib import request
 

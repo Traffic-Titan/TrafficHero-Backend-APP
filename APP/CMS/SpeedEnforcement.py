@@ -5,7 +5,7 @@
 
 import urllib.request as request
 import json
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 from pymongo import InsertOne
 
 """

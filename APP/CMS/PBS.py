@@ -7,7 +7,7 @@
 
 from urllib import request
 import json
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 import requests
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager

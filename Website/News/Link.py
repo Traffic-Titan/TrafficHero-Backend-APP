@@ -5,15 +5,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 from Service.TDX import getData
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 from typing import Optional, List, Union
 import json
 from pydantic import BaseModel, HttpUrl
-from Function.news_category import Number2Text
+from Function.NewsCategory import Number2Text
 import hashlib
 from collections import OrderedDict
-import Function.time as time
-import Function.link as link
+import Function.Time as Time
+import Function.Link as Link
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()

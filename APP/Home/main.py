@@ -10,14 +10,14 @@ from enum import Enum
 import csv
 from pydantic import BaseModel
 from Service.TDX import getData
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 from shapely.geometry import Point
 from geopy.distance import geodesic
 from shapely.geometry.polygon import Polygon
-from Service.Google_Maps import geocode
+from Service.GoogleMaps import geocode
 import openpyxl
 
-router = APIRouter(tags=["1.首頁(APP)"],prefix="/Home")
+router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 
 security = HTTPBearer()
 
@@ -30,7 +30,8 @@ class Gas_Station(BaseModel):
     CurrentLat:float
     CurrentLng:float
     Type:str
-def get_Gas_Station_LatLng(CurrentLat:str,CurrentLng:str,Type:str):
+    
+def getGasStationLatLng(CurrentLat:str,CurrentLng:str,Type:str):
     
     #Points_After_Output:存半徑 N 公里生成的點、match_Station:存符合資格的站點
     Points_After_Output = []
@@ -52,8 +53,8 @@ def get_Gas_Station_LatLng(CurrentLat:str,CurrentLng:str,Type:str):
                 pass
     return match_Station      
 
-@router.post("/QuickSearch/Gas_Station")
-def QuickSearch_Gas_Station(gas:Gas_Station, token: HTTPAuthorizationCredentials = Depends(security)):
+@router.post("/QuickSearch/GasStation")
+def gasStation(gas:Gas_Station, token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
     
@@ -67,7 +68,8 @@ class ConvenientStore(BaseModel):
     #CurrentLat:目前緯度 、CurrentLng:目前經度 、Type: 直營or加盟
     CurrentLat:float
     CurrentLng:float
-def get_ConvenientStore(CurrentLat:str,CurrentLng:str):
+    
+def getConvenientStore(CurrentLat:str,CurrentLng:str):
     #Points_After_Output:存半徑 N 公里生成的點、match_Station:存符合資格的站點
     Points_After_Output = []
     match_Station = []
@@ -93,7 +95,7 @@ def get_ConvenientStore(CurrentLat:str,CurrentLng:str):
     return match_Station
     
 @router.post("/QuickSearch/ConvenientStore")
-def QuickSearch_ConvenientStore(convenient:ConvenientStore, token: HTTPAuthorizationCredentials = Depends(security)):
+def convenientStore(convenient:ConvenientStore, token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
 

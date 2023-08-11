@@ -9,9 +9,9 @@ import csv
 import os
 import json
 import urllib.request as request
-import Function.time as time
-import Function.link as link
-from main import MongoDB # 引用MongoDB連線實例
+import Function.Time as Time
+import Function.Link as Link
+from Main import MongoDB # 引用MongoDB連線實例
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
@@ -22,7 +22,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     decode_token(token.credentials)
     
     # 取得TDX資料
-    url = link.get("News", "InterCityBus", "All")
+    url = Link.get("News", "InterCityBus", "All")
     data = getData(url)
     
     # 將資料整理成MongoDB的格式
@@ -40,7 +40,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
             # "StartTime": d['StartTime'],
             # "EndTime": d['EndTime'],
             # "PublishTime": d['PublishTime'],
-            "UpdateTime": time.format(d['UpdateTime'])
+            "UpdateTime": Time.format(d['UpdateTime'])
         }
         documents.append(document)
 

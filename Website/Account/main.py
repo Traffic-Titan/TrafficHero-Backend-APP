@@ -6,7 +6,7 @@ router = APIRouter(tags=["0.會員管理(Website)"],prefix="/Website/Account")
 
 security = HTTPBearer()
 
-@router.get("/test")
+@router.get("/Test")
 def test(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)

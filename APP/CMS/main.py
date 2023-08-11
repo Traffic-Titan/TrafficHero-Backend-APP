@@ -6,7 +6,7 @@ from Service.Token import decode_token
 router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
 security = HTTPBearer()
 
-@router.get("/serviceArea",summary="從TDX上獲取服務區剩餘位置")
+@router.get("/ServiceArea",summary="從TDX上獲取服務區剩餘位置")
 async def serviceArea(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)

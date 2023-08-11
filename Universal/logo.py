@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 
 router = APIRouter(tags=["通用功能"],prefix="/Universal/Logo")
 security = HTTPBearer()
 
-@router.get("/get",summary="【Read】(Dev)")
+@router.get("/Get",summary="【Read】(Dev)")
 def get(Type: str, Area: str, token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)

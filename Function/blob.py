@@ -2,13 +2,13 @@ import requests
 from PIL import Image, ImageDraw, ImageFont
 import base64
 
-def image_url_to_blob(image_url):
+def image_url_to_Blob(image_url):
     try:
         response = requests.get(image_url)
         if response.status_code == 200:
             # 獲取圖片的二進制數據
-            blob_data = response.content
-            return blob_data
+            Blob_data = response.content
+            return Blob_data
     except requests.exceptions.RequestException as e:
         return None
     return None
@@ -35,8 +35,8 @@ def generate_default_avatar(account_name):
 
 def encode_image(image):
     # 將圖片轉換成二進制數據
-    blob_data = image.tobytes()
-    return blob_data
+    Blob_data = image.tobytes()
+    return Blob_data
 
 def encode_image_to_base64(image):
     # 將圖片轉換成 Base64 編碼

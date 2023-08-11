@@ -2,11 +2,11 @@ from fastapi import APIRouter, HTTPException
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
 import hashlib
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 from datetime import datetime, timedelta
 from Service.Token import encode_token, decode_token
-from Service.Email_Service import send_email
-import Function.time as time
+from Service.Email import send_email
+import Function.Time as Time
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()
@@ -16,8 +16,8 @@ class ChangePasswordModel(BaseModel):
     old_password: str
     new_password: str
     
-@router.put("/change_password",summary="更改密碼")
-async def change_password(user: ChangePasswordModel):
+@router.put("/ChangePassword",summary="更改密碼")
+async def changePassword(user: ChangePasswordModel):
     # 連線MongoDB
     Collection = MongoDB.getCollection("0_APP","0.Users")
 
@@ -48,8 +48,8 @@ class ForgetPasswordModel(BaseModel):
     email: EmailStr
     birthday: str
 
-@router.post("/forgot_password",summary="忘記密碼")
-async def forgot_password(user: ForgetPasswordModel):
+@router.post("/ForgotPassword",summary="忘記密碼")
+async def forgotPassword(user: ForgetPasswordModel):
     # 檢查電子郵件是否存在於資料庫中
     Collection = MongoDB.getCollection("0_APP","0.Users")
     result = Collection.find_one({"email": user.email, "email_confirmed": True, "birthday": user.birthday})
@@ -57,7 +57,7 @@ async def forgot_password(user: ForgetPasswordModel):
         raise HTTPException(status_code=404, detail="查無此帳號，請重新輸入")
 
     # 獲取當前時間戳
-    current_time = time.get_current_timestamp()
+    current_time = Time.get_current_timestamp()
 
     # 檢查該電子郵件是否在一分鐘內發出過請求
     last_request_timestamp = result.get("timestamp")
@@ -71,7 +71,7 @@ async def forgot_password(user: ForgetPasswordModel):
     Collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})
 
     # 寄送郵件
-    current_time = time.get_current_timestamp() # 獲取當前時間戳
+    current_time = Time.get_current_timestamp() # 獲取當前時間戳
     expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)  # 計算驗證碼的過期時間
     expiration_time_str = expiration_time.strftime("%Y/%m/%d %H:%M")  # 格式化過期時間(YYYY/MM/DD HH:MM)
     

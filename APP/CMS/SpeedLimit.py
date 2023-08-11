@@ -5,7 +5,7 @@ import json
 import csv
 import re
 import time
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 
 """
 1.資料來源:快速公路通車情形與速限統計表

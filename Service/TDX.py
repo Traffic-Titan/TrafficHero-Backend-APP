@@ -4,7 +4,7 @@ import json
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
-import Function.time as time
+import Function.Time as Time
 
 router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/TDX")
 
@@ -58,10 +58,10 @@ def getHealthStatus(url: str):
     status = {
         "ServiceID": result.get("ServiceID", ""),
         "ServiceName": result.get("ServiceName", ""),
-        "Inbound_CheckTime": time.format(result["Inbound"].get("CheckTime", "")),
+        "Inbound_CheckTime": Time.format(result["Inbound"].get("CheckTime", "")),
         "Inbound_Status": Number2Text(result["Inbound"].get("Status", "")),
         "Inbound_Reason": result["Inbound"].get("Reason", ""),
-        "Outbound_CheckTime": time.format(result["Outbound"].get("CheckTime", "")),
+        "Outbound_CheckTime": Time.format(result["Outbound"].get("CheckTime", "")),
         "Outbound_Status": Number2Text(result["Outbound"].get("Status", "")),
         "Outbound_Reason": result["Outbound"].get("Reason", "")
     }
