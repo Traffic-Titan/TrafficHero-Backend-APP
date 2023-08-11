@@ -7,7 +7,7 @@ pip install -r requirements.txt
 
 ## 開啟後端
 ```
-uvicorn main:app --reload
+uvicorn Main:app --reload
 ```
 
 ## Swagger

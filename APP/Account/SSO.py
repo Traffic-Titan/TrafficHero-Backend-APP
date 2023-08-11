@@ -2,10 +2,10 @@ from fastapi import APIRouter, HTTPException
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr
 import hashlib
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 from datetime import datetime, timedelta
 from Service.Token import encode_token, decode_token
-from Function.blob import *
+from Function.Blob import *
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()
@@ -15,8 +15,8 @@ class LoginModel(BaseModel):
     Google_ID: str
     Google_Avatar: str = None
 
-@router.post("/Google_SSO",summary="使用Google帳號登入(含註冊、綁定判斷)")
-async def google_Login_OR_Register(user: LoginModel):
+@router.post("/GoogleSSO",summary="使用Google帳號登入(含註冊、綁定判斷)")
+async def googleSSO(user: LoginModel):
     # 連線MongoDB
     Collection = MongoDB.getCollection("0_APP","0.Users")
     
@@ -32,7 +32,7 @@ async def google_Login_OR_Register(user: LoginModel):
         # 登入成功，清除登入失敗記錄
         update_data = {
             "$set": {
-              "avatar": image_url_to_blob(user.Google_Avatar)
+              "avatar": image_url_to_Blob(user.Google_Avatar)
             },
             "$unset": {
                 "last_failed_timestamp": "",

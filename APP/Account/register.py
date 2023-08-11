@@ -2,14 +2,14 @@ from fastapi import APIRouter, HTTPException
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr
 import hashlib
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 from datetime import datetime, timedelta
 from Service.Token import *
-from Service.Email_Service import *
-import Function.time as time
-import Function.blob as blob
-import Function.verification_code as code
-import Function.message as message
+from Service.Email import *
+import Function.Time as Time
+import Function.Blob as Blob
+import Function.VerificationCode as Code
+import Function.Message as Message
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()
@@ -22,7 +22,7 @@ class ProfileModel(BaseModel):
     birthday: str
     Google_ID: str = None
 
-@router.post("/register",summary="會員註冊")
+@router.post("/Register",summary="會員註冊")
 async def register(user: ProfileModel):
     # 連線MongoDB
     Collection = MongoDB.getCollection("0_APP","0.Users")
@@ -44,7 +44,7 @@ async def register(user: ProfileModel):
                 "gender": user.gender,
                 "birthday": user.birthday,
                 "Google_ID": user.Google_ID,
-                "avatar": blob.generate_default_avatar(user.name), # 預設大頭貼
+                "avatar": Blob.generate_default_avatar(user.name), # 預設大頭貼
                 "role": "user"
         }
         
@@ -52,9 +52,9 @@ async def register(user: ProfileModel):
         Collection.insert_one(data)
         
         # 生成驗證碼、寄送郵件、存到資料庫
-        verification_code = code.generate_verification_code()
+        verification_code = Code.generate_verification_code()
         
-        current_time = time.get_current_timestamp() # 獲取當前時間戳
+        current_time = Time.get_current_timestamp() # 獲取當前時間戳
         expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)  # 計算驗證碼的過期時間
         expiration_time_str = expiration_time.strftime("%Y/%m/%d %H:%M")  # 格式化過期時間(YYYY/MM/DD HH:MM)
         
@@ -75,7 +75,7 @@ async def register(user: ProfileModel):
                 "gender": user.gender,
                 "birthday": user.birthday,
                 "Google_ID": user.Google_ID,
-                "avatar": blob.generate_default_avatar(user.name), # 預設大頭貼
+                "avatar": Blob.generate_default_avatar(user.name), # 預設大頭貼
                 "role": "user"
         }
         

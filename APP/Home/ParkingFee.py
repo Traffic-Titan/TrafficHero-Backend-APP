@@ -1,14 +1,13 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 import concurrent.futures
 import threading
 from pydantic import BaseModel
 import requests
 
-router = APIRouter(tags=["1.首頁(APP)"],prefix="/Home")
-
+router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 security = HTTPBearer()
 
 class Info(BaseModel):
@@ -16,7 +15,7 @@ class Info(BaseModel):
     Type: str
 
 @router.post("/ParkingFee", summary="【Read】取得各縣市路邊停車費查詢資料(Dev)")
-def ParkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(security)):
+def parkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     1.資料來源:全國路邊停車費查詢API
     https://tdx.transportdata.tw/api-service/parkingFee
@@ -39,7 +38,7 @@ def ParkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(securit
         for area in areas:
             result = Collection.find_one({"Area":area}, {"_id": 0})
             if result is not None: # 如果沒有資料就跳過此縣市
-                task.append(executor.submit(process_data, result, area, data)) # 將任務加入任務清單
+                task.append(executor.submit(processData, result, area, data)) # 將任務加入任務清單
         
         for future in concurrent.futures.as_completed(task):
             try:
@@ -50,7 +49,7 @@ def ParkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(securit
                 
     return {"TotalAmount": sum(area["Amount"] for area in Detail), "Detail": Detail}
 
-def process_data(result, area, data):
+def processData(result, area, data):
     url = result.get("URL")
     url = url.replace("Insert_CarID", data.LicensePlateNumber)
     url = url.replace("Insert_CarType", data.Type)

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 from Service.Token import encode_token, decode_token
-import Function.hash as hash
-import Function.time as time
+import Function.Hash as Hash
+import Function.Time as Time
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()
@@ -13,7 +13,7 @@ class LoginModel(BaseModel):
     email: EmailStr
     password: str
 
-@router.post("/login",summary="會員登入")
+@router.post("/Login",summary="會員登入")
 async def login(user: LoginModel):
     # 連線MongoDB
     Collection = MongoDB.getCollection("0_APP","0.Users")
@@ -29,13 +29,13 @@ async def login(user: LoginModel):
         raise HTTPException(status_code=401, detail="Email尚未驗證，請至信箱收取驗證信，若驗證碼已失效，請重新註冊")
     
     # 檢查密碼是否正確
-    if result["password"] != hash.encode_SHA256(user.password):
+    if result["password"] != Hash.encode_SHA256(user.password):
         # 獲取上次失敗的時間戳和失敗次數
         last_failed_timestamp = result.get("last_failed_timestamp")
         failed_attempts = result.get("failed_attempts", 0)
 
         # 檢查是否需要暫停登入
-        current_time = time.get_current_datetime()
+        current_time = Time.get_current_datetime()
         if last_failed_timestamp and failed_attempts >= 4:
             # 檢查距離上次失敗的時間是否超過5分鐘
             if current_time - last_failed_timestamp <= timedelta(minutes=0.1):

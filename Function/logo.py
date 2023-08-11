@@ -1,4 +1,4 @@
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 
 def get(type: str, area: str = "All"):
     Collection = MongoDB.getCollection("Source","Logo")

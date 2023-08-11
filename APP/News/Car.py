@@ -4,11 +4,11 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 from fastapi import APIRouter
 from Service.TDX import getData
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 import re
 import csv
 import os
-import Function.logo as logo
+import Function.Logo as Logo
 import concurrent.futures
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
@@ -17,24 +17,24 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 import time
-import Function.link as link
+import Function.Link as Link
 import timeit
 import Function.Area as Area
 
 router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
 security = HTTPBearer()
 
-def process_data(Collection, type, area):
+def processData(Collection, type, area):
     documents = []
     result = Collection.find({"Type": type,"Area": area}, {"_id": 0}) # 取得資料
-    logoURL = logo.get(type, area) # 取得Logo
+    logoURL = Logo.get(type, area) # 取得Logo
     for d in result:
         d["LogoURL"] = logoURL # 新增Logo
         documents.append(d) # 將資料存入documents
     return documents # 回傳documents
 
 @router.get("/Car",summary="【Read】最新消息-汽車")
-async def Car(areas: str = "All", types: str = "All", token: HTTPAuthorizationCredentials = Depends(security)):
+async def car(areas: str = "All", types: str = "All", token: HTTPAuthorizationCredentials = Depends(security)):
     # ---------------------------------------------------------------
     start_time = time.time() # 開始時間
     # ---------------------------------------------------------------
@@ -53,10 +53,10 @@ async def Car(areas: str = "All", types: str = "All", token: HTTPAuthorizationCr
     with concurrent.futures.ThreadPoolExecutor(max_workers=len(types) * len(areas)) as executor: # 並行處理
         for type in types:
             if type in ["Provincial_Highway"]: # 無區域之分
-                task.append(executor.submit(process_data, Collection, type, "All")) # 將任務加入任務清單
+                task.append(executor.submit(processData, Collection, type, "All")) # 將任務加入任務清單
             else:
                 for area in areas: # 有區域之分
-                    task.append(executor.submit(process_data, Collection, type, area)) # 將任務加入任務清單
+                    task.append(executor.submit(processData, Collection, type, area)) # 將任務加入任務清單
 
         for future in concurrent.futures.as_completed(task): 
             documents.extend(future.result()) # 將任務結果存入documents

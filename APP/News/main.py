@@ -7,11 +7,11 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 from fastapi import APIRouter
 from Service.TDX import getData
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 import re
 import csv
 import os
-import Function.logo as logo
+import Function.Logo as Logo
 import concurrent.futures
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
@@ -20,15 +20,15 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 import time
-import Function.link as link
+import Function.Link as Link
 import timeit
 import Function.Area as Area
 
 router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
 security = HTTPBearer()
 
-@router.get("/Public_Transport/YouBike/{county}",summary="【Read】最新消息-大眾運輸-腳踏車")
-async def Public_Transport_Youbike(county:str, token: HTTPAuthorizationCredentials = Depends(security)):
+@router.get("/PublicTransport/YouBike/{county}",summary="【Read】最新消息-大眾運輸-腳踏車")
+async def youbike(county:str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     縣市列表：臺北市、新北市、桃園市、新竹縣、新竹市、新竹科學園區、苗栗縣、台中市、嘉義市、臺南市、高雄市、屏東縣
     """
@@ -74,7 +74,7 @@ async def Public_Transport_Youbike(county:str, token: HTTPAuthorizationCredentia
     
     return all_return_detail
 @router.get("/Car/FreeWay",summary="【Read】最新消息-汽車-國道最新消息")
-async def Car_FreeWay(token: HTTPAuthorizationCredentials = Depends(security)):
+async def freeWay(token: HTTPAuthorizationCredentials = Depends(security)):
     # JWT驗證
     decode_token(token.credentials)
 

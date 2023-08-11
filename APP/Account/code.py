@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
 from Service.Token import *
-import Function.time as time
-import Function.verification_code as code
-from main import MongoDB # 引用MongoDB連線實例
+import Function.Time as Time
+import Function.VerificationCode as Code
+from Main import MongoDB # 引用MongoDB連線實例
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()
@@ -13,8 +13,8 @@ class VerifyCodeModel(BaseModel):
     email: EmailStr
     code : str = Field(min_length=6)
 
-@router.post("/verify_code",summary="驗證碼驗證")
-async def verify_code(user: VerifyCodeModel):
+@router.post("/VerifyCode",summary="驗證碼驗證")
+async def verifyCode(user: VerifyCodeModel):
     # 檢查電子郵件是否存在於資料庫中
     Collection = MongoDB.getCollection("0_APP","0.Users")
     result = Collection.find_one({"email": user.email})
@@ -27,7 +27,7 @@ async def verify_code(user: VerifyCodeModel):
         raise HTTPException(status_code=400, detail="驗證碼不正確")
 
     # 檢查驗證碼是否已過期
-    current_time = time.get_current_timestamp()
+    current_time = Time.get_current_timestamp()
     timestamp = result.get("timestamp")
     if timestamp and current_time - timestamp > 600:
         raise HTTPException(status_code=400, detail="驗證碼已過期")

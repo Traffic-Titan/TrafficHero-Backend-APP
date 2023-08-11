@@ -16,8 +16,6 @@ MongoDB = MongoDBSingleton()
 @app.on_event("startup")
 async def startup_event():
     load_dotenv()
-    
-
     # ExpressWay()
     # FreeWayTunnel()
     # getHardShoulder()
@@ -45,98 +43,98 @@ async def root():
 # ---------------------------------------------------------------
 
 # 外部服務(Dev Only)
-# from Service import Email_Service, Google_Maps, TDX, Token
-# app.include_router(Email_Service.router)
-# app.include_router(Google_Maps.router)
+# from Service import Email, GoogleMaps, TDX, Token
+# app.include_router(Email.router)
+# app.include_router(GoogleMaps.router)
 # app.include_router(TDX.router)
 # app.include_router(Token.router)
 
 # 0.會員管理(APP)
-from APP.Account import login, register, profile, password, code, SSO
-app.include_router(login.router)
-app.include_router(register.router)
+from APP.Account import Login, Register, SSO, Code, Password, Profile
+app.include_router(Login.router)
+app.include_router(Register.router)
 app.include_router(SSO.router)
-app.include_router(password.router)
-app.include_router(code.router)
-app.include_router(profile.router)
+app.include_router(Password.router)
+app.include_router(Code.router)
+app.include_router(Profile.router)
 
 # 0.群組通訊(APP)
-from APP.Chat import main
-app.include_router(main.router)
+from APP.Chat import Main
+app.include_router(Main.router)
 
 # 1.首頁(APP)
-from APP.Home import main, weather, ParkingFee
-app.include_router(main.router)
-app.include_router(weather.router)
+from APP.Home import Main, Weather, ParkingFee
+app.include_router(Main.router)
+app.include_router(Weather.router)
 app.include_router(ParkingFee.router)
 
 # 2.最新消息(APP)
-from APP.News import main, Car, Public_Transport
-app.include_router(main.router)
+from APP.News import Main, Car, PublicTransport
+app.include_router(Main.router)
 app.include_router(Car.router)
-app.include_router(Public_Transport.router)
+app.include_router(PublicTransport.router)
 
 # 3.即時訊息推播(APP)
-from APP.CMS import main, Speed_Enforcement, Technical_Enforcement,PBS
-app.include_router(main.router)
+from APP.CMS import Main
+app.include_router(Main.router)
 
 # 4-1.道路資訊(APP)
-from APP.Road_Information import main
-app.include_router(main.router)
+from APP.RoadInformation import Main
+app.include_router(Main.router)
 
 # 4-2.大眾運輸資訊(APP)
-from APP.Public_Transport_Information import main
-app.include_router(main.router)
+from APP.PublicTransportInformation import Main
+app.include_router(Main.router)
 
 # 5.觀光資訊(APP)
-from APP.Tourism_Information import main
-app.include_router(main.router)
+from APP.TourismInformation import Main
+app.include_router(Main.router)
 
 # ---------------------------------------------------------------
 
 # 0.會員管理(Website)
-from Website.Account import main
-app.include_router(main.router)
+from Website.Account import Main
+app.include_router(Main.router)
 
 # 0.群組通訊(Website)
-from Website.Chat import main
-app.include_router(main.router)
+from Website.Chat import Main
+app.include_router(Main.router)
 
 # 1.首頁(Website)
-from Website.Home import main
-app.include_router(main.router)
+from Website.Home import Main
+app.include_router(Main.router)
 
 # 2.最新消息(Website)
-from Website.News import TRA, THSR, MRT, Bus, InterCityBus, Provincial_Highway, Link
+from Website.News import TRA, THSR, MRT, Bus, InterCityBus, ProvincialHighway, Link
 app.include_router(TRA.router)
 app.include_router(THSR.router)
 app.include_router(MRT.router)
 app.include_router(Bus.router)
 app.include_router(InterCityBus.router)
-app.include_router(Provincial_Highway.router)
+app.include_router(ProvincialHighway.router)
 app.include_router(Link.router)
 
 # 3.即時訊息推播(Website)
-from Website.CMS import main
-app.include_router(main.router)
+from Website.CMS import Main
+app.include_router(Main.router)
 
 # 4-1.道路資訊(Website)
-from Website.Road_Information import main
-app.include_router(main.router)
+from Website.RoadInformation import Main
+app.include_router(Main.router)
 
 # 4-2.大眾運輸資訊(Website)
-from Website.Public_Transport_Information import main
-app.include_router(main.router)
+from Website.PublicTransportInformation import Main
+app.include_router(Main.router)
 
 # 5.觀光資訊(Website)
-from Website.Tourism_Information import main
-app.include_router(main.router)
+from Website.TourismInformation import Main
+app.include_router(Main.router)
 
 # ---------------------------------------------------------------
 
 # 通用功能
-from Universal import logo
-app.include_router(logo.router)
+from Universal import Logo
+app.include_router(Logo.router)
 
 # ---------------------------------------------------------------
 

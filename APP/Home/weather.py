@@ -4,10 +4,10 @@ from Service.Token import decode_token
 import xml.etree.ElementTree as ET
 import requests
 
-router = APIRouter(tags=["1.首頁(APP)"],prefix="/Home/Weather")
+router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 security = HTTPBearer()
 
-@router.get("/getLink", summary="【Read】天氣-取得中央氣象局連結(根據使用者定位)")
+@router.get("/Weather/GetLink", summary="【Read】天氣-取得中央氣象局連結(根據使用者定位)")
 async def getLink(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     Longitude: 經度, Latitude: 緯度\n\n

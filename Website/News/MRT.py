@@ -5,15 +5,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 from Service.TDX import getData
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 from typing import Optional, List, Union
 import json
 from pydantic import BaseModel, HttpUrl
-from Function.news_category import Number2Text
+from Function.NewsCategory import Number2Text
 import hashlib
 from collections import OrderedDict
-import Function.time as time
-import Function.link as link
+import Function.Time as Time
+import Function.Link as Link
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
@@ -51,7 +51,7 @@ def updateNews(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials 
 def data2MongoDB(Area: str):
     Collection.delete_many({"Type": "MRT", "Area": Area})
     
-    url = link.get("News", "MRT", Area)
+    url = Link.get("News", "MRT", Area)
     data = getData(url)
     
     # 將資料整理成MongoDB的格式
@@ -68,10 +68,10 @@ def data2MongoDB(Area: str):
             "NewsCategory": Number2Text(d['NewsCategory']),
             "Description": d['Description'],
             "NewsURL": d['NewsURL'],
-            # "StartTime": time.format(d['StartTime']),
-            # "EndTime": time.format(d['EndTime']),
-            # "PublishTime": time.format(d['PublishTime']),
-            "UpdateTime": time.format(d['UpdateTime'])
+            # "StartTime": Time.format(d['StartTime']),
+            # "EndTime": Time.format(d['EndTime']),
+            # "PublishTime": Time.format(d['PublishTime']),
+            "UpdateTime": Time.format(d['UpdateTime'])
         }
         documents.append(document)
 

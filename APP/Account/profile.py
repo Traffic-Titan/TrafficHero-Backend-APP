@@ -1,15 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr, Field
-from main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB # 引用MongoDB連線實例
 from jose import jwt
 from datetime import datetime, timedelta
 from Service.Token import encode_token, decode_token
-from Service.Email_Service import send_email
+from Service.Email import send_email
 import time
-import Function.time as time
-import Function.verification_code as code
-import Function.blob as blob
+import Function.Time as Time
+import Function.VerificationCode as Code
+import Function.Blob as Blob
 from typing import Optional
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
@@ -23,8 +23,8 @@ class ProfileModel(BaseModel):
     birthday: Optional[str]
     Google_ID: str = None
 
-@router.get("/profile",summary="【Read】會員資料")
-async def view_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+@router.get("/Profile",summary="【Read】會員資料")
+async def viewProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     # JWT驗證
     payload = decode_token(token.credentials)
     
@@ -37,13 +37,13 @@ async def view_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer(
         "gender": result["gender"] if "gender" in result else None,
         "birthday": result["birthday"] if "birthday" in result else None,
         "Google_ID": result["Google_ID"] if "Google_ID" in result else None,
-        "avatar": blob.encode_image_to_base64(result["avatar"]) if "avatar" in result else None
+        "avatar": Blob.encode_image_to_base64(result["avatar"]) if "avatar" in result else None
     }
     
     return data
 
-@router.put("/profile",summary="【Update】會員資料")
-async def update_profile(user: ProfileModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+@router.put("/Profile",summary="【Update】會員資料")
+async def updateProfile(user: ProfileModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     # JWT驗證
     payload = decode_token(token.credentials)
     
@@ -62,8 +62,8 @@ async def update_profile(user: ProfileModel, token: HTTPAuthorizationCredentials
     
     return {"message": "會員資料更新成功"}
 
-@router.delete("/profile",summary="【Delete】會員資料")
-async def delete_profile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+@router.delete("/Profile",summary="【Delete】會員資料")
+async def deleteProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     # JWT驗證
     payload = decode_token(token.credentials)
     
@@ -77,8 +77,8 @@ class UpdateEmailModel(BaseModel):
     old_email: EmailStr
     new_email: EmailStr
 
-@router.patch("/profile/email",summary="【Update】會員資料-Email(Dev)") # 尚未處理Bug，應該是要在新Email驗證成功後才能更新
-async def update_email(user: UpdateEmailModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+@router.patch("/Profile/Email",summary="【Update】會員資料-Email(Dev)") # 尚未處理Bug，應該是要在新Email驗證成功後才能更新
+async def updateEmail(user: UpdateEmailModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     # JWT驗證
     payload = decode_token(token.credentials)
 
@@ -86,9 +86,9 @@ async def update_email(user: UpdateEmailModel, token: HTTPAuthorizationCredentia
     Collection = MongoDB.getCollection("0_APP","0.Users")
     if user.old_email == payload["data"]["email"]:
         # 生成驗證碼、寄送郵件、存到資料庫
-        verification_code = code.generate_verification_code()
+        verification_code = Code.generate_verification_code()
         
-        current_time = time.get_current_timestamp() # 獲取當前時間戳
+        current_time = Time.get_current_timestamp() # 獲取當前時間戳
         expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)  # 計算驗證碼的過期時間
         expiration_time_str = expiration_time.strftime("%Y/%m/%d %H:%M")  # 格式化過期時間(YYYY/MM/DD HH:MM)
         
