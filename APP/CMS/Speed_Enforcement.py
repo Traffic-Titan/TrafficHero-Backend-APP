@@ -5,7 +5,7 @@
 
 import urllib.request as request
 import json
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 from pymongo import InsertOne
 
 """
@@ -34,6 +34,6 @@ def getData():
         documents.append(document)
 
     # 將資料存入MongoDB
-    Collection = connectDB("TrafficHero","Speed_Enforcement")
+    Collection = MongoDB.getCollection("TrafficHero","Speed_Enforcement")
     Collection.drop()
     Collection.insert_many(documents)

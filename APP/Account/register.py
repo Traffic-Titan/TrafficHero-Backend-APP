@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr
 import hashlib
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 from datetime import datetime, timedelta
 from Service.Token import *
 from Service.Email_Service import *
@@ -25,7 +25,7 @@ class ProfileModel(BaseModel):
 @router.post("/register",summary="會員註冊")
 async def register(user: ProfileModel):
     # 連線MongoDB
-    Collection = connectDB("0_APP","0.Users")
+    Collection = MongoDB.getCollection("0_APP","0.Users")
 
     # 檢查 Email 是否已經存在
     if Collection.find_one({"email": user.email}, {"email_confirmed": True}):

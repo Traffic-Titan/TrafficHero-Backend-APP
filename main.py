@@ -2,25 +2,47 @@
 1. 目前設定為每次啟動時，會將資料庫清空，並重新抓取資料，以後必需按照來源狀況，設定更新資料的時間
 """
 from fastapi import FastAPI
-import os
-import datetime
-import threading
 from dotenv import load_dotenv
-import time
-from APP.CMS.PBS import getHardShoulder
-from APP.CMS.SpeedLimit import ExpressWay,FreeWayTunnel
-from apscheduler.schedulers.blocking import BlockingScheduler
-import Service.Scheduler as Scheduler
 from fastapi.responses import RedirectResponse
 from api_analytics.fastapi import Analytics
+from Service.Database import MongoDBSingleton
 
 app = FastAPI()
 app.add_middleware(Analytics, api_key="a2999611-b29a-4ade-a55b-2147b706da6e")  # Add middleware(Dev)
+MongoDB = MongoDBSingleton()
+
+# ---------------------------------------------------------------
+
+@app.on_event("startup")
+async def startup_event():
+    load_dotenv()
+    
+
+    # ExpressWay()
+    # FreeWayTunnel()
+    # getHardShoulder()
+    # Scheduler.start() # 啟動排程
+    # setInterval(Speed_Enforcement.getData())
+    # setInterval(Technical_Enforcement.getData())
+    # setInterval(PBS.getData())
+    # Speed_Enforcement.getData()
+    # Technical_Enforcement.getData()
+    # PBS.getData()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    # 在應用程式關閉時斷開連線
+    email_server.quit()
+    MongoDB.closeConnection()
+
+# ---------------------------------------------------------------
 
 # 自動導向Swagger
 @app.get("/", include_in_schema=False)
 async def root():
     return RedirectResponse(url="/docs")
+
+# ---------------------------------------------------------------
 
 # 外部服務(Dev Only)
 # from Service import Email_Service, Google_Maps, TDX, Token
@@ -49,8 +71,10 @@ app.include_router(weather.router)
 app.include_router(ParkingFee.router)
 
 # 2.最新消息(APP)
-from APP.News import main
+from APP.News import main, Car, Public_Transport
 app.include_router(main.router)
+app.include_router(Car.router)
+app.include_router(Public_Transport.router)
 
 # 3.即時訊息推播(APP)
 from APP.CMS import main, Speed_Enforcement, Technical_Enforcement,PBS
@@ -116,49 +140,31 @@ app.include_router(logo.router)
 
 # ---------------------------------------------------------------
 
-@app.on_event("startup")
-async def startup_event():
-    load_dotenv()
-    # ExpressWay()
-    # FreeWayTunnel()
-    # getHardShoulder()
-    # Scheduler.start() # 啟動排程
-    # setInterval(Speed_Enforcement.getData())
-    # setInterval(Technical_Enforcement.getData())
-    # setInterval(PBS.getData())
-    # Speed_Enforcement.getData()
-    # Technical_Enforcement.getData()
-    # PBS.getData()
+# #每天0點0分定時執行Function
+# def setInterval(function):
+#     #現在時間
+#     now_time = datetime.datetime.now()
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    # 在應用程式關閉時斷開連線
-    email_server.quit()
+#     #明天時間
+#     next_time = now_time + datetime.timedelta(days=+1)
+#     next_year = next_time.date().year
+#     next_month = next_time.date().month
+#     next_day = next_time.date().day
 
-#每天0點0分定時執行Function
-def setInterval(function):
-    #現在時間
-    now_time = datetime.datetime.now()
+#     #獲取明天0點0分時間
+#     next_time = datetime.datetime.strptime(str(next_year)+"-"+str(next_month)+"-"+str(next_day)+" 00:00:00","%Y-%m-%d %H:%M:%S")
 
-    #明天時間
-    next_time = now_time + datetime.timedelta(days=+1)
-    next_year = next_time.date().year
-    next_month = next_time.date().month
-    next_day = next_time.date().day
+#     #獲取距離明天0點0分的時間 , 單位時間"秒"
+#     timerStartTime = (next_time - now_time).total_seconds()
 
-    #獲取明天0點0分時間
-    next_time = datetime.datetime.strptime(str(next_year)+"-"+str(next_month)+"-"+str(next_day)+" 00:00:00","%Y-%m-%d %H:%M:%S")
-
-    #獲取距離明天0點0分的時間 , 單位時間"秒"
-    timerStartTime = (next_time - now_time).total_seconds()
-
-    timer = threading.Timer(timerStartTime,function)
-    timer.start()
+#     timer = threading.Timer(timerStartTime,function)
+#     timer.start()
+    
 #檢查目前資料庫內的版本與最新的版本有沒有差異，若有的話，通知User更新
 # def CheckUpdate_SpeedEnforcement():
 #     #連接DataBase
-#     # 0715：connectDB()後面的Collection名稱沒辦法當變數
-#     Collection = connectDB("Speed_Enforcement")
+#     # 0715：MongoDB.getCollection()後面的Collection名稱沒辦法當變數
+#     Collection = MongoDB.getCollection("Speed_Enforcement")
 
 #     #讀取DataBase內的資料，並存進document
 #     document = []

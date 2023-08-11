@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 from Service.Token import encode_token, decode_token
 import Function.hash as hash
 import Function.time as time
@@ -16,7 +16,7 @@ class LoginModel(BaseModel):
 @router.post("/login",summary="會員登入")
 async def login(user: LoginModel):
     # 連線MongoDB
-    Collection = connectDB("0_APP","0.Users")
+    Collection = MongoDB.getCollection("0_APP","0.Users")
     
     # 如果查詢結果為None，表示無此帳號
     result = Collection.find_one({"email": user.email})

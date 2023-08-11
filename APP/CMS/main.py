@@ -12,7 +12,7 @@ async def serviceArea(token: HTTPAuthorizationCredentials = Depends(security)):
     decode_token(token.credentials)
     
     url = "https://tdx.transportdata.tw/api/basic/v1/Parking/OffStreet/ParkingAvailability/Road/Freeway/ServiceArea?%24top=30&%24format=JSON"
-    dataAll = getData(url, )
+    dataAll = getData(url)
     serviceAreaSpace = []
     for service in dataAll["ParkingAvailabilities"]:
         serviceAreaSpace.append(service["CarParkName"]["Zh_tw"]+"剩餘車位："+ str(service["AvailableSpaces"]))

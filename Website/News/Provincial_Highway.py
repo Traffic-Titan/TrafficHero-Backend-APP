@@ -11,6 +11,7 @@ import json
 import urllib.request as request
 import Function.time as time
 import Function.link as link
+from main import MongoDB # 引用MongoDB連線實例
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
@@ -63,7 +64,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
         documents.append(document)
 
     # 將資料存入MongoDB
-    Collection = Service.MongoDB.connectDB("News","Car_and_Sccoter")
+    Collection = MongoDB.getCollection("News","Car_and_Sccoter")
     Collection.delete_many({"Type": "Provincial_Highway"})
     Collection.insert_many(documents)
     

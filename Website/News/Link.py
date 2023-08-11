@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Service.Token import decode_token
 from Service.TDX import getData
-from Service.MongoDB import connectDB
+from main import MongoDB # 引用MongoDB連線實例
 from typing import Optional, List, Union
 import json
 from pydantic import BaseModel, HttpUrl
@@ -18,7 +18,7 @@ import Function.link as link
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = connectDB("News","MRT")
+Collection = MongoDB.getCollection("News","MRT")
 
 class NewsLinkModel(BaseModel):
     Type: str
@@ -38,7 +38,7 @@ def getNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCreden
     # JWT驗證
     decode_token(token.credentials)
     
-    Collection = connectDB("News",f"{data.Type}_Link")
+    Collection = MongoDB.getCollection("News",f"{data.Type}_Link")
     
     if Area == "All":
         result = Collection.find()
@@ -65,7 +65,7 @@ def updateNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCre
     # JWT驗證
     decode_token(token.credentials)
     
-    Collection = connectDB("News",f"{Type}_Link")
+    Collection = MongoDB.getCollection("News",f"{Type}_Link")
     
     for d in data:
         Collection.update_one(
@@ -90,7 +90,7 @@ def addNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCreden
     decode_token(token.credentials)
     
     # 將資料存入MongoDB
-    Collection = connectDB("News",f"{data.Type}_Link")
+    Collection = MongoDB.getCollection("News",f"{data.Type}_Link")
     Collection.insert_many([{"Area": d.Area, "URL": d.URL} for d in data])
     
     return "Success"
@@ -109,7 +109,7 @@ def deleteNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCre
     decode_token(token.credentials)
     
     # 刪除資料
-    Collection = connectDB("News",f"{Type}_Link")
+    Collection = MongoDB.getCollection("News",f"{Type}_Link")
     result = Collection.delete_many({"Area_EN": {"$in": [item.Area_EN for item in data]}})
     
     return "Success"
