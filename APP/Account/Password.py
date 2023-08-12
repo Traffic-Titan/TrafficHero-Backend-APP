@@ -5,6 +5,7 @@ import hashlib
 from Main import MongoDB # 引用MongoDB連線實例
 from datetime import datetime, timedelta
 from Service.Token import encode_token, decode_token
+import Function.VerificationCode as Code
 from Service.Email import send_email
 import Function.Time as Time
 
@@ -65,7 +66,7 @@ async def forgotPassword(user: ForgetPasswordModel):
         raise HTTPException(status_code=429, detail="請求過於頻繁，請稍後再試")
 
     # 生成驗證碼
-    verification_code = generate_verification_code()
+    verification_code = Code.generate_verification_code()
 
     # 將驗證碼存儲到資料庫中
     Collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})
