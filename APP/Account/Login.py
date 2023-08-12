@@ -5,6 +5,7 @@ from Main import MongoDB # 引用MongoDB連線實例
 from Service.Token import encode_token, decode_token
 import Function.Hash as Hash
 import Function.Time as Time
+from datetime import timedelta
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()

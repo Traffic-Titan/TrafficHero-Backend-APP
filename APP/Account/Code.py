@@ -48,7 +48,7 @@ async def verifyCode(user: VerifyCodeModel):
     else: # 如果是忘記密碼驗證，則生成token
         payload = {
             "email": user.email,
-            "verification_code": generate_verification_code(),
+            "verification_code": Code.generate_verification_code(),
         }
         token = encode_token(payload, 10)
         Collection.update_one({"email": user.email}, {"$set": {"token": token}})
