@@ -47,6 +47,6 @@ async def googleSSO(user: LoginModel, token: HTTPAuthorizationCredentials = Depe
         data = {
             "email": user.email
         }
-        token = encodeToken(data, 43200)
+        token = Token.encode(data, 43200)
         return {"Token": token}
     
