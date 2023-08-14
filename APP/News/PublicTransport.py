@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from Service.TDX import getData
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Service.Token import decode_token
+import Service.Token as Token
 from fastapi import APIRouter
 from Service.TDX import getData
 from Main import MongoDB # 引用MongoDB連線實例
@@ -38,7 +38,7 @@ async def publicTransport(areas: str = "All", types: str = "All", token: HTTPAut
     # ---------------------------------------------------------------
     start_time = time.time() # 開始時間
     # ---------------------------------------------------------------
-    decode_token(token.credentials) # JWT驗證
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     if areas == "All": # 全部縣市
         areas = ",".join(Area.english) # 以英文逗號分隔

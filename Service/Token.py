@@ -7,8 +7,7 @@ from fastapi import HTTPException
 
 router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/JWT")
 
-@router.post("/encode_token")
-def encode_token(data: list, expiration_minutes: int):
+def encode(data: list, expiration_minutes: int):
     load_dotenv()
     secret_key = os.getenv("JWT_Secret")
     payload = {
@@ -19,12 +18,30 @@ def encode_token(data: list, expiration_minutes: int):
     token = jwt.encode(payload, secret_key, algorithm="HS256")
     return token
 
-@router.post("/decode_token")
-def decode_token(token: str):
+def decode(token: str):
     load_dotenv()
     secret_key = os.getenv("JWT_Secret")
     try:
         payload = jwt.decode(token, secret_key, algorithms=["HS256"])
         return payload
     except Exception as e:
-        raise HTTPException(status_code=403, detail=str(e))
+        raise HTTPException(status_code=403, detail=e)
+
+def verifyClient(token: str):
+    clientToken = { # 建立驗證清單
+        "App": os.getenv('appToken'),
+        "Website": os.getenv('websiteToken')
+    }
+    if token not in clientToken.values(): # 檢查Token是否存在於驗證清單中
+        raise HTTPException(status_code=403, detail="Forbidden")
+        
+def verifyToken(token: str, role: str):
+    clientToken, userToken = token.split(",") # 分割Token
+    verifyClient(clientToken) # 驗證Token是否來自於官方APP與Website
+    try:
+        payload = decode(userToken) # 解碼userToken
+        if payload["data"]["role"] == role or payload["data"]["role"] == "admin": # 檢查Token權限是否符合需求
+            return payload
+    except Exception as e:
+        raise HTTPException(status_code=403, detail=e)
+    

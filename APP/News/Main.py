@@ -4,7 +4,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from Service.TDX import getData
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Service.Token import decode_token
+import Service.Token as Token
 from fastapi import APIRouter
 from Service.TDX import getData
 from Main import MongoDB # 引用MongoDB連線實例
@@ -34,8 +34,7 @@ async def youbike(county:str, token: HTTPAuthorizationCredentials = Depends(secu
     縣市列表：臺北市、新北市、桃園市、新竹縣、新竹市、新竹科學園區、苗栗縣、台中市、嘉義市、臺南市、高雄市、屏東縣
     YouBike最新消息：https://www.youbike.com.tw/region/main/news/status/
     """
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
 
     #Python Selenium 
     chrome_options = Options()

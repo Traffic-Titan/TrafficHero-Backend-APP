@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from Service.TDX import getData
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Service.Token import decode_token
+import Service.Token as Token
 from fastapi import APIRouter
 import Service
 import re
@@ -18,8 +18,7 @@ security = HTTPBearer()
 
 @router.put("/TRA",summary="【Update】最新消息-臺鐵")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 取得TDX資料
     url = Link.get("News", "TRA", "All")

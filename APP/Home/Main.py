@@ -5,7 +5,7 @@
 """
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Service.Token import decode_token
+import Service.Token as Token
 from enum import Enum
 import csv
 from pydantic import BaseModel
@@ -14,7 +14,7 @@ from Main import MongoDB # 引用MongoDB連線實例
 from shapely.geometry import Point
 from geopy.distance import geodesic
 from shapely.geometry.polygon import Polygon
-from Service.GoogleMaps import geocode
+import Service.GoogleMaps as GoogleMaps
 import openpyxl
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
@@ -55,8 +55,7 @@ def getGasStationLatLng(CurrentLat:str,CurrentLng:str,Type:str):
 
 @router.post("/QuickSearch/GasStation")
 def gasStation(gas:Gas_Station, token: HTTPAuthorizationCredentials = Depends(security)):
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     Url = []
     for data in get_Gas_Station_LatLng(gas.CurrentLat,gas.CurrentLng,gas.Type):
@@ -96,8 +95,7 @@ def getConvenientStore(CurrentLat:str,CurrentLng:str):
     
 @router.post("/QuickSearch/ConvenientStore")
 def convenientStore(convenient:ConvenientStore, token: HTTPAuthorizationCredentials = Depends(security)):
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
 
     return get_ConvenientStore(convenient.CurrentLat,convenient.CurrentLng)
 

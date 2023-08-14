@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from Service.TDX import getData
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Service.Token import decode_token
+import Service.Token as Token
 from fastapi import APIRouter
 import Service
 import re
@@ -37,8 +37,7 @@ def getCountry(title:str,matchName:str):
 
 @router.put("/ProvincialHighway",summary="【Update】最新消息-省道")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 取得TDX資料
     url = Link.get("News", "Provincial_Highway", "All")

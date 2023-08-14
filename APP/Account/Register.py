@@ -1,15 +1,16 @@
-from fastapi import APIRouter, HTTPException
-from fastapi.security import HTTPBearer
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr
 import hashlib
 from Main import MongoDB # 引用MongoDB連線實例
 from datetime import datetime, timedelta
 from Service.Token import *
-from Service.Email import *
+import Service.Email as Email
 import Function.Time as Time
 import Function.Blob as Blob
 import Function.VerificationCode as Code
 import Function.Message as Message
+import Service.Token as Token
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 security = HTTPBearer()
@@ -23,7 +24,9 @@ class ProfileModel(BaseModel):
     Google_ID: str = None
 
 @router.post("/Register",summary="會員註冊")
-async def register(user: ProfileModel):
+async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Depends(security)):
+    Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
+    
     # 連線MongoDB
     Collection = MongoDB.getCollection("0_APP","0.Users")
 
@@ -60,7 +63,7 @@ async def register(user: ProfileModel):
         
         Collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})
         
-        response = await send_email(user.email,"電子郵件驗證","感謝您註冊Traffic Hero會員，您的驗證碼是：" + verification_code + "。<br>請在10分鐘內(" + expiration_time_str +  ")至APP上輸入此驗證碼以完成註冊，謝謝。<br><br>若這不是您本人所為，請直接忽略此電子郵件。")
+        response = await Email.send(user.email,"電子郵件驗證","感謝您註冊Traffic Hero會員，您的驗證碼是：" + verification_code + "。<br>請在10分鐘內(" + expiration_time_str +  ")至APP上輸入此驗證碼以完成註冊，謝謝。<br><br>若這不是您本人所為，請直接忽略此電子郵件。")
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=response.detail)
         

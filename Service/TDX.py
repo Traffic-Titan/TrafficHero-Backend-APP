@@ -3,12 +3,17 @@ import requests
 import json
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Service.Token import decode_token
+import Service.Token as Token
 import Function.Time as Time
 
 router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/TDX")
+security = HTTPBearer()
 
-@router.get("/getData",summary="【Read】取得TDX資料")
+@router.get("/getData", summary="TDX - 取得資料")
+def getDataAPI(url:str, token: HTTPAuthorizationCredentials = Depends(security)):
+    Token.verifyToken(token.credentials,"admin") # JWT驗證
+    return getData(url)
+
 def getData(url):
     auth_url = "https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token"
     app_id = os.getenv('TDX_app_id')
@@ -52,7 +57,11 @@ class Data():
             'authorization': 'Bearer '+ access_token
         }
 
-@router.get("/getHealthStatus",summary="【Read】TDX服務健康狀態")
+@router.get("/getHealthStatus", summary="TDX - 取得服務健康狀態")
+def getHealthStatusAPI(url:str, token: HTTPAuthorizationCredentials = Depends(security)):
+    Token.verifyToken(token.credentials,"admin") # JWT驗證
+    return getHealthStatus(url)
+
 def getHealthStatus(url: str):
     result = getData(url + "&health=true")
     status = {
