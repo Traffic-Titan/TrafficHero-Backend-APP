@@ -1,13 +1,14 @@
 # Email_Service.py
-from fastapi import APIRouter, HTTPException
-from fastapi.exceptions import HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from smtplib import SMTP_SSL
 from email.mime.text import MIMEText
 import os
 from fastapi.responses import JSONResponse
 
-router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/APP/Service/Email")
+router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/Email")
+security = HTTPBearer()
 
 def connectSMTPServer():
     # 連線到Gmail SMTP Server
@@ -20,8 +21,12 @@ class EmailBody(BaseModel):
     subject: str
     message: str
 
-@router.post("/send_email")
-async def send_email(to : str, subject : str, message : str):
+@router.post("/Send", summary="Email - 寄送電子郵件")
+async def sendAPI(to : str, subject : str, message : str,token: HTTPAuthorizationCredentials = Depends(security)):
+    Token.verifyToken(token.credentials,"admin") # JWT驗證
+    send(to,subject,message)
+
+async def send(to : str, subject : str, message : str,token: HTTPAuthorizationCredentials = Depends(security)):
     try:
         # 連線到Gmail SMTP Server
         connectSMTPServer()

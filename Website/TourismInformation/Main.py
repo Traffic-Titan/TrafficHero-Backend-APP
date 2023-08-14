@@ -1,14 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Service.Token import decode_token
+import Service.Token as Token
 
 router = APIRouter(tags=["5.觀光資訊(Website)"],prefix="/Website/TourismInformation")
-
 security = HTTPBearer()
 
 @router.get("/Test")
 def test(token: HTTPAuthorizationCredentials = Depends(security)):
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     return {"message": "test"}

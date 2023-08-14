@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException
-from fastapi.security import HTTPBearer
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr
 from Main import MongoDB # 引用MongoDB連線實例
-from Service.Token import encode_token, decode_token
+import Service.Token as Token
 import Function.Hash as Hash
 import Function.Time as Time
 from datetime import timedelta
@@ -15,7 +15,9 @@ class LoginModel(BaseModel):
     password: str
 
 @router.post("/Login",summary="會員登入")
-async def login(user: LoginModel):
+async def login(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(security)):
+    Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
+    
     # 連線MongoDB
     Collection = MongoDB.getCollection("0_APP","0.Users")
     
@@ -64,7 +66,8 @@ async def login(user: LoginModel):
 
         # 產生Token
         data = {
-            "email": user.email
+            "email": user.email,
+            "role": result["role"]
         }
-        token = encode_token(data, 43200) # Token有效期為30天
+        token = Token.encode(data, 43200) # Token有效期為30天
         return {"Token": token}

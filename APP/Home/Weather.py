@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Service.Token import decode_token
+import Service.Token as Token
 import xml.etree.ElementTree as ET
 import requests
 
@@ -17,8 +17,7 @@ async def getLink(Longitude: str, Latitude: str, token: HTTPAuthorizationCredent
     2. 單點坐標回傳行政區\n
         https://data.gov.tw/dataset/101898
     """
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     try:
         # 取得鄉鎮市區代碼(XML)

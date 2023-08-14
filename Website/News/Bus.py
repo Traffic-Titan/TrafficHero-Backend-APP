@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from Service.TDX import getData
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Service.Token import decode_token
+import Service.Token as Token
 from fastapi import APIRouter
 import Service
 import re
@@ -27,8 +27,7 @@ async def updateNews(Area: Optional[str] = "All", token: HTTPAuthorizationCreden
     全部更新:All_(預設)
     """
     
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 取得TDX資料
     match Area:
