@@ -2,7 +2,7 @@ import openai
 import os
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Service.Token import decode_token
+import Service.Token as Token
 
 router = APIRouter(tags=["0.群組通訊(APP)"],prefix="/APP/Chat")
 
@@ -10,8 +10,7 @@ security = HTTPBearer()
 
 @router.get("/ChatGPT",summary="ChatGPT(Dev)")
 def ChatGPT(str:str,token: HTTPAuthorizationCredentials = Depends(security)):
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     openai.api_key = app_id = os.getenv('OpenAI_Key')
     user = str 

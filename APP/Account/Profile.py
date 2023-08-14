@@ -4,8 +4,8 @@ from pydantic import BaseModel, EmailStr, Field
 from Main import MongoDB # 引用MongoDB連線實例
 from jose import jwt
 from datetime import datetime, timedelta
-from Service.Token import encode_token, decode_token
-from Service.Email import send_email
+import Service.Token as Token
+import Service.Email as Email
 import time
 import Function.Time as Time
 import Function.VerificationCode as Code
@@ -25,8 +25,7 @@ class ProfileModel(BaseModel):
 
 @router.get("/Profile",summary="【Read】會員資料")
 async def viewProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    # JWT驗證
-    payload = decode_token(token.credentials)
+    payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 取得使用者資料
     Collection = MongoDB.getCollection("0_APP","0.Users")
@@ -44,8 +43,7 @@ async def viewProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer()
 
 @router.put("/Profile",summary="【Update】會員資料")
 async def updateProfile(user: ProfileModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    # JWT驗證
-    payload = decode_token(token.credentials)
+    payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 取得使用者資料
     Collection = MongoDB.getCollection("0_APP","0.Users")
@@ -64,8 +62,7 @@ async def updateProfile(user: ProfileModel, token: HTTPAuthorizationCredentials 
 
 @router.delete("/Profile",summary="【Delete】會員資料")
 async def deleteProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    # JWT驗證
-    payload = decode_token(token.credentials)
+    payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 刪除使用者資料
     Collection = MongoDB.getCollection("0_APP","0.Users")
@@ -79,8 +76,7 @@ class UpdateEmailModel(BaseModel):
 
 @router.patch("/Profile/Email",summary="【Update】會員資料-Email(Dev)") # 尚未處理Bug，應該是要在新Email驗證成功後才能更新
 async def updateEmail(user: UpdateEmailModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    # JWT驗證
-    payload = decode_token(token.credentials)
+    payload = Token.verifyToken(token.credentials,"user") # JWT驗證
 
     # Email驗證
     Collection = MongoDB.getCollection("0_APP","0.Users")
@@ -95,12 +91,12 @@ async def updateEmail(user: UpdateEmailModel, token: HTTPAuthorizationCredential
         Collection.update_one({"email": user.old_email}, {"$set": {"old_email": user.old_email, "email": user.new_email, "email_confirmed": False, "verification_code": verification_code, "timestamp": current_time}})        
         
         # 傳給舊Email
-        response = await send_email(user.old_email,"電子郵件驗證","您好，我們已收到您修改Email的請求，請至新Email信箱驗證，謝謝。<br><br>若這不是您本人所為，請盡速更改Traffic Hero會員密碼，以確保帳號安全。")
+        response = await Email.send(user.old_email,"電子郵件驗證","您好，我們已收到您修改Email的請求，請至新Email信箱驗證，謝謝。<br><br>若這不是您本人所為，請盡速更改Traffic Hero會員密碼，以確保帳號安全。")
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=response.detail)
         
         # 傳給新Email
-        response = await send_email(user.new_email,"電子郵件驗證","您好，我們已收到您修改Email的請求，您的驗證碼是：" + verification_code + "。<br>請在10分鐘內(" + expiration_time_str +  ")至APP上輸入此驗證碼以更新Email，謝謝。<br><br>若這不是您本人所為，請直接忽略此電子郵件。")
+        response = await Email.send(user.new_email,"電子郵件驗證","您好，我們已收到您修改Email的請求，您的驗證碼是：" + verification_code + "。<br>請在10分鐘內(" + expiration_time_str +  ")至APP上輸入此驗證碼以更新Email，謝謝。<br><br>若這不是您本人所為，請直接忽略此電子郵件。")
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=response.detail)
         

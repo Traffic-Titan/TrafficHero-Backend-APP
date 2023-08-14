@@ -3,7 +3,7 @@
 """
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Service.Token import decode_token
+import Service.Token as Token
 from Service.TDX import getData
 from Main import MongoDB # 引用MongoDB連線實例
 from typing import Optional, List, Union
@@ -35,8 +35,7 @@ def getNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCreden
     全選:All
     """
     
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     Collection = MongoDB.getCollection("News",f"{data.Type}_Link")
     
@@ -62,8 +61,7 @@ def updateNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCre
     全選:All
     """
     
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     Collection = MongoDB.getCollection("News",f"{Type}_Link")
     
@@ -86,8 +84,7 @@ def addNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCreden
     全選:All
     """
     
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 將資料存入MongoDB
     Collection = MongoDB.getCollection("News",f"{data.Type}_Link")
@@ -105,8 +102,7 @@ def deleteNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCre
     全選:All
     """
     
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 刪除資料
     Collection = MongoDB.getCollection("News",f"{Type}_Link")

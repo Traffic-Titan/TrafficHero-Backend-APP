@@ -1,12 +1,12 @@
-from fastapi import APIRouter, HTTPException
-from fastapi.security import HTTPBearer
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr, Field
 import hashlib
 from Main import MongoDB # 引用MongoDB連線實例
 from datetime import datetime, timedelta
-from Service.Token import encode_token, decode_token
+import Service.Token as Token
 import Function.VerificationCode as Code
-from Service.Email import send_email
+import Service.Email as Email
 import Function.Time as Time
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
@@ -18,7 +18,9 @@ class ChangePasswordModel(BaseModel):
     new_password: str
     
 @router.put("/ChangePassword",summary="更改密碼")
-async def changePassword(user: ChangePasswordModel):
+async def changePassword(user: ChangePasswordModel, token: HTTPAuthorizationCredentials = Depends(security)):
+    Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
+    
     # 連線MongoDB
     Collection = MongoDB.getCollection("0_APP","0.Users")
 
@@ -50,7 +52,9 @@ class ForgetPasswordModel(BaseModel):
     birthday: str
 
 @router.post("/ForgotPassword",summary="忘記密碼")
-async def forgotPassword(user: ForgetPasswordModel):
+async def forgotPassword(user: ForgetPasswordModel, token: HTTPAuthorizationCredentials = Depends(security)):
+    Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
+    
     # 檢查電子郵件是否存在於資料庫中
     Collection = MongoDB.getCollection("0_APP","0.Users")
     result = Collection.find_one({"email": user.email, "email_confirmed": True, "birthday": user.birthday})
@@ -76,7 +80,7 @@ async def forgotPassword(user: ForgetPasswordModel):
     expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)  # 計算驗證碼的過期時間
     expiration_time_str = expiration_time.strftime("%Y/%m/%d %H:%M")  # 格式化過期時間(YYYY/MM/DD HH:MM)
     
-    response = await send_email(user.email,"重設密碼","您好，我們已收到您修改密碼的請求，您的驗證碼是：" + verification_code + "。<br>請在10分鐘內(" + expiration_time_str +  ")至APP上輸入此驗證碼以更新Email，謝謝。<br><br>若這不是您本人所為，請直接忽略此電子郵件。")
+    response = await Email.send(user.email,"重設密碼","您好，我們已收到您修改密碼的請求，您的驗證碼是：" + verification_code + "。<br>請在10分鐘內(" + expiration_time_str +  ")至APP上輸入此驗證碼以更新Email，謝謝。<br><br>若這不是您本人所為，請直接忽略此電子郵件。")
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail=response.detail)
 

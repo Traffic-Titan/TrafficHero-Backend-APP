@@ -3,17 +3,20 @@ import json
 from urllib import request, parse
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Service.Token import decode_token
+import Service.Token as Token
 
 router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/GoogleMaps")
-
 security = HTTPBearer()
 
-@router.post("/geocode")
-def geocode(item:str):
-        url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + parse.quote(item) + "&key=" + os.getenv('Google_Maps_Key')
-        response = request.urlopen(url)
-        result = json.load(response)["results"]
+@router.post("/Geocoding", summary="Google Maps - 地址轉經緯度")
+def geocodingAPI(item: str, token: HTTPAuthorizationCredentials = Depends(security)):
+    Token.verifyToken(token.credentials,"admin") # JWT驗證
+    return geocoding(item)
 
-        for item in result:
-            return item['geometry']['location']
+def geocoding(item:str):
+    url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + parse.quote(item) + "&key=" + os.getenv('Google_Maps_Key')
+    response = request.urlopen(url)
+    result = json.load(response)["results"]
+
+    for item in result:
+        return item['geometry']['location']

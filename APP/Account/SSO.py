@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException
-from fastapi.security import HTTPBearer
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr
 import hashlib
 from Main import MongoDB # 引用MongoDB連線實例
 from datetime import datetime, timedelta
-from Service.Token import encode_token, decode_token
+import Service.Token as Token
 from Function.Blob import *
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
@@ -16,7 +16,9 @@ class LoginModel(BaseModel):
     Google_Avatar: str = None
 
 @router.post("/GoogleSSO",summary="使用Google帳號登入(含註冊、綁定判斷)")
-async def googleSSO(user: LoginModel):
+async def googleSSO(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(security)):
+    Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
+    
     # 連線MongoDB
     Collection = MongoDB.getCollection("0_APP","0.Users")
     
@@ -45,6 +47,6 @@ async def googleSSO(user: LoginModel):
         data = {
             "email": user.email
         }
-        token = encode_token(data, 43200)
+        token = encodeToken(data, 43200)
         return {"Token": token}
     

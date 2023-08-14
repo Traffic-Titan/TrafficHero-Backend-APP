@@ -43,11 +43,11 @@ async def root():
 # ---------------------------------------------------------------
 
 # 外部服務(Dev Only)
-# from Service import Email, GoogleMaps, TDX, Token
-# app.include_router(Email.router)
-# app.include_router(GoogleMaps.router)
-# app.include_router(TDX.router)
-# app.include_router(Token.router)
+from Service import Email, GoogleMaps, TDX, Token
+app.include_router(Email.router)
+app.include_router(GoogleMaps.router)
+app.include_router(TDX.router)
+app.include_router(Token.router)
 
 # 0.會員管理(APP)
 from APP.Account import Login, Register, SSO, Code, Password, Profile

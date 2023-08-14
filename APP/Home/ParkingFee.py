@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Service.Token import decode_token
+import Service.Token as Token
 from Main import MongoDB # 引用MongoDB連線實例
 import concurrent.futures
 import threading
@@ -20,8 +20,7 @@ def parkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(securit
     1.資料來源:全國路邊停車費查詢API
     https://tdx.transportdata.tw/api-service/parkingFee
     """
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     Detail = [] # 存全部縣市的繳費資訊
     DetailLock = threading.Lock()  # 建立鎖物件

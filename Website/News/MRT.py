@@ -3,7 +3,7 @@
 """
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from Service.Token import decode_token
+import Service.Token as Token
 from Service.TDX import getData
 from Main import MongoDB # 引用MongoDB連線實例
 from typing import Optional, List, Union
@@ -28,8 +28,7 @@ def updateNews(Area: Optional[str] = "All", token: HTTPAuthorizationCredentials 
     全部更新:All (預設)
     """
     
-    # JWT驗證
-    decode_token(token.credentials)
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 更新資料庫
     Collection = MongoDB.getCollection("News","MRT")
