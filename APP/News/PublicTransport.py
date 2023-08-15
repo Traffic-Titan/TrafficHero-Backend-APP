@@ -44,7 +44,7 @@ async def publicTransport(areas: str = "All", types: str = "All", token: HTTPAut
     if areas == "All": # 全部縣市
         areas = ",".join(Area.english) # 以英文逗號分隔
     if types == "All": # 全部類型
-        types = "TRA,THSR,MRT,Bus,InterCityBus"
+        types = "TRA,THSR,MRT,Bus,InterCityBus,TaiwanTouristShuttle,AlishanForestRailway"
     
     types, areas = types.split(','), areas.split(',') # 將types, areas轉成陣列
     
@@ -52,7 +52,7 @@ async def publicTransport(areas: str = "All", types: str = "All", token: HTTPAut
     documents = [] # 回傳的資料
     with concurrent.futures.ThreadPoolExecutor(max_workers=len(types) * len(areas)) as executor: # 並行處理
         for type in types:
-            if type in ["TRA", "THSR", "InterCityBus"]: # 無區域之分
+            if type in ["TRA","THSR","InterCityBus","TaiwanTouristShuttle","AlishanForestRailway"]: # 無區域之分
                 task.append(executor.submit(processData, type, "All")) # 將任務加入任務清單
             else:
                 for area in areas: # 有區域之分

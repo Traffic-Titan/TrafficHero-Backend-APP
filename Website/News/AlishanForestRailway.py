@@ -11,41 +11,21 @@ import json
 import urllib.request as request
 import Function.Time as Time
 import Function.Link as Link
-from Main import MongoDB # 引用MongoDB連線實例
+from Main import MongoDB
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("News","ProvincialHighway")
+Collection = MongoDB.getCollection("News","AlishanForestRailway")
 
-"""
-資料來源:省道最新消息
-https://tdx.transportdata.tw/api-service/swagger/basic/7f07d940-91a4-495d-9465-1c9df89d709c#/HighwayTraffic/Live_News_Highway
-省道 起、迄點牌面資料
-https://tdx.transportdata.tw/api-service/swagger/basic/30bc573f-0d73-47f2-ac3c-37c798b86d37#/Road/PhysicalNetwork_03016
-省道里程坐標：https://data.gov.tw/dataset/7040
-"""
-def getCountry(title:str,matchName:str):
-    #讀檔 省道里程座標.csv
-    with open(r'./News/省道里程坐標.csv',encoding="utf-8") as csvfile:
-        reader = csv.reader(csvfile)
-        for row in reader:
-            try:
-                #透過正則表示法 及 比對到的省道名稱，與csv的資料比對後，回傳csv檔的縣市欄位(row[2])
-                if(row[0] == matchName and re.search("\d\d\d[A-Z]|\d\d[A-Z]",title).group() in row[10]):
-                    return row[2]
-            except:
-                pass
-        return None
-
-@router.put("/ProvincialHighway",summary="【Update】最新消息-省道")
+@router.put("/AlishanForestRailway",summary="【Update】最新消息-阿里山林業鐵路")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
     Collection.drop() # 刪除該Collection所有資料
     
     try:
-        url = Link.get("News", "Source", "ProvincialHighway", "All") # 取得資料來源網址
+        url = Link.get("News", "Source", "AlishanForestRailway", "All") # 取得資料來源網址
         data = TDX.getData(url) # 取得資料
         
         documents = []
