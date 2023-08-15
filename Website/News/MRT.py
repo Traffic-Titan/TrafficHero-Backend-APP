@@ -9,7 +9,6 @@ from Main import MongoDB # 引用MongoDB連線實例
 from typing import Optional, List, Union
 import json
 from pydantic import BaseModel, HttpUrl
-from Function.NewsCategory import Number2Text
 import hashlib
 from collections import OrderedDict
 import Function.Time as Time
@@ -64,7 +63,7 @@ def data2MongoDB(Area: str):
             "Area": Area,
             "NewsID": d['NewsID'],
             "Title": d['Title'],
-            "NewsCategory": Number2Text(d['NewsCategory']),
+            "NewsCategory": numberToText(d['NewsCategory']),
             "Description": d['Description'],
             "NewsURL": d['NewsURL'],
             # "StartTime": Time.format(d['StartTime']),
@@ -78,3 +77,28 @@ def data2MongoDB(Area: str):
     Collection.insert_many(documents)
     
     return "Success"
+
+def numberToText(number : int):
+    match number:
+        case 1:
+            return "最新消息"
+        case 2:
+            return "新聞稿"
+        case 3:
+            return "營運資訊"
+        case 4:
+            return "轉乘資訊"
+        case 5:
+            return "活動訊息"
+        case 6:
+            return "系統公告"
+        case 7:
+            return "新服務上架"
+        case 8:
+            return "API修正"
+        case 9:
+            return "來源異常"
+        case 10:
+            return "資料更新"
+        case 99:
+            return "其他"
