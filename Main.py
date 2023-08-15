@@ -69,9 +69,10 @@ app.include_router(Weather.router)
 app.include_router(ParkingFee.router)
 
 # 2.最新消息(APP)
-from APP.News import Main, Car, PublicTransport
+from APP.News import Main, Car, Scooter, PublicTransport
 app.include_router(Main.router)
 app.include_router(Car.router)
+app.include_router(Scooter.router)
 app.include_router(PublicTransport.router)
 
 # 3.即時訊息推播(APP)
