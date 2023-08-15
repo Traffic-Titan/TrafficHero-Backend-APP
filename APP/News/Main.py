@@ -28,7 +28,7 @@ import Function.Area as Area
 router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
 security = HTTPBearer()
 
-@router.get("/PublicTransport/YouBike/{county}",summary="【Read】最新消息-大眾運輸-腳踏車")
+@router.get("/PublicTransport/YouBike/{county}",summary="【Read】最新消息-大眾運輸-腳踏車(Dev)")
 async def youbike(county:str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     縣市列表：臺北市、新北市、桃園市、新竹縣、新竹市、新竹科學園區、苗栗縣、台中市、嘉義市、臺南市、高雄市、屏東縣
@@ -74,7 +74,7 @@ async def youbike(county:str, token: HTTPAuthorizationCredentials = Depends(secu
         all_return_detail.append(return_detail)
     
     return all_return_detail
-@router.get("/Car/FreeWay",summary="【Read】最新消息-汽車-國道最新消息")
+@router.get("/Car/FreeWay",summary="【Read】最新消息-汽車-國道最新消息(Dev)")
 async def freeWay(Date:int,token: HTTPAuthorizationCredentials = Depends(security)):
     """
     國道最新消息：https://1968.freeway.gov.tw/n_whatsup
