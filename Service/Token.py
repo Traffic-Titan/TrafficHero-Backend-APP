@@ -36,12 +36,14 @@ def verifyClient(token: str):
         raise HTTPException(status_code=403, detail="Forbidden")
         
 def verifyToken(token: str, role: str):
-    clientToken, userToken = token.split(",") # 分割Token
-    verifyClient(clientToken) # 驗證Token是否來自於官方APP與Website
     try:
+        clientToken, userToken = token.split(",") # 分割Token
+        verifyClient(clientToken) # 驗證Token是否來自於官方APP與Website
         payload = decode(userToken) # 解碼userToken
         if payload["data"]["role"] == role or payload["data"]["role"] == "admin": # 檢查Token權限是否符合需求
             return payload
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Invalid token format")
     except Exception as e:
         raise HTTPException(status_code=403, detail=e)
     
