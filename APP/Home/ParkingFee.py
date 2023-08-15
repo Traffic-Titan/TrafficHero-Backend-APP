@@ -23,7 +23,7 @@ def parkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(securit
     
     類別: C：汽車；M：機車；O：其他(如拖車)
     """
-    # Token.verifyToken(token.credentials,"user") # JWT驗證
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     Detail = [] # 存全部縣市的繳費資訊
     DetailLock = threading.Lock()  # 建立鎖物件
