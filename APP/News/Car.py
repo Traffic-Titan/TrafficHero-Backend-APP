@@ -44,7 +44,7 @@ async def car(areas: str = "All", types: str = "All", token: HTTPAuthorizationCr
     if areas == "All": # 全部縣市
         areas = ",".join(Area.english) # 以英文逗號分隔 
     if types == "All": # 全部類型
-        types = "ProvincialHighway"
+        types = "ProvincialHighway,LocalRoad"
 
     types, areas = types.split(','), areas.split(',') # 將types, areas轉成陣列
 
