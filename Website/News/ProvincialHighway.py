@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from Service.TDX import getData
+import Service.TDX as TDX
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import Service.Token as Token
 from fastapi import APIRouter
@@ -16,11 +16,14 @@ from Main import MongoDB # 引用MongoDB連線實例
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
+Collection = MongoDB.getCollection("News","ProvincialHighway")
+
 """
-1.資料來源:省道最新消息
-    https://tdx.transportdata.tw/api-service/swagger/basic/7f07d940-91a4-495d-9465-1c9df89d709c#/HighwayTraffic/Live_News_Highway
-    省道 起、迄點牌面資料：https://tdx.transportdata.tw/api-service/swagger/basic/30bc573f-0d73-47f2-ac3c-37c798b86d37#/Road/PhysicalNetwork_03016
-    省道里程坐標：https://data.gov.tw/dataset/7040
+資料來源:省道最新消息
+https://tdx.transportdata.tw/api-service/swagger/basic/7f07d940-91a4-495d-9465-1c9df89d709c#/HighwayTraffic/Live_News_Highway
+省道 起、迄點牌面資料
+https://tdx.transportdata.tw/api-service/swagger/basic/30bc573f-0d73-47f2-ac3c-37c798b86d37#/Road/PhysicalNetwork_03016
+省道里程坐標：https://data.gov.tw/dataset/7040
 """
 def getCountry(title:str,matchName:str):
     #讀檔 省道里程座標.csv
@@ -37,39 +40,33 @@ def getCountry(title:str,matchName:str):
 
 @router.put("/ProvincialHighway",summary="【Update】最新消息-省道")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
-    Token.verifyToken(token.credentials,"user") # JWT驗證
+    Token.verifyToken(token.credentials,"admin") # JWT驗證
     
-    # 取得TDX資料
-    url = Link.get("News", "Provincial_Highway", "All")
-    data = getData(url)
+    Collection.drop() # 刪除該Collection所有資料
     
-    # 將資料整理成MongoDB的格式
-    documents = []
-    for d in data["Newses"]:
-        document = {
-            "Type": "Provincial_Highway",
-            "Area": "All",
-            "NewsID": d['NewsID'],
-            "Title": d['Title'],
-            "NewsCategory": NewsCategory_Number2Text(d['NewsCategory']),
-            "Description": d['Description'],
-            # "NewsURL": d['NewsURL'],
-            # "AttachmentURL": d['AttachmentURL'],
-            # "StartTime": d['StartTime'],
-            # "EndTime": d['EndTime'],
-            # "PublishTime": d['PublishTime'],
-            "UpdateTime": Time.format(d['UpdateTime'])
-        }
-        documents.append(document)
+    try:
+        url = Link.get("News", "Source", "ProvincialHighway", "All") # 取得資料來源網址
+        data = TDX.getData(url) # 取得資料
+        
+        documents = []
+        for d in data["Newses"]: # 將資料整理成MongoDB的格式
+            document = {
+                "Area": "All",
+                "NewsID": d['NewsID'],
+                "Title": d['Title'],
+                "NewsCategory": numberToText(d['NewsCategory']),
+                "Description": d['Description'],
+                "UpdateTime": Time.format(d['UpdateTime'])
+            }
+            documents.append(document)
 
-    # 將資料存入MongoDB
-    Collection = MongoDB.getCollection("News","Car_and_Sccoter")
-    Collection.delete_many({"Type": "Provincial_Highway"})
-    Collection.insert_many(documents)
-    
-    return "Success"
+        Collection.insert_many(documents) # 將資料存入MongoDB
+    except Exception as e:
+        print(e)
+        
+    return f"已更新筆數:{Collection.count_documents({})}"
 
-def newsCategory_Number2Text(number : int):
+def numberToText(number : int):
     match number:
         case 1:
             return "最新消息"
