@@ -36,7 +36,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
                 "NewsCategory": d['NewsCategory'],
                 "Title": d['Title'],
                 "Description": d['Description'],
-                "NewsURL": d['NewsUrl'],
+                "NewsURL": d['NewsURL'] if 'NewsURL' in d else "",
                 "UpdateTime": Time.format(d['UpdateTime'])
             }
             documents.append(document)
