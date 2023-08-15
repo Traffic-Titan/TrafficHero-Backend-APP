@@ -9,7 +9,6 @@ from Main import MongoDB # 引用MongoDB連線實例
 from typing import Optional, List, Union
 import json
 from pydantic import BaseModel, HttpUrl
-from Function.NewsCategory import Number2Text
 import hashlib
 from collections import OrderedDict
 import Function.Time as Time
