@@ -54,7 +54,7 @@ def getGasStationLatLng(CurrentLat:str,CurrentLng:str,Type:str):
     return match_Station      
 
 @router.post("/QuickSearch/GasStation")
-def gasStation(gas:Gas_Station, token: HTTPAuthorizationCredentials = Depends(security)):
+async def gasStation(gas:Gas_Station, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     Url = []
@@ -94,7 +94,7 @@ def getConvenientStore(CurrentLat:str,CurrentLng:str):
     return match_Station
     
 @router.post("/QuickSearch/ConvenientStore")
-def convenientStore(convenient:ConvenientStore, token: HTTPAuthorizationCredentials = Depends(security)):
+async def convenientStore(convenient:ConvenientStore, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"user") # JWT驗證
 
     return get_ConvenientStore(convenient.CurrentLat,convenient.CurrentLng)
