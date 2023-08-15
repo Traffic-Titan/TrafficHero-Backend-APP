@@ -36,6 +36,7 @@ def data2MongoDB(area: str):
     try:
         url = Link.get("News", "Source", "Bus", area) # 取得資料來源網址
         data = TDX.getData(url) # 取得資料
+        
         documents = []
         for d in data: # 將資料轉換成MongoDB格式
             document = {

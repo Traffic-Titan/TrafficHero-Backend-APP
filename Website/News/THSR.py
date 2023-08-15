@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from Service.TDX import getData
+import Service.TDX as TDX
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import Service.Token as Token
 from fastapi import APIRouter
@@ -16,36 +16,34 @@ from Main import MongoDB
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
+Collection = MongoDB.getCollection("News","THSR")
+
 @router.put("/THSR",summary="【Update】最新消息-高鐵")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
-    Token.verifyToken(token.credentials,"user") # JWT驗證
+    Token.verifyToken(token.credentials,"admin") # JWT驗證
     
-    # 取得TDX資料
-    url = Link.get("News", "THSR", "All")
-    data = getData(url)
+    Collection.drop() # 刪除該Collection所有資料
     
-    # 將資料整理成MongoDB的格式
-    documents = []
-    for d in data:
-        document = {
-            "Type": "THSR",
-            "Area": "All",
-            "NewsID": d['NewsID'],
-            "NewsCategory": d['NewsCategory'],
-            "Title": d['Title'],
-            "Description": d['Description'],
-            "NewsURL": d['NewsUrl'],
-            # "StartTime": d['StartTime'],
-            # "EndTime": d['EndTime'],
-            # "PublishTime": d['PublishTime'],
-            "UpdateTime": Time.format(d['UpdateTime'])
-        }
-        documents.append(document)
+    try:
+        url = Link.get("News", "Source", "THSR", "All") # 取得資料來源網址
+        data = TDX.getData(url) # 取得資料
+        
+        documents = []
+        for d in data: # 將資料整理成MongoDB的格式
+            document = {
+                "Area": "All",
+                "NewsID": d['NewsID'],
+                "NewsCategory": d['NewsCategory'],
+                "Title": d['Title'],
+                "Description": d['Description'],
+                "NewsURL": d['NewsUrl'],
+                "UpdateTime": Time.format(d['UpdateTime'])
+            }
+            documents.append(document)
 
-    # 將資料存入MongoDB
-    Collection = MongoDB.getCollection("News","Public_Transport")
-    Collection.delete_many({"Type": "THSR"})
-    Collection.insert_many(documents)
-    
-    return "Success"
+        Collection.insert_many(documents) # 將資料存入MongoDB
+    except Exception as e:
+        print(e)
+        
+    return f"已更新筆數:{Collection.count_documents({})}"
     
