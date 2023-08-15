@@ -16,7 +16,7 @@ class Info(BaseModel):
     type: str
 
 @router.post("/ParkingFee", summary="【Read】取得各縣市路邊停車費查詢資料(Dev)")
-def parkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(security)):
+async def parkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     資料來源:全國路邊停車費查詢API
     https://tdx.transportdata.tw/api-service/parkingFee

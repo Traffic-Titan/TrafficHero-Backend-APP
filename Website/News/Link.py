@@ -25,7 +25,7 @@ class NewsLinkModel(BaseModel):
     URL: Optional[HttpUrl]
 
 @router.get("/Link",summary="【Read】最新消息-資料來源連結(Dev)")
-def getNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
+async def getNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
     """
     Type:臺鐵:TRA,高鐵:THSR,捷運:MRT,公車:Bus
     
@@ -51,7 +51,7 @@ def getNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCreden
     return documents
 
 @router.put("/Link",summary="【Update】最新消息-資料來源連結(Dev)")
-def updateNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
+async def updateNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
     """
     Type:臺鐵:TRA,高鐵:THSR,捷運:MRT,公車:Bus
     
@@ -74,7 +74,7 @@ def updateNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCre
     return "success"
 
 @router.post("/Link",summary="【Create】最新消息-資料來源連結(Dev)")
-def addNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
+async def addNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
     """
     Type:臺鐵:TRA,高鐵:THSR,捷運:MRT,公車:Bus
     
@@ -92,7 +92,7 @@ def addNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCreden
     return "Success"
 
 @router.delete("/Link",summary="【Delete】最新消息-資料來源連結(Dev)")
-def deleteNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
+async def deleteNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
     """
     Type:臺鐵:TRA,高鐵:THSR,捷運:MRT,公車:Bus
     
