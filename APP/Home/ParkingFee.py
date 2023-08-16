@@ -15,7 +15,7 @@ class Info(BaseModel):
     licensePlateNumber: str
     type: str
 
-@router.post("/ParkingFee", summary="【Read】取得各縣市路邊停車費查詢資料(Dev)")
+@router.post("/ParkingFee", summary="【Read】取得各縣市路邊停車費查詢(Dev)")
 async def parkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     資料來源:全國路邊停車費查詢API
@@ -59,13 +59,15 @@ def processData(result, area, data):
         "Amount": 0
     }
     try:
-        dataAll = requests.get(url).json()
+        dataAll = requests.get(url, timeout=3).json() # timeout: 3秒
         if(dataAll['Result'] is not None):
             detail = { # 存單一縣市的繳費資訊
                 "Area": Area.englishToChinese(area),
                 "Amount": dataAll['Result']['TotalAmount'],
                 "Bill": dataAll['Result']['Bills']
             }
+    except requests.Timeout:
+        print(f"Request timed out for area {area}, using default data")
     except Exception as e:
         print(f"Error processing data for area {area}: {e}")
     
