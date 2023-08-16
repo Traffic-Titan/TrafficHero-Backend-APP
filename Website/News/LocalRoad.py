@@ -21,7 +21,7 @@ security = HTTPBearer()
 
 Collection = MongoDB.getCollection("News","LocalRoad")
 
-@router.put("/LocalRoad",summary="【Update】最新消息-地方道路")
+@router.put("/LocalRoad",summary="【Update】最新消息-地區道路")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)): 
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
@@ -46,7 +46,7 @@ def data2MongoDB(area: str):
                 "Title": d['Title'],
                 "NewsCategory": numberToText(d['NewsCategory']),
                 "Description": d['Description'],
-                "NewsURL": d['NewsURL'] if 'NewsURL' in d else "",
+                "NewsURL": "", # 因此資料集的新聞網址有問題，所以以空值取代，讓前端可以直接顯示Description
                 "UpdateTime": Time.format(d['UpdateTime'])
             }
             documents.append(document)
