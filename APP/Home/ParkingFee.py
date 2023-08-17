@@ -56,15 +56,23 @@ def processData(result, area, data):
     
     detail = { # 存單一縣市的繳費資訊
         "Area": Area.englishToChinese(area),
-        "Amount": 0
+        "Amount": 0,
+        "Detail": "服務維護中"
     }
     try:
-        dataAll = requests.get(url, timeout=3).json() # timeout: 3秒
-        if(dataAll['Result'] is not None):
+        dataAll = requests.get(url, timeout = 2).json() # timeout: 2秒
+        if(dataAll['Result'] is not None): # 如果有資料就存入
             detail = { # 存單一縣市的繳費資訊
                 "Area": Area.englishToChinese(area),
                 "Amount": dataAll['Result']['TotalAmount'],
-                "Bill": dataAll['Result']['Bills']
+                "Bill": dataAll['Result']['Bills'],
+                "Detail": "查詢成功"
+            }
+        else:
+            detail = { # 若無資料就存入0
+                "Area": Area.englishToChinese(area),
+                "Amount": 0,
+                "Detail": "查詢成功"
             }
     except requests.Timeout:
         print(f"Request timed out for area {area}, using default data")
