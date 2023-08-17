@@ -31,6 +31,7 @@ def processData(type, area):
     logoURL = Logo.get(type, area) # 取得Logo
     for d in result:
         d["LogoURL"] = logoURL # 新增Logo
+        if d.get("NewsURL") != "": d["Description"] = "" # 若有NewsURL則清空Description，以減少傳輸內容
         documents.append(d) # 將資料存入documents
     return documents # 回傳documents
 
