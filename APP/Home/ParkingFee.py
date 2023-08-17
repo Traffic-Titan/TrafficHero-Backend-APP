@@ -60,7 +60,7 @@ def processData(result, area, data):
         "Detail": "服務維護中"
     }
     try:
-        dataAll = requests.get(url, timeout = 2).json() # timeout: 2秒
+        dataAll = requests.get(url, timeout = 5).json() # timeout: 5秒
         if(dataAll['Result'] is not None): # 如果有資料就存入
             detail = { # 存單一縣市的繳費資訊
                 "Area": Area.englishToChinese(area),
