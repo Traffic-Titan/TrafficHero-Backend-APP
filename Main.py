@@ -63,10 +63,11 @@ from APP.Chat import Main
 app.include_router(Main.router)
 
 # 1.首頁(APP)
-from APP.Home import Main, Weather, ParkingFee
+from APP.Home import Main, Weather, ParkingFee, OperationalStatus
 app.include_router(Main.router)
 app.include_router(Weather.router)
 app.include_router(ParkingFee.router)
+app.include_router(OperationalStatus.router)
 
 # 2.最新消息(APP)
 from APP.News import Main, Car, Scooter, PublicTransport
