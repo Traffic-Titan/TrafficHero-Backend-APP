@@ -7,6 +7,7 @@ import threading
 from pydantic import BaseModel
 import requests
 import Function.Area as Area
+import time
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 security = HTTPBearer()
@@ -23,6 +24,9 @@ async def parkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(s
     
     類別: C：汽車；M：機車；O：其他(如拖車)
     """
+    # ---------------------------------------------------------------
+    start_time = time.time() # 開始時間
+    # ---------------------------------------------------------------
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     Detail = [] # 存全部縣市的繳費資訊
@@ -46,10 +50,17 @@ async def parkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(s
                     Detail.append(future.result())  # 將任務結果添加到Detail中
             except Exception as e:
                 print(f"An error occurred while processing a task: {e}")
-                
+    
+    # ---------------------------------------------------------------
+    end_time = time.time() # 結束時間
+    print(f"執行時間: {end_time - start_time:.2f} 秒") #輸出執行時間
+    # ---------------------------------------------------------------
     return {"LicensePlateNumber": data.licensePlateNumber, "Type": codeToText(data.type), "TotalAmount": sum(area["Amount"] for area in Detail), "Detail": Detail}
 
 def processData(result, area, data):
+    # ---------------------------------------------------------------
+    start_time = time.time() # 開始時間
+    # ---------------------------------------------------------------
     url = result.get("URL")
     url = url.replace("Insert_CarID", data.licensePlateNumber)
     url = url.replace("Insert_CarType", data.type)
@@ -60,7 +71,7 @@ def processData(result, area, data):
         "Detail": "服務維護中"
     }
     try:
-        dataAll = requests.get(url, timeout = 5).json() # timeout: 5秒
+        dataAll = requests.get(url).json() # timeout: 5秒
         if(dataAll['Result'] is not None): # 如果有資料就存入
             detail = { # 存單一縣市的繳費資訊
                 "Area": Area.englishToChinese(area),
@@ -78,7 +89,10 @@ def processData(result, area, data):
         print(f"Request timed out for area {area}, using default data")
     except Exception as e:
         print(f"Error processing data for area {area}: {e}")
-    
+    # ---------------------------------------------------------------
+    end_time = time.time() # 結束時間
+    print(f"查詢時間 - {Area.englishToChinese(area)}: {end_time - start_time:.2f} 秒") #輸出執行時間
+    # ---------------------------------------------------------------
     return detail
 
 def codeToText(code : str):
