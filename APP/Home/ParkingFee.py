@@ -43,7 +43,6 @@ async def parkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(s
             result = Collection.find_one({"Area":area}, {"_id": 0})
             if result is not None: # 如果沒有資料就跳過此縣市
                 task.append(executor.submit(processData, result, area, data)) # 將任務加入任務清單
-        
         for future in concurrent.futures.as_completed(task):
             try:
                 with DetailLock:  # 使用鎖物件鎖住Detail
@@ -71,7 +70,7 @@ def processData(result, area, data):
         "Detail": "服務維護中"
     }
     try:
-        dataAll = requests.get(url).json() # timeout: 5秒
+        dataAll = requests.get(url, timeout = 1.5).json() # timeout: 1.5秒
         if(dataAll['Result'] is not None): # 如果有資料就存入
             detail = { # 存單一縣市的繳費資訊
                 "Area": Area.englishToChinese(area),
