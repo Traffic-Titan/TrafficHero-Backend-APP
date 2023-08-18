@@ -45,8 +45,9 @@ async def googleSSO(user: LoginModel, token: HTTPAuthorizationCredentials = Depe
         
         # JWT編碼
         data = {
-            "email": user.email
+            "email": user.email,
+            "role": result["role"]
         }
-        token = Token.encode(data, 43200)
+        token = Token.encode(data, 43200) # Token有效期為30天
         return {"Token": token}
     

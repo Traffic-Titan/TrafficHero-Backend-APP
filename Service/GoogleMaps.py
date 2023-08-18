@@ -9,7 +9,7 @@ router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/GoogleMaps")
 security = HTTPBearer()
 
 @router.post("/Geocoding", summary="Google Maps - 地址轉經緯度")
-def geocodingAPI(item: str, token: HTTPAuthorizationCredentials = Depends(security)):
+async def geocodingAPI(item: str, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     return geocoding(item)
 

@@ -7,7 +7,7 @@ router = APIRouter(tags=["通用功能"],prefix="/Universal/Logo")
 security = HTTPBearer()
 
 @router.get("/Get",summary="【Read】(Dev)")
-def get(Type: str, Area: str, token: HTTPAuthorizationCredentials = Depends(security)):
+async def get(Type: str, Area: str, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     Collection = MongoDB.getCollection("Logo",Type)
@@ -15,7 +15,7 @@ def get(Type: str, Area: str, token: HTTPAuthorizationCredentials = Depends(secu
     return result["Logo"]
 
 @router.get("/MRT",summary="【Read】取得各捷運Logo, 臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT(Dev)")
-def getMRTLogo(Region: str, token: HTTPAuthorizationCredentials = Depends(security)):
+async def getMRTLogo(Region: str, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     Collection = MongoDB.getCollection("2_Universal","Logo")
@@ -37,13 +37,13 @@ def getMRTLogo(Region: str, token: HTTPAuthorizationCredentials = Depends(securi
             return "No Data"
 
 @router.post("/MRT",summary="【Create】新增各捷運Logo, 臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT(Dev)")
-def setMRTLogo(token: HTTPAuthorizationCredentials = Depends(security)):
+async def setMRTLogo(token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     Collection = MongoDB.getCollection("2_Universal","Logo")
     
 
 @router.put("/MRT",summary="【Update】修改各捷運Logo, 臺北捷運: TRTC, 桃園捷運: TYMC, 高雄捷運: KRTC, 高雄輕軌: KLRT(Dev)")
-def setMRTLogo(token: HTTPAuthorizationCredentials = Depends(security)):
+async def setMRTLogo(token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     Collection = MongoDB.getCollection("2_Universal","Logo")

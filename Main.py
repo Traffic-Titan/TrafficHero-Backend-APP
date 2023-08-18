@@ -63,15 +63,17 @@ from APP.Chat import Main
 app.include_router(Main.router)
 
 # 1.首頁(APP)
-from APP.Home import Main, Weather, ParkingFee
+from APP.Home import Main, Weather, ParkingFee, OperationalStatus
 app.include_router(Main.router)
 app.include_router(Weather.router)
 app.include_router(ParkingFee.router)
+app.include_router(OperationalStatus.router)
 
 # 2.最新消息(APP)
-from APP.News import Main, Car, PublicTransport
+from APP.News import Main, Car, Scooter, PublicTransport
 app.include_router(Main.router)
 app.include_router(Car.router)
+app.include_router(Scooter.router)
 app.include_router(PublicTransport.router)
 
 # 3.即時訊息推播(APP)
@@ -105,13 +107,16 @@ from Website.Home import Main
 app.include_router(Main.router)
 
 # 2.最新消息(Website)
-from Website.News import TRA, THSR, MRT, Bus, InterCityBus, ProvincialHighway, Link
+from Website.News import TRA, THSR, MRT, Bus, InterCityBus, ProvincialHighway, LocalRoad, TaiwanTouristShuttle, Link, AlishanForestRailway
 app.include_router(TRA.router)
 app.include_router(THSR.router)
 app.include_router(MRT.router)
 app.include_router(Bus.router)
 app.include_router(InterCityBus.router)
 app.include_router(ProvincialHighway.router)
+app.include_router(LocalRoad.router)
+app.include_router(TaiwanTouristShuttle.router)
+app.include_router(AlishanForestRailway.router)
 app.include_router(Link.router)
 
 # 3.即時訊息推播(Website)

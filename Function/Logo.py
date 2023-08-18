@@ -1,9 +1,9 @@
 from Main import MongoDB # 引用MongoDB連線實例
 
-def get(type: str, area: str = "All"):
-    Collection = MongoDB.getCollection("Source","Logo")
-    result = Collection.find_one({"ID": f"{type}/{area}"}, {"_id": 0, "Logo": 1})
+def get(type: str, area: str):
+    Collection = MongoDB.getCollection("Logo",type)
+    result = Collection.find_one({"Area": area}, {"_id": 0, "LogoURL": 1})
     if result:
-        return result["Logo"]
+        return result["LogoURL"]
     else:
-        return "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6UjnLN95YeTo9u83PxaXhHqXPLfqje9I2DztZs4ZX&s"
+        return "https://cdn3.iconfinder.com/data/icons/basic-2-black-series/64/a-92-256.png" # 無圖片

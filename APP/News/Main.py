@@ -28,8 +28,10 @@ import Function.Area as Area
 router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
 security = HTTPBearer()
 
-@router.get("/PublicTransport/YouBike/{county}",summary="【Read】最新消息-大眾運輸-腳踏車")
-async def youbike(county:str,Date:int ,token: HTTPAuthorizationCredentials = Depends(security)):
+
+@router.get("/PublicTransport/YouBike/{county}",summary="【Read】最新消息-大眾運輸-腳踏車(Dev)")
+async def youbike(county:str, token: HTTPAuthorizationCredentials = Depends(security)):
+
     """
     縣市列表：臺北市、新北市、桃園市、新竹縣、新竹市、新竹科學園區、苗栗縣、台中市、嘉義市、臺南市、高雄市、屏東縣
 
@@ -37,7 +39,7 @@ async def youbike(county:str,Date:int ,token: HTTPAuthorizationCredentials = Dep
 
     YouBike最新消息：https://www.youbike.com.tw/region/main/news/status/
     """
-    # Token.verifyToken(token.credentials,"user") # JWT驗證
+    Token.verifyToken(token.credentials,"user") # JWT驗證
 
     # Initial
     context = {}
@@ -76,44 +78,9 @@ async def youbike(county:str,Date:int ,token: HTTPAuthorizationCredentials = Dep
             Index += 1
     
     return context_return
-    # #定位select bar
-    # select_all = Select(browser.find_element(By.ID,'stations-select-area'))
+
     
-    # #initial
-    # news_title = []
-    # news_publicDate = []
-    # news_url = []
-    # return_detail = {}
-    # all_return_detail = []
-
-    # countPage = 1
-
-    # #定位每一個道路後再點擊查詢
-    # select_all.select_by_visible_text(county)
-    # time.sleep(5)
-    # # print(select_all.first_selected_option.text)
-
-    # for date in news_date:
-    #     print(date.text)
-    # browser.find_element(By.CLASS_NAME,'cdp_i next css-4g6ai3').click()# 點擊下一頁按鈕定位
-
-    # #定位張貼日期、標題、URL，並存進陣列news_publicDate、news_title、news_url，預設存取前10筆
-    # for count_range in range(1,10):
-        
-    #     news_publicDate.append(news_date.text)
-    #     news_type = browser.find_element(By.XPATH,'//*[@id="MainContent"]/div[2]/div[3]/div[2]/ul/li['+str(count_range)+']/a/span[2]')
-    #     news_title.append(news_type.text)
-    #     contentURL = browser.find_element(By.XPATH,'//*[@id="MainContent"]/div[2]/div[3]/div[2]/ul/li['+str(count_range)+']/a')
-    #     news_url.append(contentURL.get_attribute('href'))
-    #     time.sleep(1)
-
-    # #將資料從陣列讀出並轉換成回傳的格式
-    # for data in range(0,len(news_title)):
-    #     return_detail = {select_all.first_selected_option.text:{"發布日期":news_publicDate[data],"URL":news_url[data],"標題":news_title[data]}}
-    #     all_return_detail.append(return_detail)
-    
-    # return all_return_detail
-@router.get("/Car/FreeWay",summary="【Read】最新消息-汽車-國道最新消息")
+@router.get("/Car/FreeWay",summary="【Read】最新消息-汽車-國道最新消息(Dev)")
 async def freeWay(Date:int,token: HTTPAuthorizationCredentials = Depends(security)):
     """
     國道最新消息：https://1968.freeway.gov.tw/n_whatsup

@@ -35,8 +35,8 @@ def processData(type, area):
         documents.append(d) # 將資料存入documents
     return documents # 回傳documents
 
-@router.get("/Car",summary="【Read】最新消息-汽車")
-async def car(areas: str = "All", types: str = "All", token: HTTPAuthorizationCredentials = Depends(security)):
+@router.get("/Scooter",summary="【Read】最新消息-機車")
+async def scooter(areas: str = "All", types: str = "All", token: HTTPAuthorizationCredentials = Depends(security)):
     # ---------------------------------------------------------------
     start_time = time.time() # 開始時間
     # ---------------------------------------------------------------

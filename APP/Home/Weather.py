@@ -7,8 +7,8 @@ import requests
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 security = HTTPBearer()
 
-@router.get("/Weather/GetLink", summary="【Read】天氣-取得中央氣象局連結(根據使用者定位)")
-async def getLink(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
+@router.get("/Weather", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
+async def weather(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     Longitude: 經度, Latitude: 緯度\n\n
     資料來源:
@@ -33,7 +33,7 @@ async def getLink(Longitude: str, Latitude: str, token: HTTPAuthorizationCredent
             temp = [item for item in temp if item != ""] # 將空字串刪除，ex: ["63", "2"]
             TownID = temp[0].ljust(3, "0") + str(int(temp[1]) * 100).rjust(4, "0") # 前三字為縣市，後四字為鄉鎮市區，最後補0成7碼
             
-        return {"URL": f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={TownID}"}
+        return {"Area": f'{root.find("ctyName").text}{root.find("townName").text}', "URL": f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={TownID}"}
         
     except requests.exceptions.RequestException as e:
         return {"error": f"Request error: {e}"}

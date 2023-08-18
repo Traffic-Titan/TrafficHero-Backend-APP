@@ -7,7 +7,7 @@ router = APIRouter(tags=["4-2.大眾運輸資訊(APP)"],prefix="/APP/PublicTrans
 security = HTTPBearer()
 
 @router.get("/Test")
-def test(token: HTTPAuthorizationCredentials = Depends(security)):
+async def test(token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     return {"message": "test"}
