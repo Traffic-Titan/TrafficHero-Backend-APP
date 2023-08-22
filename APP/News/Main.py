@@ -35,11 +35,9 @@ async def youbike(county:str, token: HTTPAuthorizationCredentials = Depends(secu
     """
     縣市列表：臺北市、新北市、桃園市、新竹縣、新竹市、新竹科學園區、苗栗縣、台中市、嘉義市、臺南市、高雄市、屏東縣
 
-    Date：提供查看幾天前的消息 
-
     YouBike最新消息：https://www.youbike.com.tw/region/main/news/status/
     """
-    Token.verifyToken(token.credentials,"user") # JWT驗證
+    # Token.verifyToken(token.credentials,"user") # JWT驗證
 
     # Initial
     context = {}
@@ -60,8 +58,6 @@ async def youbike(county:str, token: HTTPAuthorizationCredentials = Depends(secu
     pageNum = soup.find_all('a',class_='cdp_i css-4g6ai3') #定位下排頁面按鈕
     allDate = soup.find_all('span',class_='news-list-date') #定位發布日期
     
-    dateSpecify = (datetime.datetime.now()+datetime.timedelta(days=-Date)) #取得 指定查看幾天前的消息的日期
-
     totalPage = 0 # totalPage： 總頁數
     for page in pageNum:
         if(int(page.text)>totalPage):
@@ -70,16 +66,15 @@ async def youbike(county:str, token: HTTPAuthorizationCredentials = Depends(secu
     Index = 1
     for date in allDate:
         publicDate = datetime.datetime.strptime(date.text, "%Y-%m-%d") #將讀到的事件日期轉成YY-MM-DD HH:MM:SS格式
-        if(publicDate > dateSpecify or publicDate == dateSpecify):
-            Title = browser.find_element(By.XPATH,'//*[@id="MainContent"]/div[2]/div[3]/div[2]/ul/li['+str(Index)+']/a/span[2]') #符合日期的標題
-            Url = browser.find_element(By.XPATH,'//*[@id="MainContent"]/div[2]/div[3]/div[2]/ul/li['+str(Index)+']/a') #符合日期的URL
-            context = {"標題":Title.text,"URL":Url.get_attribute('href'),"發佈日期":publicDate}
-            context_return.append(context)
-            Index += 1
+        
+        Title = browser.find_element(By.XPATH,'//*[@id="MainContent"]/div[2]/div[3]/div[2]/ul/li['+str(Index)+']/a/span[2]') #符合日期的標題
+        Url = browser.find_element(By.XPATH,'//*[@id="MainContent"]/div[2]/div[3]/div[2]/ul/li['+str(Index)+']/a') #符合日期的URL
+        context = {"標題":Title.text,"URL":Url.get_attribute('href'),"發佈日期":publicDate}
+        context_return.append(context)
+        Index += 1
     
     return context_return
-
-    
+   
 @router.get("/Car/FreeWay",summary="【Read】最新消息-汽車-國道最新消息(Dev)")
 async def freeWay(Date:int,token: HTTPAuthorizationCredentials = Depends(security)):
     """
@@ -87,7 +82,7 @@ async def freeWay(Date:int,token: HTTPAuthorizationCredentials = Depends(securit
 
     Date：提供查看幾天前的消息 
     """
-    Token.verifyToken(token.credentials,"user") # JWT驗證
+    # Token.verifyToken(token.credentials,"user") # JWT驗證
 
     #Python Selenium 
     chrome_options = Options()
