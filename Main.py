@@ -138,7 +138,8 @@ app.include_router(Main.router)
 # ---------------------------------------------------------------
 
 # 通用功能
-from Universal import Logo
+from Universal import Logo, API
+app.include_router(API.router)
 app.include_router(Logo.router)
 
 # ---------------------------------------------------------------

@@ -15,6 +15,7 @@ security = HTTPBearer()
 class Info(BaseModel):
     licensePlateNumber: str
     type: str
+    area: str
 
 @router.post("/ParkingFee", summary="【Read】取得各縣市路邊停車費查詢(Dev)")
 async def parkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(security)):
@@ -29,70 +30,53 @@ async def parkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(s
     # ---------------------------------------------------------------
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    Detail = [] # 存全部縣市的繳費資訊
-    DetailLock = threading.Lock()  # 建立鎖物件
-    
-    areas = Area.english
-    
     # 連線MongoDB
     Collection = MongoDB.getCollection("Source","ParkingFee")
     
-    task = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers = len(areas)) as executor: # 並行處理，目前有11個縣市提供API
-        for area in areas:
-            result = Collection.find_one({"Area":area}, {"_id": 0})
-            if result is not None: # 如果沒有資料就跳過此縣市
-                task.append(executor.submit(processData, result, area, data)) # 將任務加入任務清單
-        for future in concurrent.futures.as_completed(task):
-            try:
-                with DetailLock:  # 使用鎖物件鎖住Detail
-                    Detail.append(future.result())  # 將任務結果添加到Detail中
-            except Exception as e:
-                print(f"An error occurred while processing a task: {e}")
+    result = Collection.find_one({"Area":data.area}, {"_id": 0})
+    if result is None: # 該縣市未提供服務
+        return "未提供服務"
     
-    # ---------------------------------------------------------------
-    end_time = time.time() # 結束時間
-    print(f"執行時間: {end_time - start_time:.2f} 秒") #輸出執行時間
-    # ---------------------------------------------------------------
-    return {"LicensePlateNumber": data.licensePlateNumber, "Type": codeToText(data.type), "TotalAmount": sum(area["Amount"] for area in Detail), "Detail": Detail}
-
-def processData(result, area, data):
-    # ---------------------------------------------------------------
-    start_time = time.time() # 開始時間
-    # ---------------------------------------------------------------
     url = result.get("URL")
     url = url.replace("Insert_CarID", data.licensePlateNumber)
     url = url.replace("Insert_CarType", data.type)
     
-    detail = { # 存單一縣市的繳費資訊
-        "Area": Area.englishToChinese(area),
+    detail = { # 預設值
+        "Area": Area.englishToChinese(data.area),
         "Amount": 0,
         "Detail": "服務維護中"
     }
     try:
-        dataAll = requests.get(url, timeout = 1.5).json() # timeout: 1.5秒
+        dataAll = requests.get(url, timeout = 10).json() # timeout: 10秒
         if(dataAll['Result'] is not None): # 如果有資料就存入
             detail = { # 存單一縣市的繳費資訊
-                "Area": Area.englishToChinese(area),
+                "Area": Area.englishToChinese(data.area),
                 "Amount": dataAll['Result']['TotalAmount'],
                 "Bill": dataAll['Result']['Bills'],
                 "Detail": "查詢成功"
             }
         else:
             detail = { # 若無資料就存入0
-                "Area": Area.englishToChinese(area),
+                "Area": Area.englishToChinese(data.area),
                 "Amount": 0,
                 "Detail": "查詢成功"
             }
     except requests.Timeout:
-        print(f"Request timed out for area {area}, using default data")
+        print(f"Request timed out for area {data.area}, using default data")
     except Exception as e:
-        print(f"Error processing data for area {area}: {e}")
+        print(f"Error processing data for area {data.area}: {e}")
+    
+    result = {
+        "LicensePlateNumber": data.licensePlateNumber,
+        "Type": codeToText(data.type),
+        "Detail": detail
+    }
+    
     # ---------------------------------------------------------------
     end_time = time.time() # 結束時間
-    print(f"查詢時間 - {Area.englishToChinese(area)}: {end_time - start_time:.2f} 秒") #輸出執行時間
+    print(f"執行時間: {end_time - start_time:.2f} 秒") #輸出執行時間
     # ---------------------------------------------------------------
-    return detail
+    return result
 
 def codeToText(code : str):
     match code:
