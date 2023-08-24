@@ -14,4 +14,5 @@ openpyxl
 pymongo
 Pillow
 fastapi-analytics
-BeautifulSoup
+BeautifulSoup4
+scipy

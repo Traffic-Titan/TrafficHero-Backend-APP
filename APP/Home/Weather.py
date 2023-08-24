@@ -9,14 +9,13 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from bs4 import BeautifulSoup
-import urllib.request
+import math
 from scipy.spatial import distance
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 security = HTTPBearer()
 
-@router.get("/Weather", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
+@router.get("/Weather_selenium", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
 async def weather_selenium(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     Longitude: 經度, Latitude: 緯度\n\n
@@ -79,7 +78,7 @@ async def weather_selenium(Longitude: str, Latitude: str, token: HTTPAuthorizati
         return {"error": f"XML parse error: {e}"}
     
 @router.get("/Weather_API", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
-async def weatherV2(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
+async def weather_api(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     Longitude: 經度, Latitude: 緯度\n\n
     資料來源:
@@ -92,7 +91,7 @@ async def weatherV2(Longitude: str, Latitude: str, token: HTTPAuthorizationCrede
     4. 自動氣象站資料集說明檔\n
         https://opendata.cwb.gov.tw/opendatadoc/DIV2/A0001-001.pdf
     """
-    Token.verifyToken(token.credentials,"user") # JWT驗證
+    # Token.verifyToken(token.credentials,"user") # JWT驗證
     currentTime = datetime.datetime.now() # 取得目前的時間
     # timeInterval = [datetime.datetime.strptime(str(datetime.datetime.now().date())+'00:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'03:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'06:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'09:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'12:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'15:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'18:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'21:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'23:59','%Y-%m-%d%H:%M%S')] # 中央氣象局上時間的區間分配
 
@@ -144,11 +143,11 @@ async def weatherV2(Longitude: str, Latitude: str, token: HTTPAuthorizationCrede
             if(data_from_observation_station["result"] is not None):
                 for data in data_from_observation_station['records']['location'][0]['weatherElement']:
                     if(data['elementName'] == "D_TN"):
-                        temperatureInterval_Low = data['elementValue'] # 最低溫
+                        temperatureInterval_Low = float(data['elementValue']) # 最低溫
                     elif(data['elementName'] == "D_TX"):
-                        temperatureInterval_High = data['elementValue'] # 最高溫
+                        temperatureInterval_High = float(data['elementValue']) # 最高溫
                     elif(data['elementName'] == "TEMP"):
-                        currentTemperature = data['elementValue'] # 目前溫度
+                        currentTemperature = float(data['elementValue']) # 目前溫度
                     elif(data['elementName'] == "Weather"):
                         weatherDescription = data['elementValue'] # 目前氣象描述
                 stationName = data_from_observation_station['records']['location'][0]['locationName'] # 觀測站名稱
@@ -170,7 +169,7 @@ async def weatherV2(Longitude: str, Latitude: str, token: HTTPAuthorizationCrede
         #             observation_station_Lng = data['StationLongitude'] # 該觀測站經度
         #             observation_station_Lat = data['StationLatitude'] # 該觀測站緯度
                     
-        return {"Area": f'{root.find("ctyName").text}{root.find("townName").text}', "URL": f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={TownID}","Temperature":currentTemperature + '°C',"Lowest Temperature":temperatureInterval_Low,"Highest Temperature":temperatureInterval_High,"目前天氣狀況":weatherDescription,"觀測站":stationName,"觀測站ID":result_stationID}
+        return {"Area": f'{root.find("ctyName").text}{root.find("townName").text}', "URL": f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={TownID}","Temperature":round(currentTemperature),"Lowest Temperature":round(temperatureInterval_Low),"Highest Temperature":round(temperatureInterval_High),"目前天氣狀況":weatherDescription,"觀測站":stationName,"觀測站ID":result_stationID}
         
     except requests.exceptions.RequestException as e:
         return {"error": f"Request error: {e}"}
