@@ -10,12 +10,15 @@ from enum import Enum
 import csv
 from pydantic import BaseModel
 from Service.TDX import getData
-from Main import MongoDB # 引用MongoDB連線實例
+# from Main import MongoDB # 引用MongoDB連線實例
 from shapely.geometry import Point
 from geopy.distance import geodesic
 from shapely.geometry.polygon import Polygon
 import Service.GoogleMaps as GoogleMaps
 import openpyxl
+from Main import MongoDB # 引用MongoDB連線實例
+from scipy.spatial import distance
+import urllib.request
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 
@@ -24,22 +27,28 @@ security = HTTPBearer()
 """
 1.資料來源:加油站服務資訊
     https://data.gov.tw/dataset/6065
+
+2.資料來源:全國五大超商資料集
+    https://data.gov.tw/dataset/32086
 """
 class Gas_Station(BaseModel):
     #CurrentLat:目前緯度 、CurrentLng:目前經度 、Type: 加盟站 or 自營站
     CurrentLat:float
     CurrentLng:float
     Type:str
-    
-def getGasStationLatLng(CurrentLat:str,CurrentLng:str,Type:str):
+def get_Gas_Station_LatLng(CurrentLat:str,CurrentLng:str,Type:str):
     
     #Points_After_Output:存半徑 N 公里生成的點、match_Station:存符合資格的站點
     Points_After_Output = []
-    match_Station = []
+    nearestRange = 1 
+    nearestData = {}
     
+    # 目前用戶經緯度 
+    currentPosition = [float(CurrentLat),float(CurrentLng)]
+
     for angle in range(0, 360, 60):
-        # 以使用者目前的經緯度查詢 半徑 1 公里 內的加油站
-        Points_After_Output.append(geodesic(kilometers=1).destination((CurrentLat, CurrentLng),bearing = angle))
+        # 以使用者目前的經緯度查詢 半徑 5 公里 內的加油站
+        Points_After_Output.append(geodesic(kilometers=5).destination((CurrentLat, CurrentLng),bearing = angle))
 
     #讀檔 中油加油站清冊.csv
     with open(r'./APP/Home/中油加油站清冊.csv',encoding="utf-8") as csvfile:
@@ -47,55 +56,75 @@ def getGasStationLatLng(CurrentLat:str,CurrentLng:str,Type:str):
         for row in reader:
             try:
                 point = Point([float(row[24]), float(row[23])])
+
+                # 判斷哪些加油站站點有在使用者範圍半徑5公里內
                 if(Polygon(Points_After_Output).contains(point) and Type == row[1]):
-                    match_Station.append(str(row[24])+","+str(row[23]))
+
+                    #  經緯度比對出最近的加油站
+                    gas_station_Position = [float(row[24]), float(row[23])]
+                    Distance = distance.euclidean(currentPosition,gas_station_Position) # 計算兩點距離的平方差               
+                    if(nearestRange > Distance):   
+                        nearestRange = Distance # 與使用者經緯度最近的觀測站之最短短距離
+                        nearestData = {"最近距離":nearestRange,"座標":[float(row[24]), float(row[23])]}
             except:
                 pass
-    return match_Station      
-
+    return nearestData    
 @router.post("/QuickSearch/GasStation")
 async def gasStation(gas:Gas_Station, token: HTTPAuthorizationCredentials = Depends(security)):
-    Token.verifyToken(token.credentials,"user") # JWT驗證
+    # Token.verifyToken(token.credentials,"user") # JWT驗證
     
     Url = []
-    for data in get_Gas_Station_LatLng(gas.CurrentLat,gas.CurrentLng,gas.Type):
-        Url.append("https://www.google.com/maps/dir/?api=1&destination="+ data +"&travelmode=driving&dir_action=navigate")
+    # print(get_Gas_Station_LatLng(gas.CurrentLat,gas.CurrentLng,gas.Type)['座標'])
+    Url.append("https://www.google.com/maps/dir/?api=1&destination="+ str(get_Gas_Station_LatLng(gas.CurrentLat,gas.CurrentLng,gas.Type)['座標'][0]) +","+str(get_Gas_Station_LatLng(gas.CurrentLat,gas.CurrentLng,gas.Type)['座標'][1])+"&travelmode=driving&dir_action=navigate")
     return Url
 
 
 class ConvenientStore(BaseModel):
-    #CurrentLat:目前緯度 、CurrentLng:目前經度 、Type: 直營or加盟
+    #CurrentLat:目前緯度 、CurrentLng:目前經度 
     CurrentLat:float
-    CurrentLng:float
-    
-def getConvenientStore(CurrentLat:str,CurrentLng:str):
+    CurrentLng:float  
+def get_ConvenientStore(CurrentLat:str,CurrentLng:str):
     #Points_After_Output:存半徑 N 公里生成的點、match_Station:存符合資格的站點
     Points_After_Output = []
-    match_Station = []
+    nearestRange = 1
+    nearestData = {}
+
+    # 目前用戶經緯度
+    currentUserPosition = [CurrentLat,CurrentLng]
     
+    # 連線MongoDB
+    Collection = MongoDB.getCollection("TrafficHero","ConvenientStore")
+
     for angle in range(0, 360, 60):
-        # 以使用者目前的經緯度查詢 半徑 1 公里 內的便利商店
-        Points_After_Output.append(geodesic(kilometers=1).destination((CurrentLat, CurrentLng),bearing = angle))
+        # 以使用者目前的經緯度查詢 半徑 5 公里 內的便利商店
+        Points_After_Output.append(geodesic(kilometers=5).destination((CurrentLat, CurrentLng),bearing = angle))
     
-    #讀檔 全國五大超商資料集.csv
-    with open(r'./APP/Home/全國5大超商資料集.csv',encoding="utf-8") as csvfile:
-        reader = csv.reader(csvfile)
-        # writer = csv.writer(csvfile)
-
-        for row in reader:
-            try:
-                # writer.writerow(geocode(row[4]))
-                point = Point([geocode(row[4])])
-                if(Polygon(Points_After_Output).contains(point)):
-                    match_Station.append(str(row[1]))
-            except:
-                pass
-
-    return match_Station
+    #讀取資料庫內的所有便利商店經緯度
+    all_ConvenienceStore_LatLng = Collection.find({"LatLng":{"$ne":None}})
     
+    for data in all_ConvenienceStore_LatLng:
+        if(data.get('LatLng').get('lat')!=None):
+            
+            # 處理從資料庫獲得的經緯度
+            point = Point([float(data.get('LatLng').get('lat')),float(data.get('LatLng').get('lng'))])
+
+            # 判斷哪些便利超商站點有在使用者範圍半徑5公里內
+            if(Polygon(Points_After_Output).contains(point)):
+
+                #  經緯度比對出最近的便利超商
+                convenientStorePosition = [float(data.get('LatLng').get('lat')),float(data.get('LatLng').get('lng'))]
+                Distance = distance.euclidean(currentUserPosition,convenientStorePosition) # 計算兩點距離的平方差     
+                if(nearestRange > Distance):   
+                    nearestRange = Distance # 與使用者經緯度最近的觀測站之最短短距離
+                    nearestData = {"最近距離":nearestRange,"座標":convenientStorePosition}
+
+    return nearestData
 @router.post("/QuickSearch/ConvenientStore")
 async def convenientStore(convenient:ConvenientStore, token: HTTPAuthorizationCredentials = Depends(security)):
-    Token.verifyToken(token.credentials,"user") # JWT驗證
+    # Token.verifyToken(token.credentials,"user") # JWT驗證
 
-    return get_ConvenientStore(convenient.CurrentLat,convenient.CurrentLng)
+    Url = []
+    # print(get_ConvenientStore(convenient.CurrentLat,convenient.CurrentLng)['座標'])
+    Url.append("https://www.google.com/maps/dir/?api=1&destination="+ str(get_ConvenientStore(convenient.CurrentLat,convenient.CurrentLng)['座標'][0]) +","+str(get_ConvenientStore(convenient.CurrentLat,convenient.CurrentLng)['座標'][1])+"&travelmode=driving&dir_action=navigate")
+    return Url
 
