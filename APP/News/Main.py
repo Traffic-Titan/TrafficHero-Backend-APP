@@ -43,9 +43,9 @@ async def youbike(country:str, token: HTTPAuthorizationCredentials = Depends(sec
     # BeautifulSoup4
     response = urllib.request.urlopen('https://www.youbike.com.tw/region/main/news/status/')
     soup = BeautifulSoup(response.read().decode('utf-8'),'html.parser')
-    
+    countryAbbreviationList = {"臺北市":"taipei","新北市":"ntpc","桃園市":"tycg","新竹縣":"hsinchu","新竹市":"hccg","新竹科學園區":"sipa","苗栗縣":"miaoli","臺中市":"i","嘉義市":"chiayi","臺南市":"tainan","高雄市":"kcg","屏東縣":"pthg"}
     # 定位Select標籤
-    selectList = soup.find('select',class_='f2e-cursor-pointer')
+    selectList = soup.find('select',id='h-select-area')
     optionList = selectList.find_all('option')
     for area in optionList:
         if(area.text == country):
@@ -53,6 +53,11 @@ async def youbike(country:str, token: HTTPAuthorizationCredentials = Depends(sec
             # 取得各縣市的value. ex: 高雄 -> 12、嘉義 -> 08
             selectedValue = area.get('value')
     
+            # countryCode 取得縣市縮寫並讀取該消息頁面 ex: 高雄 -> kcg
+            countryCode = countryAbbreviationList.get(country)
+            Url = 'https://www.youbike.com.tw/region/'+countryCode+'/news/status/'
+            response = urllib.request.urlopen(Url)
+            soup = BeautifulSoup(response.read().decode('utf-8'),'html.parser')
             # 回傳對應縣市的結果
             return(processData_for_Youbike(soup))
    
