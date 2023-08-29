@@ -16,9 +16,9 @@ from Main import MongoDB
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("News","THSR")
+Collection = MongoDB.getCollection("traffic_hero","news_taiwan_high_speed_rail")
 
-@router.put("/THSR",summary="【Update】最新消息-高鐵")
+@router.put("/TaiwanHighSpeedRail",summary="【Update】最新消息-高鐵")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
@@ -31,13 +31,13 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
         documents = []
         for d in data: # 將資料整理成MongoDB的格式
             document = {
-                "Area": "All",
-                "NewsID": d['NewsID'],
-                "NewsCategory": d['NewsCategory'],
-                "Title": d['Title'],
-                "Description": d['Description'],
-                "NewsURL": d['NewsURL'] if 'NewsURL' in d else "",
-                "UpdateTime": Time.format(d['UpdateTime'])
+                "area": "All",
+                "news_id": d['NewsID'],
+                "news_category": d['NewsCategory'],
+                "title": d['Title'],
+                "description": d['Description'],
+                "news_url": d['NewsURL'] if 'NewsURL' in d else "",
+                "update_time": Time.format(d['UpdateTime'])
             }
             documents.append(document)
 
