@@ -16,7 +16,7 @@ from Main import MongoDB
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("News","AlishanForestRailway")
+Collection = MongoDB.getCollection("traffic_hero","news_alishan_forest_railway")
 
 @router.put("/AlishanForestRailway",summary="【Update】最新消息-阿里山林業鐵路")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
@@ -31,13 +31,13 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
         documents = []
         for d in data["Newses"]: # 將資料整理成MongoDB的格式
             document = {
-                "Area": "All",
-                "NewsID": d['NewsID'],
-                "Title": d['Title'],
-                "NewsCategory": numberToText(d['NewsCategory']),
-                "Description": d['Description'],
-                "NewsURL": d['NewsURL'] if 'NewsURL' in d else "",
-                "UpdateTime": Time.format(d['UpdateTime'])
+                "area": "All",
+                "news_id": d['NewsID'],
+                "title": d['Title'],
+                "news_category": numberToText(d['NewsCategory']),
+                "description": d['Description'],
+                "news_url": d['NewsURL'] if 'NewsURL' in d else "",
+                "update_time": Time.format(d['UpdateTime'])
             }
             documents.append(document)
 

@@ -19,7 +19,7 @@ import time
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("News","LocalRoad")
+Collection = MongoDB.getCollection("traffic_hero","news_local_road")
 
 @router.put("/LocalRoad",summary="【Update】最新消息-地區道路")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)): 
@@ -41,13 +41,13 @@ def data2MongoDB(area: str):
         documents = []
         for d in data["Newses"]: # 將資料轉換成MongoDB格式
             document = {
-                "Area": area,
-                "NewsID": d['NewsID'],
-                "Title": d['Title'],
-                "NewsCategory": numberToText(d['NewsCategory']),
-                "Description": d['Description'],
-                "NewsURL": "", # 因此資料集的新聞網址有問題，所以以空值取代，讓前端可以直接顯示Description
-                "UpdateTime": Time.format(d['UpdateTime'])
+                "area": area,
+                "news_id": d['NewsID'],
+                "title": d['Title'],
+                "news_category": numberToText(d['NewsCategory']),
+                "description": d['Description'],
+                "news_url": "", # 因此資料集的新聞網址有問題，所以以空值取代，讓前端可以直接顯示Description
+                "update_time": Time.format(d['UpdateTime'])
             }
             documents.append(document)
         Collection.insert_many(documents) # 將資料存入MongoDB
