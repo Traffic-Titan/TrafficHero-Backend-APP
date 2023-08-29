@@ -62,7 +62,7 @@ async def forgotPassword(user: ForgetPasswordModel, token: HTTPAuthorizationCred
         raise HTTPException(status_code=404, detail="查無此帳號，請重新輸入")
 
     # 獲取當前時間戳
-    current_time = Time.get_current_timestamp()
+    current_time = Time.getCurrentTimestamp()
 
     # 檢查該電子郵件是否在一分鐘內發出過請求
     last_request_timestamp = result.get("timestamp")
@@ -76,7 +76,7 @@ async def forgotPassword(user: ForgetPasswordModel, token: HTTPAuthorizationCred
     Collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})
 
     # 寄送郵件
-    current_time = Time.get_current_timestamp() # 獲取當前時間戳
+    current_time = Time.getCurrentTimestamp() # 獲取當前時間戳
     expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)  # 計算驗證碼的過期時間
     expiration_time_str = expiration_time.strftime("%Y/%m/%d %H:%M")  # 格式化過期時間(YYYY/MM/DD HH:MM)
     

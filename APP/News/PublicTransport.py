@@ -37,9 +37,6 @@ def processData(type, area):
 
 @router.get("/PublicTransport",summary="【Read】最新消息-大眾運輸")
 async def publicTransport(areas: str = "All", types: str = "All", token: HTTPAuthorizationCredentials = Depends(security)):
-    # ---------------------------------------------------------------
-    start_time = time.time() # 開始時間
-    # ---------------------------------------------------------------
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     if areas == "All": # 全部縣市
@@ -63,8 +60,4 @@ async def publicTransport(areas: str = "All", types: str = "All", token: HTTPAut
             documents.extend(future.result()) # 將任務結果存入documents
 
     documents.sort(key=lambda x: x.get("UpdateTime", ""), reverse=True) # 依照UpdateTime排序
-    # ---------------------------------------------------------------
-    end_time = time.time() # 結束時間
-    print(f"執行時間: {end_time - start_time:.2f} 秒") #輸出執行時間
-    # ---------------------------------------------------------------
     return documents
