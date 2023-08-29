@@ -30,7 +30,7 @@ async def verifyCode(user: VerifyCodeModel, token: HTTPAuthorizationCredentials 
         raise HTTPException(status_code=400, detail="驗證碼不正確")
 
     # 檢查驗證碼是否已過期
-    current_time = Time.get_current_timestamp()
+    current_time = Time.getCurrentTimestamp()
     timestamp = result.get("timestamp")
     if timestamp and current_time - timestamp > 600:
         raise HTTPException(status_code=400, detail="驗證碼已過期")

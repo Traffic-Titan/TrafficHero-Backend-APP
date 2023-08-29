@@ -38,7 +38,7 @@ async def login(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(
         failed_attempts = result.get("failed_attempts", 0)
 
         # 檢查是否需要暫停登入
-        current_time = Time.get_current_datetime()
+        current_time = Time.getCurrentDatetime()
         if last_failed_timestamp and failed_attempts >= 4:
             # 檢查距離上次失敗的時間是否超過5分鐘
             if current_time - last_failed_timestamp <= timedelta(minutes=0.1):

@@ -1,10 +1,10 @@
 import time
 from datetime import datetime, timedelta
 
-def get_current_timestamp(): # 1678926896.789012
+def getCurrentTimestamp(): # 1678926896.789012
     return time.time()
 
-def get_current_datetime(): # 2023-07-22 12:34:56.789012
+def getCurrentDatetime(): # 2023-07-22 12:34:56.789012
     return datetime.now()
 
 def format(time_str: str) -> str: # 2023/08/03 00:11

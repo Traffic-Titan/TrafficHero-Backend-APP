@@ -25,9 +25,6 @@ async def parkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(s
     
     類別: C：汽車；M：機車；O：其他(如拖車)
     """
-    # ---------------------------------------------------------------
-    start_time = time.time() # 開始時間
-    # ---------------------------------------------------------------
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 連線MongoDB
@@ -72,10 +69,6 @@ async def parkingFee(data: Info, token: HTTPAuthorizationCredentials = Depends(s
         "Detail": detail
     }
     
-    # ---------------------------------------------------------------
-    end_time = time.time() # 結束時間
-    print(f"執行時間: {end_time - start_time:.2f} 秒") #輸出執行時間
-    # ---------------------------------------------------------------
     return result
 
 def codeToText(code : str):

@@ -1,14 +1,28 @@
 """
 1. 目前設定為每次啟動時，會將資料庫清空，並重新抓取資料，以後必需按照來源狀況，設定更新資料的時間
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from dotenv import load_dotenv
 from fastapi.responses import RedirectResponse
 from api_analytics.fastapi import Analytics
 from Service.Database import MongoDBSingleton
+import Function.Time as Time
 
-app = FastAPI()
+# ---------------------------------------------------------------
+
+async def getExecutionTime(request: Request, call_next): # 計算執行時間
+    start = Time.getCurrentTimestamp() # 開始時間
+    response = await call_next(request) # 等待執行
+    end = Time.getCurrentTimestamp() # 結束時間
+
+    print(f"執行時間: {end - start:.2f} 秒") # 輸出執行時間
+    return response # 回傳結果
+
+# ---------------------------------------------------------------
+
+app = FastAPI() # 建立FastAPI物件
 app.add_middleware(Analytics, api_key="a2999611-b29a-4ade-a55b-2147b706da6e")  # Add middleware(Dev)
+app.middleware("http")(getExecutionTime) # 讓所有路由都可以計算執行時間
 MongoDB = MongoDBSingleton()
 
 # ---------------------------------------------------------------

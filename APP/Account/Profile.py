@@ -84,7 +84,7 @@ async def updateEmail(user: UpdateEmailModel, token: HTTPAuthorizationCredential
         # 生成驗證碼、寄送郵件、存到資料庫
         verification_code = Code.generate_verification_code()
         
-        current_time = Time.get_current_timestamp() # 獲取當前時間戳
+        current_time = Time.getCurrentTimestamp() # 獲取當前時間戳
         expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)  # 計算驗證碼的過期時間
         expiration_time_str = expiration_time.strftime("%Y/%m/%d %H:%M")  # 格式化過期時間(YYYY/MM/DD HH:MM)
         
