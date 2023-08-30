@@ -25,13 +25,13 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     
     collection.drop() # 刪除該collection所有資料
     
-    data2MongoDB("TaipeiCity") # 臺北捷運
-    data2MongoDB("TaoyuanCity") # 桃園捷運
-    data2MongoDB("KaohsiungCity") # 高雄捷運
+    dataToDatabase("TaipeiCity") # 臺北捷運
+    dataToDatabase("TaoyuanCity") # 桃園捷運
+    dataToDatabase("KaohsiungCity") # 高雄捷運
             
     return f"已更新筆數:{collection.count_documents({})}"
 
-def data2MongoDB(area: str):
+def dataToDatabase(area: str):
     try:
         url = Link.get("News", "Source", "MRT", area) # 取得資料來源網址
         data = TDX.getData(url)

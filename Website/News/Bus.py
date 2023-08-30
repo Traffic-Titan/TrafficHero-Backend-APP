@@ -28,11 +28,11 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     collection.drop() # 刪除該collection所有資料
     
     for area in Area.english: # 依照區域更新資料
-        data2MongoDB(area)
+        dataToDatabase(area)
 
     return f"已更新筆數:{collection.count_documents({})}"
     
-def data2MongoDB(area: str):
+def dataToDatabase(area: str):
     try:
         url = Link.get("News", "Source", "Bus", area) # 取得資料來源網址
         data = TDX.getData(url) # 取得資料

@@ -29,11 +29,11 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     areas = ["TaichungCity","TainanCity","PingtungCounty","YilanCounty"]
     
     for area in areas: # 依照區域更新資料
-        data2MongoDB(area)
+        dataToDatabase(area)
 
     return f"已更新筆數:{collection.count_documents({})}"
     
-def data2MongoDB(area: str):
+def dataToDatabase(area: str):
     try:
         url = Link.get("News", "Source", "LocalRoad", area) # 取得資料來源網址
         data = TDX.getData(url) # 取得資料
