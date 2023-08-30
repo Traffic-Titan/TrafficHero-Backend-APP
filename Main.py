@@ -122,7 +122,7 @@ from Website.Home import Main
 app.include_router(Main.router)
 
 # 2.最新消息(Website)
-from Website.News import TaiwanRailway, TaiwanHighSpeedRail, MRT, Bus, IntercityBus, ProvincialHighway, LocalRoad, TaiwanTouristShuttle, Link, AlishanForestRailway
+from Website.News import TaiwanRailway, TaiwanHighSpeedRail, MRT, Bus, IntercityBus, ProvincialHighway, LocalRoad, TaiwanTouristShuttle, Link, AlishanForestRailway, Freeway, PublicBicycle
 app.include_router(TaiwanRailway.router)
 app.include_router(TaiwanHighSpeedRail.router)
 app.include_router(MRT.router)
@@ -132,6 +132,8 @@ app.include_router(ProvincialHighway.router)
 app.include_router(LocalRoad.router)
 app.include_router(TaiwanTouristShuttle.router)
 app.include_router(AlishanForestRailway.router)
+app.include_router(Freeway.router)
+app.include_router(PublicBicycle.router)
 app.include_router(Link.router)
 
 # 3.即時訊息推播(Website)

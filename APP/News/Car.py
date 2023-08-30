@@ -28,7 +28,7 @@ async def car(areas: str = "All", types: str = "All", token: HTTPAuthorizationCr
     if areas == "All": # 全部縣市
         areas = ",".join(Area.english) # 以英文逗號分隔 
     if types == "All": # 全部類型
-        types = "ProvincialHighway,LocalRoad"
+        types = "ProvincialHighway,LocalRoad,Freeway"
 
     types, areas = types.split(','), areas.split(',') # 將types, areas轉成陣列
 
@@ -36,7 +36,7 @@ async def car(areas: str = "All", types: str = "All", token: HTTPAuthorizationCr
     documents = [] # 回傳的資料
     with concurrent.futures.ThreadPoolExecutor(max_workers=len(types) * len(areas)) as executor: # 並行處理
         for type in types:
-            if type in ["ProvincialHighway"]: # 無區域之分
+            if type in ["ProvincialHighway","Freeway"]: # 無區域之分
                 task.append(executor.submit(processData,type,"All")) # 將任務加入任務清單
             else:
                 for area in areas: # 有區域之分
@@ -54,3 +54,5 @@ def typeConverter(type: str): # Temporary
             return "provincial_highway"
         case "LocalRoad":
             return "local_road"
+        case "Freeway":
+            return "freeway"
