@@ -16,16 +16,16 @@ from Main import MongoDB
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("traffic_hero","news_taiwan_high_speed_rail")
+collection = MongoDB.getCollection("traffic_hero","news_taiwan_high_speed_rail")
 
 @router.put("/TaiwanHighSpeedRail",summary="【Update】最新消息-高鐵")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
-    Collection.drop() # 刪除該Collection所有資料
+    collection.drop() # 刪除該collection所有資料
     
     try:
-        url = Link.get("News", "Source", "THSR", "All") # 取得資料來源網址
+        url = Link.get("traffic_hero", "news_source", "taiwan_high_speed_rail", "All") # 取得資料來源網址
         data = TDX.getData(url) # 取得資料
         
         documents = []
@@ -41,9 +41,9 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
             }
             documents.append(document)
 
-        Collection.insert_many(documents) # 將資料存入MongoDB
+        collection.insert_many(documents) # 將資料存入MongoDB
     except Exception as e:
         print(e)
         
-    return f"已更新筆數:{Collection.count_documents({})}"
+    return f"已更新筆數:{collection.count_documents({})}"
     

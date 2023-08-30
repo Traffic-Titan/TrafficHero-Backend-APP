@@ -21,21 +21,21 @@ class ProfileModel(BaseModel):
     password: Optional[str]
     gender: Optional[str]
     birthday: Optional[str]
-    Google_ID: str = None
+    google_id: str = None
 
 @router.get("/Profile",summary="【Read】會員資料")
 async def viewProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 取得使用者資料
-    Collection = MongoDB.getCollection("0_APP","0.Users")
-    result = Collection.find_one({"email": payload["data"]["email"]})
+    collection = MongoDB.getCollection("0_APP","0.Users")
+    result = collection.find_one({"email": payload["data"]["email"]})
     data = {
         "name": result["name"] if "name" in result else None,
         "email": result["email"] if "email" in result else None,
         "gender": result["gender"] if "gender" in result else None,
         "birthday": result["birthday"] if "birthday" in result else None,
-        "Google_ID": result["Google_ID"] if "Google_ID" in result else None,
+        "google_id": result["google_id"] if "google_id" in result else None,
         "avatar": Blob.encode_image_to_base64(result["avatar"]) if "avatar" in result else None
     }
     
@@ -46,17 +46,17 @@ async def updateProfile(user: ProfileModel, token: HTTPAuthorizationCredentials 
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 取得使用者資料
-    Collection = MongoDB.getCollection("0_APP","0.Users")
-    result = Collection.find_one({"email": payload["data"]["email"]})
+    collection = MongoDB.getCollection("0_APP","0.Users")
+    result = collection.find_one({"email": payload["data"]["email"]})
     
     # 更新使用者資料
     updated_data = {
         "name": user.name,
         "gender": user.gender,
         "birthday": user.birthday,
-        "Google_ID": user.Google_ID if user.Google_ID else result["Google_ID"] # 如果沒有傳入Google_ID，則使用原本的Google_ID
+        "google_id": user.google_id if user.google_id else result["google_id"] # 如果沒有傳入google_id，則使用原本的google_id
     }
-    Collection.update_one({"email": payload["data"]["email"]}, {"$set": updated_data})
+    collection.update_one({"email": payload["data"]["email"]}, {"$set": updated_data})
     
     return {"message": "會員資料更新成功"}
 
@@ -65,8 +65,8 @@ async def deleteProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 刪除使用者資料
-    Collection = MongoDB.getCollection("0_APP","0.Users")
-    Collection.delete_one({"email": payload["data"]["email"]})
+    collection = MongoDB.getCollection("0_APP","0.Users")
+    collection.delete_one({"email": payload["data"]["email"]})
     
     return {"message": "會員刪除成功"}
 
@@ -79,16 +79,16 @@ async def updateEmail(user: UpdateEmailModel, token: HTTPAuthorizationCredential
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
 
     # Email驗證
-    Collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("0_APP","0.Users")
     if user.old_email == payload["data"]["email"]:
         # 生成驗證碼、寄送郵件、存到資料庫
-        verification_code = Code.generate_verification_code()
+        verification_code = Code.generateCode()
         
         current_time = Time.getCurrentTimestamp() # 獲取當前時間戳
         expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)  # 計算驗證碼的過期時間
         expiration_time_str = expiration_time.strftime("%Y/%m/%d %H:%M")  # 格式化過期時間(YYYY/MM/DD HH:MM)
         
-        Collection.update_one({"email": user.old_email}, {"$set": {"old_email": user.old_email, "email": user.new_email, "email_confirmed": False, "verification_code": verification_code, "timestamp": current_time}})        
+        collection.update_one({"email": user.old_email}, {"$set": {"old_email": user.old_email, "email": user.new_email, "email_confirmed": False, "verification_code": verification_code, "timestamp": current_time}})        
         
         # 傳給舊Email
         response = await Email.send(user.old_email,"電子郵件驗證","您好，我們已收到您修改Email的請求，請至新Email信箱驗證，謝謝。<br><br>若這不是您本人所為，請盡速更改Traffic Hero會員密碼，以確保帳號安全。")

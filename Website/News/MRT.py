@@ -17,23 +17,23 @@ import Function.Link as Link
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("traffic_hero","news_mrt")
+collection = MongoDB.getCollection("traffic_hero","news_mrt")
 
 @router.put("/MRT",summary="【Update】最新消息-捷運")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
-    Collection.drop() # 刪除該Collection所有資料
+    collection.drop() # 刪除該collection所有資料
     
-    data2MongoDB("TaipeiCity") # 臺北捷運
-    data2MongoDB("TaoyuanCity") # 桃園捷運
-    data2MongoDB("KaohsiungCity") # 高雄捷運
+    dataToDatabase("TaipeiCity") # 臺北捷運
+    dataToDatabase("TaoyuanCity") # 桃園捷運
+    dataToDatabase("KaohsiungCity") # 高雄捷運
             
-    return f"已更新筆數:{Collection.count_documents({})}"
+    return f"已更新筆數:{collection.count_documents({})}"
 
-def data2MongoDB(area: str):
+def dataToDatabase(area: str):
     try:
-        url = Link.get("News", "Source", "MRT", area) # 取得資料來源網址
+        url = Link.get("traffic_hero", "news_source", "mrt", area) # 取得資料來源網址
         data = TDX.getData(url)
         
         documents = []
@@ -49,7 +49,7 @@ def data2MongoDB(area: str):
             }
             documents.append(document)
 
-        Collection.insert_many(documents) # 將資料存入MongoDB
+        collection.insert_many(documents) # 將資料存入MongoDB
     except Exception as e:
         print(e)
 

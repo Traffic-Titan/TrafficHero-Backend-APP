@@ -3,11 +3,6 @@ import Service.TDX as TDX
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import Service.Token as Token
 from fastapi import APIRouter
-import Service
-import re
-import csv
-import os
-import json
 import urllib.request as request
 from typing import Optional
 from Main import MongoDB # 引用MongoDB連線實例
@@ -19,22 +14,22 @@ import time
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("traffic_hero","news_bus")
+collection = MongoDB.getCollection("traffic_hero","news_bus")
 
 @router.put("/Bus",summary="【Update】最新消息-公車")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)): 
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
-    Collection.drop() # 刪除該Collection所有資料
+    collection.drop() # 刪除該collection所有資料
     
     for area in Area.english: # 依照區域更新資料
-        data2MongoDB(area)
+        dataToDatabase(area)
 
-    return f"已更新筆數:{Collection.count_documents({})}"
+    return f"已更新筆數:{collection.count_documents({})}"
     
-def data2MongoDB(area: str):
+def dataToDatabase(area: str):
     try:
-        url = Link.get("News", "Source", "Bus", area) # 取得資料來源網址
+        url = Link.get("traffic_hero", "news_source", "bus", area) # 取得資料來源網址
         data = TDX.getData(url) # 取得資料
         
         documents = []
@@ -49,7 +44,7 @@ def data2MongoDB(area: str):
                 "update_time": Time.format(d['UpdateTime'])
             }
             documents.append(document)
-        Collection.insert_many(documents) # 將資料存入MongoDB
+        collection.insert_many(documents) # 將資料存入MongoDB
     except Exception as e:
         print(e)
 

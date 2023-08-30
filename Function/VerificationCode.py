@@ -1,4 +1,4 @@
 import random
 
-def generate_verification_code():
+def generateCode():
     return str(random.randint(100000, 999999))

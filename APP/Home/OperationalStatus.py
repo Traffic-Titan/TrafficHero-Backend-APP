@@ -6,8 +6,8 @@ import Service.TDX as TDX
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 security = HTTPBearer()
 
-@router.get("/OperationalStatus", summary="【Read】大眾運輸-營運狀況")
-async def operationalStatus(token: HTTPAuthorizationCredentials = Depends(security)):
+@router.get("/Operationalstatus", summary="【Read】大眾運輸-營運狀況")
+async def operationalstatus(token: HTTPAuthorizationCredentials = Depends(security)):
     """
     green: 正常營運
     yellow: 部分營運
@@ -17,104 +17,104 @@ async def operationalStatus(token: HTTPAuthorizationCredentials = Depends(securi
     
     result = [
         {
-            "Name": "臺鐵",
-            "Status": TRA(),
+            "name": "臺鐵",
+            "status": TRA(),
         },
         {
-            "Name": "高鐵",
-            "Status": THSR(),
+            "name": "高鐵",
+            "status": THSR(),
         },
         {
-            "Name": "臺北捷運",
-            "Status": MRT("TRTC"),
+            "name": "臺北捷運",
+            "status": MRT("TRTC"),
         },
         {
-            "Name": "桃園捷運",
-            "Status": MRT("TYMC"),
+            "name": "桃園捷運",
+            "status": MRT("TYMC"),
         },
         {
-            "Name": "高雄捷運",
-            "Status": MRT("KRTC"),
+            "name": "高雄捷運",
+            "status": MRT("KRTC"),
         },
         {
-            "Name": "公路客運",
-            "Status": InterCityBus(),
+            "name": "公路客運",
+            "status": InterCityBus(),
         },
         {
-            "Name": "基隆市公車",
-            "Status": Bus("Keelung"),
+            "name": "基隆市公車",
+            "status": Bus("Keelung"),
         },
         {
-            "Name": "臺北市公車",
-            "Status": Bus("Taipei"),
+            "name": "臺北市公車",
+            "status": Bus("Taipei"),
         },
         {
-            "Name":"新北市公車",
-            "Status":Bus("NewTaipei"),
+            "name":"新北市公車",
+            "status":Bus("NewTaipei"),
         },
         {
-            "Name":"桃園市公車",
-            "Status":Bus("Taoyuan"),
+            "name":"桃園市公車",
+            "status":Bus("Taoyuan"),
         },
         {
-            "Name":"新竹市公車",
-            "Status":Bus("Hsinchu"),
+            "name":"新竹市公車",
+            "status":Bus("Hsinchu"),
         },
         {
-            "Name":"新竹縣公車",
-            "Status":Bus("HsinchuCounty"),
+            "name":"新竹縣公車",
+            "status":Bus("HsinchuCounty"),
         },
         {
-            "Name":"苗栗縣公車",
-            "Status":Bus("MiaoliCounty"),
+            "name":"苗栗縣公車",
+            "status":Bus("MiaoliCounty"),
         },
         {
-            "Name":"臺中市公車",
-            "Status":Bus("Taichung"),
+            "name":"臺中市公車",
+            "status":Bus("Taichung"),
         },
         {
-            "Name":"彰化縣公車",
-            "Status":Bus("ChanghuaCounty"),
+            "name":"彰化縣公車",
+            "status":Bus("ChanghuaCounty"),
         },
         {
-            "Name":"雲林縣公車",
-            "Status":Bus("YunlinCounty"),
+            "name":"雲林縣公車",
+            "status":Bus("YunlinCounty"),
         },
         {
-            "Name":"嘉義市公車",
-            "Status":Bus("Chiayi"),
+            "name":"嘉義市公車",
+            "status":Bus("Chiayi"),
         },
         {
-            "Name":"嘉義縣公車",
-            "Status":Bus("ChiayiCounty"),
+            "name":"嘉義縣公車",
+            "status":Bus("ChiayiCounty"),
         },
         {
-            "Name":"台南市公車",
-            "Status":"待處理",
+            "name":"台南市公車",
+            "status":"待處理",
         },
         {
-            "Name":"高雄市公車",
-            "Status":Bus("Kaohsiung"),
+            "name":"高雄市公車",
+            "status":Bus("Kaohsiung"),
         },
         {
-            "Name":"屏東縣公車",
-            "Status":Bus("PingtungCounty"),
+            "name":"屏東縣公車",
+            "status":Bus("PingtungCounty"),
         },
         {
-            "Name":"臺東縣公車",
-            "Status":Bus("TaitungCounty"),
+            "name":"臺東縣公車",
+            "status":Bus("TaitungCounty"),
         },
         {
-            "Name":"花蓮縣公車",
-            "Status":Bus("HualienCounty"),
+            "name":"花蓮縣公車",
+            "status":Bus("HualienCounty"),
         },
         {
-            "Name":"宜蘭縣公車",
-            "Status":Bus("YilanCounty"),
+            "name":"宜蘭縣公車",
+            "status":Bus("YilanCounty"),
         },
         {
-            "Name":"澎湖縣公車",
-            "Status":Bus("PenghuCounty"),
+            "name":"澎湖縣公車",
+            "status":Bus("PenghuCounty"),
         }
     ]
     
@@ -126,12 +126,13 @@ def TRA(): # 臺鐵
     
     try:
         data = TDX.getData(url) # 取得資料
+        
         for alert in data["Alerts"]:        
-            if  alert["Status"] == 0:
+            if  alert["status"] == 0:
                 status = "red"  # 停止營運
-            elif  alert["Status"] == 2 and status != "red":
+            elif  alert["status"] == 2 and status != "red":
                 status = "yellow"  # 部分營運
-            elif  alert["Status"] == 1 and status not in ["red", "yellow"]:
+            elif  alert["status"] == 1 and status not in ["red", "yellow"]:
                 status = "green"  # 正常營運
     except Exception as e:
         print(e)
@@ -145,7 +146,7 @@ def THSR(): # 高鐵
     try:
         data = TDX.getData(url) # 取得資料
         
-        match data[0]["Status"]:
+        match data[0]["status"]:
             case "":
                 status = "green"  # 正常營運
             case "▲":
@@ -165,11 +166,11 @@ def MRT(system: str): # 捷運
         data = TDX.getData(url) # 取得資料
         
         for alert in data["Alerts"]:        
-            if  alert["Status"] == 0:
+            if  alert["status"] == 0:
                 status = "red"  # 停止營運
-            elif  alert["Status"] == 2 and status != "red":
+            elif  alert["status"] == 2 and status != "red":
                 status = "yellow"  # 部分營運
-            elif  alert["Status"] == 1 and status not in ["red", "yellow"]:
+            elif  alert["status"] == 1 and status not in ["red", "yellow"]:
                 status = "green"  # 正常營運
     except Exception as e:
         print(e)
@@ -183,11 +184,11 @@ def InterCityBus(): # 公路客運
     try:
         data = TDX.getData(url) # 取得資料
         
-        if data[0]["Status"] == 0:
+        if data[0]["status"] == 0:
             status = "red"  # 停止營運
-        elif data[0]["Status"] == 2 and status != "red":
+        elif data[0]["status"] == 2 and status != "red":
             status = "yellow"  # 部分營運
-        elif data[0]["Status"] == 1 and status not in ["red", "yellow"]:
+        elif data[0]["status"] == 1 and status not in ["red", "yellow"]:
             status = "green"  # 正常營運
     except Exception as e:
         print(e)
@@ -201,11 +202,11 @@ def Bus(area: str): # 各縣市公車
     try:
         data = TDX.getData(url) # 取得資料
         
-        if data[0]["Status"] == 0:
+        if data[0]["status"] == 0:
             status = "red"  # 停止營運
-        elif data[0]["Status"] == 2 and status != "red":
+        elif data[0]["status"] == 2 and status != "red":
             status = "yellow"  # 部分營運
-        elif data[0]["Status"] == 1 and status not in ["red", "yellow"]:
+        elif data[0]["status"] == 1 and status not in ["red", "yellow"]:
             status = "green"  # 正常營運
     except Exception as e:
         print(e)

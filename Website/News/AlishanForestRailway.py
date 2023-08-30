@@ -1,31 +1,24 @@
 from fastapi import APIRouter, Depends, HTTPException
-import Service.TDX as TDX
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import Service.TDX as TDX
 import Service.Token as Token
-from fastapi import APIRouter
-import Service
-import re
-import csv
-import os
-import json
-import urllib.request as request
 import Function.Time as Time
 import Function.Link as Link
-from Main import MongoDB
+from Main import MongoDB # 引用MongoDB連線實例
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("traffic_hero","news_alishan_forest_railway")
+collection = MongoDB.getCollection("traffic_hero","news_alishan_forest_railway")
 
 @router.put("/AlishanForestRailway",summary="【Update】最新消息-阿里山林業鐵路")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
-    Collection.drop() # 刪除該Collection所有資料
+    collection.drop() # 刪除該collection所有資料
     
     try:
-        url = Link.get("News", "Source", "AlishanForestRailway", "All") # 取得資料來源網址
+        url = Link.get("traffic_hero", "news_source", "alishan_forest_railway", "All") # 取得資料來源網址
         data = TDX.getData(url) # 取得資料
         
         documents = []
@@ -41,11 +34,11 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
             }
             documents.append(document)
 
-        Collection.insert_many(documents) # 將資料存入MongoDB
+        collection.insert_many(documents) # 將資料存入MongoDB
     except Exception as e:
         print(e)
         
-    return f"已更新筆數:{Collection.count_documents({})}"
+    return f"已更新筆數:{collection.count_documents({})}"
 
 def numberToText(number : int):
     match number:

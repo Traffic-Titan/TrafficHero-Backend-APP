@@ -12,7 +12,7 @@ import Service.Token as Token
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("traffic_hero","news_public_bicycle")
+collection = MongoDB.getCollection("traffic_hero","news_public_bicycle")
 
 @router.put("/PublicBicycle",summary="【Update】最新消息-公共自行車")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
@@ -23,7 +23,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     """
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
-    Collection.drop() # 刪除該Collection所有資料
+    collection.drop() # 刪除該collection所有資料
     
     try:
         # Initial
@@ -44,11 +44,11 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
             city_data = processData(area,soup)
             context_return.extend(city_data)
     
-        Collection.insert_many(context_return)
+        collection.insert_many(context_return)
     except Exception as e:
         print(e)
 
-    return f"已更新筆數:{Collection.count_documents({})}"
+    return f"已更新筆數:{collection.count_documents({})}"
 
 def processData(area, soup): # 尚未完成縣市分類
     #  Initial

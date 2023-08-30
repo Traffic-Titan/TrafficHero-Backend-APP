@@ -22,10 +22,10 @@ async def changePassword(user: ChangePasswordModel, token: HTTPAuthorizationCred
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 連線MongoDB
-    Collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("0_APP","0.Users")
 
     # 查詢使用者記錄，同時驗證舊密碼和Token的有效性
-    result = Collection.find_one({
+    result = collection.find_one({
         "email": user.email,
         "$or": [
             {"password": hashlib.sha256(user.old_password.encode()).hexdigest()},
@@ -38,7 +38,7 @@ async def changePassword(user: ChangePasswordModel, token: HTTPAuthorizationCred
     else:
         # 儲存新密碼並刪除與忘記密碼相關資料
         hashed_new_password = hashlib.sha256(user.new_password.encode()).hexdigest()
-        Collection.update_one(
+        collection.update_one(
             {"email": user.email},
             {
                 "$set": {"password": hashed_new_password},
@@ -56,8 +56,8 @@ async def forgotPassword(user: ForgetPasswordModel, token: HTTPAuthorizationCred
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 檢查電子郵件是否存在於資料庫中
-    Collection = MongoDB.getCollection("0_APP","0.Users")
-    result = Collection.find_one({"email": user.email, "email_confirmed": True, "birthday": user.birthday})
+    collection = MongoDB.getCollection("0_APP","0.Users")
+    result = collection.find_one({"email": user.email, "email_confirmed": True, "birthday": user.birthday})
     if result is None:
         raise HTTPException(status_code=404, detail="查無此帳號，請重新輸入")
 
@@ -70,10 +70,10 @@ async def forgotPassword(user: ForgetPasswordModel, token: HTTPAuthorizationCred
         raise HTTPException(status_code=429, detail="請求過於頻繁，請稍後再試")
 
     # 生成驗證碼
-    verification_code = Code.generate_verification_code()
+    verification_code = Code.generateCode()
 
     # 將驗證碼存儲到資料庫中
-    Collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})
+    collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})
 
     # 寄送郵件
     current_time = Time.getCurrentTimestamp() # 獲取當前時間戳

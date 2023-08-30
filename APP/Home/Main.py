@@ -93,14 +93,14 @@ def get_ConvenientStore(CurrentLat:str,CurrentLng:str):
     currentUserPosition = [CurrentLat,CurrentLng]
     
     # 連線MongoDB
-    Collection = MongoDB.getCollection("TrafficHero","ConvenientStore")
+    collection = MongoDB.getCollection("TrafficHero","ConvenientStore")
 
     for angle in range(0, 360, 60):
         # 以使用者目前的經緯度查詢 半徑 5 公里 內的便利商店
         Points_After_Output.append(geodesic(kilometers=5).destination((CurrentLat, CurrentLng),bearing = angle))
     
     #讀取資料庫內的所有便利商店經緯度
-    all_ConvenienceStore_LatLng = Collection.find({"LatLng":{"$ne":None}})
+    all_ConvenienceStore_LatLng = collection.find({"LatLng":{"$ne":None}})
     
     for data in all_ConvenienceStore_LatLng:
         if(data.get('LatLng').get('lat')!=None):

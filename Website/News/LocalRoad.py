@@ -19,23 +19,23 @@ import time
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("traffic_hero","news_local_road")
+collection = MongoDB.getCollection("traffic_hero","news_local_road")
 
 @router.put("/LocalRoad",summary="【Update】最新消息-地區道路")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)): 
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
-    Collection.drop() # 刪除該Collection所有資料
+    collection.drop() # 刪除該collection所有資料
     areas = ["TaichungCity","TainanCity","PingtungCounty","YilanCounty"]
     
     for area in areas: # 依照區域更新資料
-        data2MongoDB(area)
+        dataToDatabase(area)
 
-    return f"已更新筆數:{Collection.count_documents({})}"
+    return f"已更新筆數:{collection.count_documents({})}"
     
-def data2MongoDB(area: str):
+def dataToDatabase(area: str):
     try:
-        url = Link.get("News", "Source", "LocalRoad", area) # 取得資料來源網址
+        url = Link.get("traffic_hero", "news_source", "local_road", area) # 取得資料來源網址
         data = TDX.getData(url) # 取得資料
         
         documents = []
@@ -50,7 +50,7 @@ def data2MongoDB(area: str):
                 "update_time": Time.format(d['UpdateTime'])
             }
             documents.append(document)
-        Collection.insert_many(documents) # 將資料存入MongoDB
+        collection.insert_many(documents) # 將資料存入MongoDB
     except Exception as e:
         print(e)
 
