@@ -50,18 +50,18 @@ def getData():
         documents.append(document)
     
     # 將資料存入MongoDB  
-    Collection = MongoDB.getCollection("TrafficHero","PBS")
-    Collection.drop()
-    Collection.insert_many(documents)
+    collection = MongoDB.getCollection("TrafficHero","PBS")
+    collection.drop()
+    collection.insert_many(documents)
 
 
     # #只要有重複地點就刪除，只保留一個
     # eventLatLng = []
-    # for item in pbsCollection.find():
+    # for item in pbscollection.find():
     #     if item['EventLatLng'] not in eventLatLng:
     #         eventLatLng.append(item['EventLatLng'])  
     #     else:
-    #         pbsCollection.delete_one(item)
+    #         pbscollection.delete_one(item)
 
     # for i in range(0,len(data)):
     #     if(data[i]['region'] == 'N' and data[i]['roadtype'] == '道路施工'):

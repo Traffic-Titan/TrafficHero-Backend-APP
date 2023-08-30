@@ -9,7 +9,7 @@ import Service.Token as Token
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("traffic_hero","news_freeway")
+collection = MongoDB.getCollection("traffic_hero","news_freeway")
 
 @router.put("/Freeway",summary="【Update】最新消息-高速公路")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
@@ -18,7 +18,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     """
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
-    Collection.drop() # 刪除該Collection所有資料
+    collection.drop() # 刪除該collection所有資料
     
     try:
         base_url = 'https://1968.freeway.gov.tw/n_whatsup?page=' # 網址
@@ -29,11 +29,11 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
             page_url = base_url + str(page)
             all_data.extend(processData(page_url))
 
-        Collection.insert_many(all_data)  # 將資料存入MongoDB
+        collection.insert_many(all_data)  # 將資料存入MongoDB
     except Exception as e:
         print(e)
 
-    return f"已更新筆數:{Collection.count_documents({})}"
+    return f"已更新筆數:{collection.count_documents({})}"
 
 def processData(url):
     try:

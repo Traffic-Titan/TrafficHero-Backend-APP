@@ -11,9 +11,9 @@ router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
 security = HTTPBearer()
 
 def processData(type, area):
-    Collection = MongoDB.getCollection("traffic_hero", f'news_{typeConverter(type)}') # 選擇Collection
+    collection = MongoDB.getCollection("traffic_hero", f'news_{typeConverter(type)}') # 選擇collection
     documents = []
-    result = Collection.find({"area": area}, {"_id": 0}) # 取得資料
+    result = collection.find({"area": area}, {"_id": 0}) # 取得資料
     logoURL = Logo.get(type, area) # 取得Logo
     for d in result:
         d["logo_url"] = logoURL # 新增Logo

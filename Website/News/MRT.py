@@ -17,19 +17,19 @@ import Function.Link as Link
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("traffic_hero","news_mrt")
+collection = MongoDB.getCollection("traffic_hero","news_mrt")
 
 @router.put("/MRT",summary="【Update】最新消息-捷運")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
-    Collection.drop() # 刪除該Collection所有資料
+    collection.drop() # 刪除該collection所有資料
     
     data2MongoDB("TaipeiCity") # 臺北捷運
     data2MongoDB("TaoyuanCity") # 桃園捷運
     data2MongoDB("KaohsiungCity") # 高雄捷運
             
-    return f"已更新筆數:{Collection.count_documents({})}"
+    return f"已更新筆數:{collection.count_documents({})}"
 
 def data2MongoDB(area: str):
     try:
@@ -49,7 +49,7 @@ def data2MongoDB(area: str):
             }
             documents.append(document)
 
-        Collection.insert_many(documents) # 將資料存入MongoDB
+        collection.insert_many(documents) # 將資料存入MongoDB
     except Exception as e:
         print(e)
 

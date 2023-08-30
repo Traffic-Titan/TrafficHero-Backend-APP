@@ -19,14 +19,14 @@ async def googleSSO(user: LoginModel, token: HTTPAuthorizationCredentials = Depe
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 連線MongoDB
-    Collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("0_APP","0.Users")
     
     # 如果查詢結果為None，表示無此帳號
-    result = Collection.find_one({"email": user.email})
+    result = collection.find_one({"email": user.email})
     if result is None:
         raise HTTPException(status_code=403, detail="此帳號未註冊")
     
-    result = Collection.find_one({"email": user.email, "google_id": user.google_id})
+    result = collection.find_one({"email": user.email, "google_id": user.google_id})
     if result is None:
         raise HTTPException(status_code=401, detail="此帳號尚未連接Google帳號")
     else:
@@ -37,7 +37,7 @@ async def googleSSO(user: LoginModel, token: HTTPAuthorizationCredentials = Depe
                 "failed_attempts": ""
             }
         }
-        Collection.update_one({"email": user.email}, update_data)
+        collection.update_one({"email": user.email}, update_data)
         
         # JWT編碼
         data = {

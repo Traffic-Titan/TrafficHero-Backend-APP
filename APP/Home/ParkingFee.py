@@ -23,11 +23,11 @@ async def parkingFee(LicensePlateNumber: str, Type: str, token: HTTPAuthorizatio
     Token.verifyToken(token.credentials,"user") # JWT驗證
 
     areas = Area.english # 縣市英文名稱
-    Collection = MongoDB.getCollection("traffic_hero","parking_fee") # 連線MongoDB
+    collection = MongoDB.getCollection("traffic_hero","parking_fee") # 連線MongoDB
 
     task = []
     for area in areas:
-        result = Collection.find_one({"Area":area}, {"_id": 0, "URL": 1})
+        result = collection.find_one({"Area":area}, {"_id": 0, "URL": 1})
         if result is not None: # 如果沒有資料就跳過此縣市
             url = result.get("URL") # 取得URL
             url = url.replace("Insert_CarID", LicensePlateNumber) # 取代車牌號碼

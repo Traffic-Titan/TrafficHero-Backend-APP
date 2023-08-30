@@ -19,18 +19,18 @@ import time
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("traffic_hero","news_taiwan_tourist_shuttle")
+collection = MongoDB.getCollection("traffic_hero","news_taiwan_tourist_shuttle")
 
 @router.put("/TaiwanTouristShuttle",summary="【Update】最新消息-臺灣好行公車")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)): 
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
-    Collection.drop() # 刪除該Collection所有資料
+    collection.drop() # 刪除該collection所有資料
     
     for area in Area.english: # 依照區域更新資料
         data2MongoDB(area)
 
-    return f"已更新筆數:{Collection.count_documents({})}"
+    return f"已更新筆數:{collection.count_documents({})}"
     
 def data2MongoDB(area: str):
     try:
@@ -49,7 +49,7 @@ def data2MongoDB(area: str):
                 "update_time": Time.format(d['SrcUpdateTime'])
             }
             documents.append(document)
-        Collection.insert_many(documents) # 將資料存入MongoDB
+        collection.insert_many(documents) # 將資料存入MongoDB
     except Exception as e:
         print(e)
 

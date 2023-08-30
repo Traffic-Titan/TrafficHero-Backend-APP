@@ -17,7 +17,7 @@ import Function.Link as Link
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("News","MRT")
+collection = MongoDB.getCollection("News","MRT")
 
 class NewsLinkModel(BaseModel):
     Type: str
@@ -36,12 +36,12 @@ async def getNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorization
     
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    Collection = MongoDB.getCollection("News",f"{data.Type}_Link")
+    collection = MongoDB.getCollection("News",f"{data.Type}_Link")
     
     if Area == "All":
-        result = Collection.find()
+        result = collection.find()
     else:
-        result = Collection.find({"Area": data.Area})
+        result = collection.find({"Area": data.Area})
     
     documents = []
     for d in result:
@@ -62,10 +62,10 @@ async def updateNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizat
     
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    Collection = MongoDB.getCollection("News",f"{Type}_Link")
+    collection = MongoDB.getCollection("News",f"{Type}_Link")
     
     for d in data:
-        Collection.update_one(
+        collection.update_one(
             {"Area_EN": d.Area_EN},
             {"$set": d.dict()},
             upsert=True
@@ -86,8 +86,8 @@ async def addNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorization
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 將資料存入MongoDB
-    Collection = MongoDB.getCollection("News",f"{data.Type}_Link")
-    Collection.insert_many([{"Area": d.Area, "URL": d.URL} for d in data])
+    collection = MongoDB.getCollection("News",f"{data.Type}_Link")
+    collection.insert_many([{"Area": d.Area, "URL": d.URL} for d in data])
     
     return "Success"
 
@@ -104,7 +104,7 @@ async def deleteNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizat
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 刪除資料
-    Collection = MongoDB.getCollection("News",f"{Type}_Link")
-    result = Collection.delete_many({"Area_EN": {"$in": [item.Area_EN for item in data]}})
+    collection = MongoDB.getCollection("News",f"{Type}_Link")
+    result = collection.delete_many({"Area_EN": {"$in": [item.Area_EN for item in data]}})
     
     return "Success"

@@ -35,6 +35,6 @@ def getData():
         documents.append(document)
     
     # 將資料存入MongoDB
-    Collection = MongoDB.getCollection("TrafficHero","Technical_Enforcement")
-    Collection.drop()
-    Collection.insert_many(documents)
+    collection = MongoDB.getCollection("TrafficHero","Technical_Enforcement")
+    collection.drop()
+    collection.insert_many(documents)

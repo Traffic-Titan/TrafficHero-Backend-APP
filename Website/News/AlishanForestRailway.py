@@ -16,13 +16,13 @@ from Main import MongoDB
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 security = HTTPBearer()
 
-Collection = MongoDB.getCollection("traffic_hero","news_alishan_forest_railway")
+collection = MongoDB.getCollection("traffic_hero","news_alishan_forest_railway")
 
 @router.put("/AlishanForestRailway",summary="【Update】最新消息-阿里山林業鐵路")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
-    Collection.drop() # 刪除該Collection所有資料
+    collection.drop() # 刪除該collection所有資料
     
     try:
         url = Link.get("News", "Source", "AlishanForestRailway", "All") # 取得資料來源網址
@@ -41,11 +41,11 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
             }
             documents.append(document)
 
-        Collection.insert_many(documents) # 將資料存入MongoDB
+        collection.insert_many(documents) # 將資料存入MongoDB
     except Exception as e:
         print(e)
         
-    return f"已更新筆數:{Collection.count_documents({})}"
+    return f"已更新筆數:{collection.count_documents({})}"
 
 def numberToText(number : int):
     match number:

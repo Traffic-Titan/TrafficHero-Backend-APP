@@ -19,15 +19,15 @@ async def login(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 連線MongoDB
-    Collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("0_APP","0.Users")
     
     # 如果查詢結果為None，表示無此帳號
-    result = Collection.find_one({"email": user.email})
+    result = collection.find_one({"email": user.email})
     if result is None:
         raise HTTPException(status_code=401, detail="帳號或密碼錯誤")
     
     # 確認是否已驗證Email
-    result = Collection.find_one({"email": user.email,"email_confirmed": True})
+    result = collection.find_one({"email": user.email,"email_confirmed": True})
     if result is None:
         raise HTTPException(status_code=401, detail="Email尚未驗證，請至信箱收取驗證信，若驗證碼已失效，請重新註冊")
     
@@ -51,7 +51,7 @@ async def login(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(
                 "failed_attempts": failed_attempts + 1
             }
         }
-        Collection.update_one({"email": user.email}, update_data)
+        collection.update_one({"email": user.email}, update_data)
         
         raise HTTPException(status_code=401, detail="帳號或密碼錯誤")
     else:
@@ -62,7 +62,7 @@ async def login(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(
                 "failed_attempts": ""
             }
         }
-        Collection.update_one({"email": user.email}, update_data)
+        collection.update_one({"email": user.email}, update_data)
 
         # 產生Token
         data = {
