@@ -85,8 +85,7 @@ app.include_router(ParkingFee.router)
 app.include_router(OperationalStatus.router)
 
 # 2.最新消息(APP)
-from APP.News import Main, Car, Scooter, PublicTransport
-app.include_router(Main.router)
+from APP.News import Car, Scooter, PublicTransport
 app.include_router(Car.router)
 app.include_router(Scooter.router)
 app.include_router(PublicTransport.router)
