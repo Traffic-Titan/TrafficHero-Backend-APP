@@ -11,24 +11,27 @@ router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
 security = HTTPBearer()
 
 def processData(type, area):
-    collection = MongoDB.getCollection("traffic_hero", f'news_{typeConverter(type)}') # 選擇collection
+    collection = MongoDB.getCollection("traffic_hero", f'news_{type}') # 選擇collection
     documents = []
     result = collection.find({"area": area}, {"_id": 0}) # 取得資料
-    logoURL = Logo.get(type, area) # 取得Logo
+    logo_url = Logo.get(type, area) # 取得Logo
     for d in result:
-        d["logo_url"] = logoURL # 新增Logo
+        d["logo_url"] = logo_url # 新增Logo
         if d.get("news_url") != "": d["description"] = "" # 若有NewsURL則清空Description，以減少傳輸內容
         documents.append(d) # 將資料存入documents
     return documents # 回傳documents
 
 @router.get("/Scooter",summary="【Read】最新消息-機車")
 async def scooter(areas: str = "All", types: str = "All", token: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    types: provincial_highway,local_road
+    """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     if areas == "All": # 全部縣市
         areas = ",".join(Area.english) # 以英文逗號分隔 
     if types == "All": # 全部類型
-        types = "ProvincialHighway,LocalRoad"
+        types = "provincial_highway,local_road"
 
     types, areas = types.split(','), areas.split(',') # 將types, areas轉成陣列
 
@@ -36,7 +39,7 @@ async def scooter(areas: str = "All", types: str = "All", token: HTTPAuthorizati
     documents = [] # 回傳的資料
     with concurrent.futures.ThreadPoolExecutor(max_workers=len(types) * len(areas)) as executor: # 並行處理
         for type in types:
-            if type in ["ProvincialHighway"]: # 無區域之分
+            if type in ["provincial_highway"]: # 無區域之分
                 task.append(executor.submit(processData,type,"All")) # 將任務加入任務清單
             else:
                 for area in areas: # 有區域之分
@@ -47,10 +50,3 @@ async def scooter(areas: str = "All", types: str = "All", token: HTTPAuthorizati
 
     documents.sort(key=lambda x: x.get("update_time", ""), reverse=True) # 依照UpdateTime排序
     return documents
-
-def typeConverter(type: str): # Temporary
-    match type:
-        case "ProvincialHighway":
-            return "provincial_highway"
-        case "LocalRoad":
-            return "local_road"

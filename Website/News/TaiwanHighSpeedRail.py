@@ -25,7 +25,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     collection.drop() # 刪除該collection所有資料
     
     try:
-        url = Link.get("News", "Source", "THSR", "All") # 取得資料來源網址
+        url = Link.get("traffic_hero", "news_source", "taiwan_high_speed_rail", "All") # 取得資料來源網址
         data = TDX.getData(url) # 取得資料
         
         documents = []

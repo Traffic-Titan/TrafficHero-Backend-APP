@@ -70,7 +70,7 @@ async def forgotPassword(user: ForgetPasswordModel, token: HTTPAuthorizationCred
         raise HTTPException(status_code=429, detail="請求過於頻繁，請稍後再試")
 
     # 生成驗證碼
-    verification_code = Code.generate_verification_code()
+    verification_code = Code.generateCode()
 
     # 將驗證碼存儲到資料庫中
     collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})

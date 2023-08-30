@@ -1,3 +1,7 @@
+"""
+暫緩處理
+"""
+
 from Main import MongoDB # 引用MongoDB連線實例
 
 def get(item: str):

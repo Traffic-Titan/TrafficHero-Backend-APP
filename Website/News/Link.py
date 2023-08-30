@@ -1,5 +1,5 @@
 """
-1. 目前先將統一抓取各縣市資料，未來可考慮改成抓取單一縣市資料
+暫緩處理
 """
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials

@@ -57,7 +57,7 @@ class Data():
             'authorization': 'Bearer '+ access_token
         }
 
-@router.get("/getHealthStatus", summary="TDX - 取得服務健康狀態")
+@router.get("/getHealthStatus", summary="TDX - 取得服務健康狀態(Dev)")
 async def getHealthStatusAPI(url:str, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     return getHealthStatus(url)

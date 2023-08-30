@@ -3,11 +3,6 @@ import Service.TDX as TDX
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import Service.Token as Token
 from fastapi import APIRouter
-import Service
-import re
-import csv
-import os
-import json
 import urllib.request as request
 from typing import Optional
 from Main import MongoDB # 引用MongoDB連線實例
@@ -34,7 +29,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     
 def dataToDatabase(area: str):
     try:
-        url = Link.get("News", "Source", "Bus", area) # 取得資料來源網址
+        url = Link.get("traffic_hero", "news_source", "bus", area) # 取得資料來源網址
         data = TDX.getData(url) # 取得資料
         
         documents = []

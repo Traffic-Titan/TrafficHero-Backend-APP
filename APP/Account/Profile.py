@@ -82,7 +82,7 @@ async def updateEmail(user: UpdateEmailModel, token: HTTPAuthorizationCredential
     collection = MongoDB.getCollection("0_APP","0.Users")
     if user.old_email == payload["data"]["email"]:
         # 生成驗證碼、寄送郵件、存到資料庫
-        verification_code = Code.generate_verification_code()
+        verification_code = Code.generateCode()
         
         current_time = Time.getCurrentTimestamp() # 獲取當前時間戳
         expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)  # 計算驗證碼的過期時間

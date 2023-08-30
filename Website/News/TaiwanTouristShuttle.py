@@ -34,7 +34,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     
 def dataToDatabase(area: str):
     try:
-        url = Link.get("News", "Source", "TaiwanTouristShuttle", "All") # 取得資料來源網址
+        url = Link.get("traffic_hero", "news_source", "taiwan_tourist_shuttle", "All") # 取得資料來源網址
         data = TDX.getData(url) # 取得資料
         
         documents = []

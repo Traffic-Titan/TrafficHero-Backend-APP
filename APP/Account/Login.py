@@ -32,7 +32,7 @@ async def login(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(
         raise HTTPException(status_code=401, detail="Email尚未驗證，請至信箱收取驗證信，若驗證碼已失效，請重新註冊")
     
     # 檢查密碼是否正確
-    if result["password"] != Hash.encode_SHA256(user.password):
+    if result["password"] != Hash.encodeSHA256(user.password):
         # 獲取上次失敗的時間戳和失敗次數
         last_failed_timestamp = result.get("last_failed_timestamp")
         failed_attempts = result.get("failed_attempts", 0)
