@@ -47,7 +47,7 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
                 "gender": user.gender,
                 "birthday": user.birthday,
                 "Google_ID": user.Google_ID,
-                "avatar": Blob.generate_default_avatar(user.name), # 預設大頭貼
+                "avatar": Blob.image_url_to_Blob("https://cdn.discordapp.com/attachments/989185705014071337/1137058235325620235/Default_Avatar.png"), # 預設大頭貼
                 "role": "user"
         }
         
@@ -67,7 +67,7 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=response.detail)
         
-        return {"detail": message.get("Sign up")}
+        return {"detail": Message.get("Sign up")}
     else: # Google註冊
         # 建立新的使用者文件
         data = {
@@ -85,6 +85,6 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
         # 新增使用者文件至資料庫
         Collection.insert_one(data)
         
-        return {"detail": message.get("Sign up with Google")}
+        return {"detail": Message.get("Sign up with Google")}
     
 
