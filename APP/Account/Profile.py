@@ -21,7 +21,7 @@ class ProfileModel(BaseModel):
     password: Optional[str]
     gender: Optional[str]
     birthday: Optional[str]
-    Google_ID: str = None
+    google_id: str = None
 
 @router.get("/Profile",summary="【Read】會員資料")
 async def viewProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
@@ -35,7 +35,7 @@ async def viewProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer()
         "email": result["email"] if "email" in result else None,
         "gender": result["gender"] if "gender" in result else None,
         "birthday": result["birthday"] if "birthday" in result else None,
-        "Google_ID": result["Google_ID"] if "Google_ID" in result else None,
+        "google_id": result["google_id"] if "google_id" in result else None,
         "avatar": Blob.encode_image_to_base64(result["avatar"]) if "avatar" in result else None
     }
     
@@ -54,7 +54,7 @@ async def updateProfile(user: ProfileModel, token: HTTPAuthorizationCredentials 
         "name": user.name,
         "gender": user.gender,
         "birthday": user.birthday,
-        "Google_ID": user.Google_ID if user.Google_ID else result["Google_ID"] # 如果沒有傳入Google_ID，則使用原本的Google_ID
+        "google_id": user.google_id if user.google_id else result["google_id"] # 如果沒有傳入google_id，則使用原本的google_id
     }
     Collection.update_one({"email": payload["data"]["email"]}, {"$set": updated_data})
     

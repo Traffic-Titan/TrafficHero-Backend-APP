@@ -21,7 +21,8 @@ class ProfileModel(BaseModel):
     password: str
     gender: str
     birthday: str
-    Google_ID: str = None
+    google_id: str
+    google_avatar: str
 
 @router.post("/Register",summary="會員註冊")
 async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Depends(security)):
@@ -37,7 +38,7 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
     # 對密碼進行Hash處理
     hashed_password = hashlib.sha256(user.password.encode()).hexdigest()
 
-    if user.Google_ID is None: # 一般註冊
+    if user.google_id is None: # 一般註冊
         # 建立新的使用者文件
         data = {
                 "name": user.name, 
@@ -46,8 +47,8 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
                 "password": hashed_password,
                 "gender": user.gender,
                 "birthday": user.birthday,
-                "Google_ID": user.Google_ID,
-                "avatar": Blob.image_url_to_Blob("https://cdn.discordapp.com/attachments/989185705014071337/1137058235325620235/Default_Avatar.png"), # 預設大頭貼
+                "google_id": "",
+                "avatar": Blob.urlToBlob("https://cdn.discordapp.com/attachments/989185705014071337/1137058235325620235/Default_Avatar.png"), # 預設大頭貼
                 "role": "user"
         }
         
@@ -77,8 +78,8 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
                 "password": hashed_password,
                 "gender": user.gender,
                 "birthday": user.birthday,
-                "Google_ID": user.Google_ID,
-                "avatar": Blob.generate_default_avatar(user.name), # 預設大頭貼
+                "google_id": user.google_id,
+                "avatar": Blob.urlToBlob(user.google_avatar), # 預設大頭貼
                 "role": "user"
         }
         
