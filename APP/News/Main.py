@@ -59,65 +59,8 @@ async def youbike(country:str, token: HTTPAuthorizationCredentials = Depends(sec
             response = urllib.request.urlopen(Url)
             soup = BeautifulSoup(response.read().decode('utf-8'),'html.parser')
             # 回傳對應縣市的結果
-            return(processData_for_Youbike(soup))
-   
-@router.get("/Car/FreeWay",summary="【Read】最新消息-汽車-國道最新消息(Dev)")
-async def freeWay(token: HTTPAuthorizationCredentials = Depends(security)):
-    """
-    國道最新消息：https://1968.freeway.gov.tw/n_whatsup
+            return(processData_for_Youbike(soup)) 
 
-    Date：提供查看幾天前的消息 
-    """
-    # Token.verifyToken(token.credentials,"user") # JWT驗證
-
-    # BeautifulSoup4
-    response_page1 = urllib.request.urlopen('https://1968.freeway.gov.tw/n_whatsup?page=1')
-    soup1 = BeautifulSoup(response_page1.read().decode('utf-8'),'html.parser')
-    response_page2 = urllib.request.urlopen('https://1968.freeway.gov.tw/n_whatsup?page=2')
-    soup2 = BeautifulSoup(response_page2.read().decode('utf-8'),'html.parser')
-    
-    return(processData_for_Freeway(soup1),processData_for_Freeway(soup2))
-    
-# 處理bs4 response(Freeway)後的頁面
-def processData_for_Freeway(soup):
-    
-    #  Initial
-    title_array = []
-    url_array = []
-    publicTime_array = []
-    type_array = []
-    documents = []
-
-
-    # Title處理
-    all_title = soup.find_all('span',class_="wup_title_txt use_tri_icon")
-    for title in all_title:
-        title_array.append(title.text)
-
-    # url處理
-    all_url = soup.find_all('span',class_="wup_seemore")
-    for url in all_url:
-        url_array.append(url.find('a').get('href'))
-
-    # publicTime處理
-    all_publicTime = soup.find_all('span',class_="wup_time")
-    for time in all_publicTime:
-        publicTime_array.append(time.text)
-
-    # type處理
-    all_type = soup.find_all('span',attrs={"class":["wup_type tp_cons","wup_type tp_rinfo"]})
-    for type in  all_type:
-        type_array.append(type.text.strip())
-    
-    for data in range(0,len(all_title)):
-        document = {
-            "標題":title_array[data],
-            "發佈時間":publicTime_array[data],
-            "發佈類型":type_array[data],
-            "URL":url_array[data]
-        }
-        documents.append(document)
-    return documents
 # 處理bs4 response(Youbike)後的頁面
 def processData_for_Youbike(soup):
     #  Initial
