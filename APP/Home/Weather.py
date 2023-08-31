@@ -120,23 +120,26 @@ async def weather_api(Longitude: str, Latitude: str, token: HTTPAuthorizationCre
         observation_station_unmanned =  requests.get('https://opendata.cwb.gov.tw/api/v1/rest/datastore/C-B0074-002?Authorization=CWB-B8C9C901-A011-4D54-B09F-4FC5220B76D9&status=%E7%8F%BE%E5%AD%98%E6%B8%AC%E7%AB%99').json()
         if(observation_station_unmanned["result"] is not None):
             for observation in observation_station_unmanned['records']["data"]["stationStatus"]['station']:
-                address = str(observation['Location']) # 取得完整地址
-                if(address[2] != '區' and address[2] != '鄉' and address[2] != '市' and address[2] != '鎮'and address[2]!= '縣'): # 針對資料作處理以取得正確的鄉、鎮
-                # districtName : 區的完整名稱 ex : 梅山鄉、阿里山鄉、國道3號
-                    districtName = (observation['Location'][0:4])
-                else:
-                    districtName = (observation['Location'][0:3])
-        
-                if(root.find("ctyName").text == observation['CountyName'] and root.find("townName").text == districtName): # 比對輸入資料之縣市 區域
+                
+                # address = str(observation['Location']) # 取得完整地址
+                # if(address[2] != '區' and address[2] != '鄉' and address[2] != '市' and address[2] != '鎮'and address[2]!= '縣'): # 針對資料作處理以取得正確的鄉、鎮
+                # # districtName : 區的完整名稱 ex : 梅山鄉、阿里山鄉、國道3號
+                #     districtName = (observation['Location'][0:4])
+                # else:
+                #     districtName = (observation['Location'][0:3])
+
+                # if((root.find("ctyName").text == observation['CountyName']) and (root.find("townName").text == districtName)): # 比對輸入資料之縣市 區域
+                #     stationID = observation['StationID'] # 地區ID ex : 雲林縣斗六市 -> C0K400
+                #     break
+                # else:
+
+                # 比對不到輸入資料之縣市 及 區的氣象站，例如：台北市大安區。 查詢輸入之經緯度比對出最近的氣象站
+                currentPosition = [float(Latitude),float(Longitude)]
+                observation_station_Position = [float(observation['StationLatitude']),float(observation['StationLongitude'])]
+                Distance = distance.euclidean(currentPosition,observation_station_Position) # 計算兩點距離的平方差
+                if(nearestRange > Distance):
+                    nearestRange = Distance # 與使用者經緯度最近的觀測站之最短短距離
                     stationID = observation['StationID'] # 地區ID ex : 雲林縣斗六市 -> C0K400
-                else:
-                    # 比對不到輸入資料之縣市 及 區的氣象站，例如：台北市大安區。 查詢輸入之經緯度比對出最近的氣象站
-                    currentPosition = [float(Latitude),float(Longitude)]
-                    observation_station_Position = [float(observation['StationLatitude']),float(observation['StationLongitude'])]
-                    Distance = distance.euclidean(currentPosition,observation_station_Position) # 計算兩點距離的平方差
-                    if(nearestRange > Distance):
-                        nearestRange = Distance # 與使用者經緯度最近的觀測站之最短短距離
-                        stationID = observation['StationID'] # 地區ID ex : 雲林縣斗六市 -> C0K400
 
             # 讀取自動氣象站-氣象觀測資料
             data_from_observation_station = requests.get(f'https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0001-001?Authorization=CWB-B8C9C901-A011-4D54-B09F-4FC5220B76D9&stationId={stationID}').json()
