@@ -31,11 +31,7 @@ security = HTTPBearer()
 2.資料來源:全國五大超商資料集
     https://data.gov.tw/dataset/32086
 """
-class Gas_Station(BaseModel):
-    #CurrentLat:目前緯度 、CurrentLng:目前經度 、Type: 加盟站 or 自營站
-    CurrentLat:float
-    CurrentLng:float
-    Type:str
+
 def get_Gas_Station_LatLng(CurrentLat:str,CurrentLng:str,Type:str):
     
     #Points_After_Output:存半徑 N 公里生成的點、match_Station:存符合資格的站點
@@ -65,24 +61,23 @@ def get_Gas_Station_LatLng(CurrentLat:str,CurrentLng:str,Type:str):
                     Distance = distance.euclidean(currentPosition,gas_station_Position) # 計算兩點距離的平方差               
                     if(nearestRange > Distance):   
                         nearestRange = Distance # 與使用者經緯度最近的觀測站之最短短距離
-                        nearestData = {"最近距離":nearestRange,"座標":[float(row[24]), float(row[23])]}
+                        nearestData = {"最近距離":nearestRange,"座標":[float(row[24]), float(row[23])],"地址":row[3]+row[4]+row[5]}
             except:
                 pass
     return nearestData    
-@router.post("/QuickSearch/GasStation")
-async def gasStation(gas:Gas_Station, token: HTTPAuthorizationCredentials = Depends(security)):
-    # Token.verifyToken(token.credentials,"user") # JWT驗證
+@router.get("/QuickSearch/GasStation")
+async def gasStation(CurrentLat:str,CurrentLng:str,Type:str, token: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    Type 加油站類型：直營站 or 加盟站
+    """
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
     Url = []
     # print(get_Gas_Station_LatLng(gas.CurrentLat,gas.CurrentLng,gas.Type)['座標'])
-    Url.append("https://www.google.com/maps/dir/?api=1&destination="+ str(get_Gas_Station_LatLng(gas.CurrentLat,gas.CurrentLng,gas.Type)['座標'][0]) +","+str(get_Gas_Station_LatLng(gas.CurrentLat,gas.CurrentLng,gas.Type)['座標'][1])+"&travelmode=driving&dir_action=navigate")
+    Url.append("https://www.google.com/maps/dir/?api=1&destination="+ str(get_Gas_Station_LatLng(CurrentLat,CurrentLng,Type)['地址']) +"&travelmode=driving&dir_action=navigate")
     return Url
 
 
-class ConvenientStore(BaseModel):
-    #CurrentLat:目前緯度 、CurrentLng:目前經度 
-    CurrentLat:float
-    CurrentLng:float  
 def get_ConvenientStore(CurrentLat:str,CurrentLng:str):
     #Points_After_Output:存半徑 N 公里生成的點、match_Station:存符合資格的站點
     Points_After_Output = []
@@ -90,7 +85,8 @@ def get_ConvenientStore(CurrentLat:str,CurrentLng:str):
     nearestData = {}
 
     # 目前用戶經緯度
-    currentUserPosition = [CurrentLat,CurrentLng]
+    currentUserPosition = [float(CurrentLat),float(CurrentLng)]
+    
     
     # 連線MongoDB
     collection = MongoDB.getCollection("TrafficHero","ConvenientStore")
@@ -113,18 +109,18 @@ def get_ConvenientStore(CurrentLat:str,CurrentLng:str):
 
                 #  經緯度比對出最近的便利超商
                 convenientStorePosition = [float(data.get('LatLng').get('lat')),float(data.get('LatLng').get('lng'))]
-                Distance = distance.euclidean(currentUserPosition,convenientStorePosition) # 計算兩點距離的平方差     
+                Distance = distance.euclidean(convenientStorePosition,currentUserPosition) # 計算兩點距離的平方差     
                 if(nearestRange > Distance):   
                     nearestRange = Distance # 與使用者經緯度最近的觀測站之最短短距離
-                    nearestData = {"最近距離":nearestRange,"座標":convenientStorePosition}
+                    nearestData = {"最近距離":nearestRange,"座標":convenientStorePosition,"地址":data.get('地址')}
 
     return nearestData
-@router.post("/QuickSearch/ConvenientStore")
-async def convenientStore(convenient:ConvenientStore, token: HTTPAuthorizationCredentials = Depends(security)):
-    # Token.verifyToken(token.credentials,"user") # JWT驗證
+@router.get("/QuickSearch/ConvenientStore")
+async def convenientStore(CurrentLat:str,CurrentLng:str, token: HTTPAuthorizationCredentials = Depends(security)):
+    Token.verifyToken(token.credentials,"user") # JWT驗證
 
     Url = []
     # print(get_ConvenientStore(convenient.CurrentLat,convenient.CurrentLng)['座標'])
-    Url.append("https://www.google.com/maps/dir/?api=1&destination="+ str(get_ConvenientStore(convenient.CurrentLat,convenient.CurrentLng)['座標'][0]) +","+str(get_ConvenientStore(convenient.CurrentLat,convenient.CurrentLng)['座標'][1])+"&travelmode=driving&dir_action=navigate")
+    Url.append("https://www.google.com/maps/dir/?api=1&destination="+ str(get_ConvenientStore(CurrentLat,CurrentLng)['地址']) +"&travelmode=driving&dir_action=navigate")
     return Url
 
