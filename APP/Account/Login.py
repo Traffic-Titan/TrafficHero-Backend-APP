@@ -14,12 +14,12 @@ class LoginModel(BaseModel):
     email: EmailStr
     password: str
 
-@router.post("/Login",summary="會員登入")
+@router.post("/Login",summary="會員登入(Dev)")
 async def login(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 連線MongoDB
-    collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("traffic_hero","user_data")
     
     # 如果查詢結果為None，表示無此帳號
     result = collection.find_one({"email": user.email})

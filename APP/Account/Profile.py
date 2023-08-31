@@ -23,12 +23,12 @@ class ProfileModel(BaseModel):
     birthday: Optional[str]
     google_id: str = None
 
-@router.get("/Profile",summary="【Read】會員資料")
+@router.get("/Profile",summary="【Read】會員資料(Dev)")
 async def viewProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 取得使用者資料
-    collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("traffic_hero","user_data")
     result = collection.find_one({"email": payload["data"]["email"]})
     data = {
         "name": result["name"] if "name" in result else None,
@@ -41,12 +41,12 @@ async def viewProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer()
     
     return data
 
-@router.put("/Profile",summary="【Update】會員資料")
+@router.put("/Profile",summary="【Update】會員資料(Dev)")
 async def updateProfile(user: ProfileModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 取得使用者資料
-    collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("traffic_hero","user_data")
     result = collection.find_one({"email": payload["data"]["email"]})
     
     # 更新使用者資料
@@ -60,12 +60,12 @@ async def updateProfile(user: ProfileModel, token: HTTPAuthorizationCredentials 
     
     return {"message": "會員資料更新成功"}
 
-@router.delete("/Profile",summary="【Delete】會員資料")
+@router.delete("/Profile",summary="【Delete】會員資料(Dev)")
 async def deleteProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 刪除使用者資料
-    collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("traffic_hero","user_data")
     collection.delete_one({"email": payload["data"]["email"]})
     
     return {"message": "會員刪除成功"}
@@ -79,7 +79,7 @@ async def updateEmail(user: UpdateEmailModel, token: HTTPAuthorizationCredential
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
 
     # Email驗證
-    collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("traffic_hero","user_data")
     if user.old_email == payload["data"]["email"]:
         # 生成驗證碼、寄送郵件、存到資料庫
         verification_code = Code.generateCode()

@@ -14,12 +14,12 @@ class VerifyCodeModel(BaseModel):
     email: EmailStr
     code : str = Field(min_length=6)
 
-@router.post("/VerifyCode",summary="驗證碼驗證")
+@router.post("/VerifyCode",summary="驗證碼驗證(Dev)")
 async def verifyCode(user: VerifyCodeModel, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 檢查電子郵件是否存在於資料庫中
-    collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("traffic_hero","user_data")
     result = collection.find_one({"email": user.email})
     if result is None:
         raise HTTPException(status_code=404, detail="此電子郵件不存在")

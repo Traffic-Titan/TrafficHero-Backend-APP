@@ -14,12 +14,12 @@ class LoginModel(BaseModel):
     email: EmailStr
     google_id: str
 
-@router.post("/GoogleSSO",summary="使用Google帳號登入(含註冊、綁定判斷)")
+@router.post("/GoogleSSO",summary="使用Google帳號登入(含註冊、綁定判斷)(Dev)")
 async def googleSSO(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 連線MongoDB
-    collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("traffic_hero","user_data")
     
     # 如果查詢結果為None，表示無此帳號
     result = collection.find_one({"email": user.email})

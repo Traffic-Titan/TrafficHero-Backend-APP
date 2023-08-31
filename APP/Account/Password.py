@@ -17,12 +17,12 @@ class ChangePasswordModel(BaseModel):
     old_password: str
     new_password: str
     
-@router.put("/ChangePassword",summary="更改密碼")
+@router.put("/ChangePassword",summary="更改密碼(Dev)")
 async def changePassword(user: ChangePasswordModel, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 連線MongoDB
-    collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("traffic_hero","user_data")
 
     # 查詢使用者記錄，同時驗證舊密碼和Token的有效性
     result = collection.find_one({
@@ -51,12 +51,12 @@ class ForgetPasswordModel(BaseModel):
     email: EmailStr
     birthday: str
 
-@router.post("/ForgotPassword",summary="忘記密碼")
+@router.post("/ForgotPassword",summary="忘記密碼(Dev)")
 async def forgotPassword(user: ForgetPasswordModel, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 檢查電子郵件是否存在於資料庫中
-    collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("traffic_hero","user_data")
     result = collection.find_one({"email": user.email, "email_confirmed": True, "birthday": user.birthday})
     if result is None:
         raise HTTPException(status_code=404, detail="查無此帳號，請重新輸入")

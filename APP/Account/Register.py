@@ -24,12 +24,12 @@ class ProfileModel(BaseModel):
     google_id: str
     google_avatar: str
 
-@router.post("/Register",summary="會員註冊")
+@router.post("/Register",summary="會員註冊(Dev)")
 async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 連線MongoDB
-    collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("traffic_hero","user_data")
 
     # 檢查 Email 是否已經存在
     if collection.find_one({"email": user.email}, {"email_confirmed": True}):
@@ -38,7 +38,7 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
     # 對密碼進行Hash處理
     hashed_password = hashlib.sha256(user.password.encode()).hexdigest()
 
-    if user.google_id is None: # 一般註冊
+    if user.google_id == "": # 一般註冊
         # 建立新的使用者文件
         data = {
                 "name": user.name, 
