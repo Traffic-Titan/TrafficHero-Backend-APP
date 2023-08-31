@@ -29,7 +29,7 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 連線MongoDB
-    collection = MongoDB.getCollection("0_APP","0.Users")
+    collection = MongoDB.getCollection("traffic_hero","user_data")
 
     # 檢查 Email 是否已經存在
     if collection.find_one({"email": user.email}, {"email_confirmed": True}):
