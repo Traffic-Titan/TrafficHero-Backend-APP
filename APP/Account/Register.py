@@ -38,7 +38,7 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
     # 對密碼進行Hash處理
     hashed_password = hashlib.sha256(user.password.encode()).hexdigest()
 
-    if user.google_id is None: # 一般註冊
+    if user.google_id == "": # 一般註冊
         # 建立新的使用者文件
         data = {
                 "name": user.name, 
