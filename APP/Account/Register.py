@@ -24,7 +24,7 @@ class ProfileModel(BaseModel):
     google_id: str
     google_avatar: str
 
-@router.post("/Register",summary="會員註冊")
+@router.post("/Register",summary="會員註冊(Dev)")
 async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     

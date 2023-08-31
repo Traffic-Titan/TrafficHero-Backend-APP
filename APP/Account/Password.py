@@ -17,7 +17,7 @@ class ChangePasswordModel(BaseModel):
     old_password: str
     new_password: str
     
-@router.put("/ChangePassword",summary="更改密碼")
+@router.put("/ChangePassword",summary="更改密碼(Dev)")
 async def changePassword(user: ChangePasswordModel, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
@@ -51,7 +51,7 @@ class ForgetPasswordModel(BaseModel):
     email: EmailStr
     birthday: str
 
-@router.post("/ForgotPassword",summary="忘記密碼")
+@router.post("/ForgotPassword",summary="忘記密碼(Dev)")
 async def forgotPassword(user: ForgetPasswordModel, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     

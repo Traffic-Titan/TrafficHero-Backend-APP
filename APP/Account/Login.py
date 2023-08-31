@@ -14,7 +14,7 @@ class LoginModel(BaseModel):
     email: EmailStr
     password: str
 
-@router.post("/Login",summary="會員登入")
+@router.post("/Login",summary="會員登入(Dev)")
 async def login(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     

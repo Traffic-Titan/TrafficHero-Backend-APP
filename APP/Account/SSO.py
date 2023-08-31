@@ -14,7 +14,7 @@ class LoginModel(BaseModel):
     email: EmailStr
     google_id: str
 
-@router.post("/GoogleSSO",summary="使用Google帳號登入(含註冊、綁定判斷)")
+@router.post("/GoogleSSO",summary="使用Google帳號登入(含註冊、綁定判斷)(Dev)")
 async def googleSSO(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     

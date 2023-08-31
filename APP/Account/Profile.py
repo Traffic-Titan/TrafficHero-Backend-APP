@@ -23,7 +23,7 @@ class ProfileModel(BaseModel):
     birthday: Optional[str]
     google_id: str = None
 
-@router.get("/Profile",summary="【Read】會員資料")
+@router.get("/Profile",summary="【Read】會員資料(Dev)")
 async def viewProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
@@ -41,7 +41,7 @@ async def viewProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer()
     
     return data
 
-@router.put("/Profile",summary="【Update】會員資料")
+@router.put("/Profile",summary="【Update】會員資料(Dev)")
 async def updateProfile(user: ProfileModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
@@ -60,7 +60,7 @@ async def updateProfile(user: ProfileModel, token: HTTPAuthorizationCredentials 
     
     return {"message": "會員資料更新成功"}
 
-@router.delete("/Profile",summary="【Delete】會員資料")
+@router.delete("/Profile",summary="【Delete】會員資料(Dev)")
 async def deleteProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     

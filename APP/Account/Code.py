@@ -14,7 +14,7 @@ class VerifyCodeModel(BaseModel):
     email: EmailStr
     code : str = Field(min_length=6)
 
-@router.post("/VerifyCode",summary="驗證碼驗證")
+@router.post("/VerifyCode",summary="驗證碼驗證(Dev)")
 async def verifyCode(user: VerifyCodeModel, token: HTTPAuthorizationCredentials = Depends(security)):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
