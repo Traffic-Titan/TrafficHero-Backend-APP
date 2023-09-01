@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends , HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import Service.Token as Token
 from Main import MongoDB # 引用MongoDB連線實例
@@ -8,6 +8,7 @@ import Function.Area as Area
 import time
 import httpx
 import asyncio
+from typing import Optional
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 security = HTTPBearer()
@@ -88,3 +89,54 @@ def codeToText(code : str): # 類別轉換
             return "機車"
         case "O":
             return "其他(如拖車)"
+
+class Vehicle(BaseModel):
+    license_plate_number: str
+    type: Optional[str]
+
+@router.get("/Vehicle", summary="【Read】取得使用者車牌資料")
+async def getVehicleInfo(token: HTTPAuthorizationCredentials = Depends(security)):
+    payload = Token.verifyToken(token.credentials,"user") # JWT驗證
+    
+    collection = MongoDB.getCollection("traffic_hero","user_data") # 連線MongoDB
+    result = collection.find_one({"email":  payload["data"]["email"]}, {"_id": 0, "vehicle": 1})
+    
+    return result
+
+@router.post("/Vehicle", summary="【Create】新增使用者車牌資料")
+async def setVehicleInfo(data: Vehicle, token: HTTPAuthorizationCredentials = Depends(security)):
+    payload = Token.verifyToken(token.credentials, "user")  # JWT驗證
+    
+    collection = MongoDB.getCollection("traffic_hero", "user_data")  # 連線MongoDB
+    
+    if collection.find_one({"email": payload["data"]["email"], "vehicle": {"$elemMatch": {"license_plate_number": data.license_plate_number}}}) is not None:
+        raise HTTPException(status_code=400, detail="車牌號碼已存在")
+    
+    if data.type not in ["C", "M", "O"]:
+        raise HTTPException(status_code=400, detail="車輛類別錯誤")
+    
+    # 使用 $push 將車牌資料加入到 "vehicle" 陣列中
+    result = collection.update_one(
+        {"email": payload["data"]["email"]},
+        {"$push": {"vehicle": data.dict()}}
+    )
+    
+    if result.modified_count > 0:
+        return {"message": "新增車牌資料成功"}
+    else:
+        return {"message": "新增車牌資料失敗"}
+
+@router.delete("/Vehicle", summary="【Delete】刪除使用者車牌資料")
+async def deleteVehicleInfo(data: Vehicle,token: HTTPAuthorizationCredentials = Depends(security)):
+    payload = Token.verifyToken(token.credentials, "user")  # JWT驗證
+    
+    collection = MongoDB.getCollection("traffic_hero", "user_data")  # 連線MongoDB
+    result = collection.update_one(
+        {"email": payload["data"]["email"]},
+        {"$pull": {"vehicle": {"license_plate_number": data.license_plate_number, "type": data.type}}}
+    )
+    
+    if result.modified_count > 0:
+        return {"message": "刪除車牌資料成功"}
+    else:
+        return {"message": "找不到符合條件的車牌資料，無法刪除"}
