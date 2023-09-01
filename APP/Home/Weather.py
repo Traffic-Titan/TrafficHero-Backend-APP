@@ -15,7 +15,7 @@ from scipy.spatial import distance
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 security = HTTPBearer()
 
-@router.get("/Weather_selenium", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
+# @router.get("/Weather_selenium", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
 async def weather_selenium(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     Longitude: 經度, Latitude: 緯度\n\n
@@ -77,7 +77,7 @@ async def weather_selenium(Longitude: str, Latitude: str, token: HTTPAuthorizati
     except ET.ParseError as e:
         return {"error": f"XML parse error: {e}"}
     
-@router.get("/Weather_API", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
+@router.get("/Weather", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
 async def weather_api(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     Longitude: 經度, Latitude: 緯度\n\n
@@ -91,10 +91,9 @@ async def weather_api(Longitude: str, Latitude: str, token: HTTPAuthorizationCre
     4. 自動氣象站資料集說明檔\n
         https://opendata.cwb.gov.tw/opendatadoc/DIV2/A0001-001.pdf
     """
-    # Token.verifyToken(token.credentials,"user") # JWT驗證
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     currentTime = datetime.datetime.now() # 取得目前的時間
-    # timeInterval = [datetime.datetime.strptime(str(datetime.datetime.now().date())+'00:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'03:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'06:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'09:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'12:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'15:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'18:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'21:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'23:59','%Y-%m-%d%H:%M%S')] # 中央氣象局上時間的區間分配
-
+    
     try:
         # Initial
         currentTemperature = ""
@@ -120,19 +119,6 @@ async def weather_api(Longitude: str, Latitude: str, token: HTTPAuthorizationCre
         observation_station_unmanned =  requests.get('https://opendata.cwb.gov.tw/api/v1/rest/datastore/C-B0074-002?Authorization=CWB-B8C9C901-A011-4D54-B09F-4FC5220B76D9&status=%E7%8F%BE%E5%AD%98%E6%B8%AC%E7%AB%99').json()
         if(observation_station_unmanned["result"] is not None):
             for observation in observation_station_unmanned['records']["data"]["stationStatus"]['station']:
-                
-                # address = str(observation['Location']) # 取得完整地址
-                # if(address[2] != '區' and address[2] != '鄉' and address[2] != '市' and address[2] != '鎮'and address[2]!= '縣'): # 針對資料作處理以取得正確的鄉、鎮
-                # # districtName : 區的完整名稱 ex : 梅山鄉、阿里山鄉、國道3號
-                #     districtName = (observation['Location'][0:4])
-                # else:
-                #     districtName = (observation['Location'][0:3])
-
-                # if((root.find("ctyName").text == observation['CountyName']) and (root.find("townName").text == districtName)): # 比對輸入資料之縣市 區域
-                #     stationID = observation['StationID'] # 地區ID ex : 雲林縣斗六市 -> C0K400
-                #     break
-                # else:
-
                 # 比對不到輸入資料之縣市 及 區的氣象站，例如：台北市大安區。 查詢輸入之經緯度比對出最近的氣象站
                 currentPosition = [float(Latitude),float(Longitude)]
                 observation_station_Position = [float(observation['StationLatitude']),float(observation['StationLongitude'])]
@@ -155,27 +141,31 @@ async def weather_api(Longitude: str, Latitude: str, token: HTTPAuthorizationCre
                         weatherDescription = data['elementValue'] # 目前氣象描述
                 stationName = data_from_observation_station['records']['location'][0]['locationName'] # 觀測站名稱
                 result_stationID = data_from_observation_station['records']['location'][0]['stationId'] # 觀測站名稱
-
-                
-        # # 有人氣象測站
-        # observation_station_manned = requests.get('https://opendata.cwb.gov.tw/api/v1/rest/datastore/C-B0074-001?Authorization=CWB-B8C9C901-A011-4D54-B09F-4FC5220B76D9&status=%E7%8F%BE%E5%AD%98%E6%B8%AC%E7%AB%99').json()
-        # if(observation_station_unmanned["result"] is not None):
-        #     for data in observation_station_manned['records']["data"]["stationStatus"]['station']:
-        #         address = str(data['Location']) # 取得完整地址
-        #         if(address[2] != '區' and address[2] != '鄉' and address[2] != '市' and address[2] != '鎮'and address[2]!= '縣'): # 針對資料作處理以取得正確的鄉、鎮
-        #         # districtName : 區的完整名稱 ex : 梅山鄉、阿里山鄉、國道3號
-        #             districtName = (data['Location'][0:4])
-        #         else:
-        #             districtName = (data['Location'][0:3])
-        #         if(root.find("ctyName").text == data['CountyName'] and root.find("townName").text == districtName): # 比對輸入資料之縣市 區域
-        #             stationID = data['StationID'] # 地區ID ex : 雲林縣斗六市 -> C0K400
-        #             observation_station_Lng = data['StationLongitude'] # 該觀測站經度
-        #             observation_station_Lat = data['StationLatitude'] # 該觀測站緯度
-                    
-        return {"Area": f'{root.find("ctyName").text}{root.find("townName").text}', "URL": f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={TownID}","Temperature":round(currentTemperature),"Lowest Temperature":round(temperatureInterval_Low),"Highest Temperature":round(temperatureInterval_High),"目前天氣狀況":weatherDescription,"觀測站":stationName,"觀測站ID":result_stationID}
+        
+        result = {
+            "area": f'{root.find("ctyName").text}{root.find("townName").text}',
+            "url": f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={TownID}",
+            "temperature": round(currentTemperature),
+            "the_lowest_temperature": round(temperatureInterval_Low),
+            "the_highest_temperature": round(temperatureInterval_High),
+            "weather": weatherDescription,
+            "weather_icon_url": getWeatherIcon(weatherDescription),
+            # "觀測站":stationName, # (Dev)
+            # "觀測站ID":result_stationID # (Dev)
+        }
+            
+        return result
         
     except requests.exceptions.RequestException as e:
         return {"error": f"Request error: {e}"}
-    
     except ET.ParseError as e:
         return {"error": f"XML parse error: {e}"}
+    
+def getWeatherIcon(weather: str): # 待辦: 資料庫存取、更多天氣狀況
+    match weather[0]: # 取得第一個字
+        case "晴":
+            return "https://cdn2.iconfinder.com/data/icons/weather-color-2/500/weather-01-256.png"
+        case "多": # 多雲
+            return "https://cdn2.iconfinder.com/data/icons/weather-color-2/500/weather-02-256.png"
+        case "陰":
+            return "https://cdn3.iconfinder.com/data/icons/tiny-weather-1/512/cloud-256.png"
