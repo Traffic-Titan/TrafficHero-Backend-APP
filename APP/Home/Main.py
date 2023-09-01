@@ -68,7 +68,7 @@ def get_Gas_Station_LatLng(CurrentLat:str,CurrentLng:str,Type:str):
 @router.get("/QuickSearch/GasStation")
 async def gasStation(CurrentLat:str,CurrentLng:str,Type:str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
-    Type 加油站類型：直營站 or 加盟站
+    Type 加油站類型：自營站 or 加盟站
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
