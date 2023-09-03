@@ -40,6 +40,17 @@ def getCountry(title:str,matchName:str):
 
 @router.put("/ProvincialHighway",summary="【Update】最新消息-省道")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    一、資料來源: \n
+            1. 交通部運輸資料流通服務平臺(TDX) - 省道最新消息資料 v2
+                https://tdx.transportdata.tw/api-service/swagger/basic/7f07d940-91a4-495d-9465-1c9df89d709c#/HighwayTraffic/Live_News_Highway \n
+    二、Input \n
+            1. 
+    三、Output \n
+            1. 
+    四、說明 \n
+            1.
+    """
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
     collection.drop() # 刪除該collection所有資料

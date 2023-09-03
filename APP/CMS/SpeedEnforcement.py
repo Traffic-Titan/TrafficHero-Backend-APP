@@ -8,12 +8,12 @@ import json
 from Main import MongoDB # 引用MongoDB連線實例
 from pymongo import InsertOne
 
-"""
-1.資料來源:政府資料開放平臺-測速執法設置點
-    https://data.gov.tw/dataset/7320
-"""
-
 def getData():
+    """
+    一、資料來源: \n
+            1. 政府資料開放平臺 - 測速執法設置點 \n
+                https://data.gov.tw/dataset/7320
+    """
     # 取得資料
     url = "https://od.moi.gov.tw/api/v1/rest/datastore/A01010000C-000674-011"
     data = json.load(request.urlopen(url))

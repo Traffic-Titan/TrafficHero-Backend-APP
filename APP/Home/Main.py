@@ -24,14 +24,6 @@ router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 
 security = HTTPBearer()
 
-"""
-1.資料來源:加油站服務資訊
-    https://data.gov.tw/dataset/6065
-
-2.資料來源:全國五大超商資料集
-    https://data.gov.tw/dataset/32086
-"""
-
 def get_Gas_Station_LatLng(CurrentLat:str,CurrentLng:str,Type:str):
     
     #Points_After_Output:存半徑 N 公里生成的點、match_Station:存符合資格的站點
@@ -66,11 +58,17 @@ def get_Gas_Station_LatLng(CurrentLat:str,CurrentLng:str,Type:str):
                 pass
     return nearestData    
 @router.get("/QuickSearch/GasStation")
-async def gasStation(CurrentLat:str,CurrentLng:str,Type:str, token: HTTPAuthorizationCredentials = Depends(security)):
+async def gasStation(CurrentLat:str,CurrentLng:str,Type:str, token: HTTPAuthorizationCredentials = Depends(security)):  
     """
-    Type 加油站類型：直營站 or 加盟站
-    資料來源：
-        1.
+    一、資料來源: \n
+            1. 政府資料開放平臺 - 加油站服務資訊
+                https://data.gov.tw/dataset/6065 \n
+    二、Input \n
+            1. Type 加油站類型：直營站 or 加盟站
+    三、Output \n
+            1. 
+    四、說明 \n
+            1.
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
@@ -120,8 +118,15 @@ def get_ConvenientStore(CurrentLat:str,CurrentLng:str):
 @router.get("/QuickSearch/ConvenientStore")
 async def convenientStore(CurrentLat:str,CurrentLng:str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
-    資料來源：
-        1.全國5大超商：https://data.gov.tw/dataset/32086
+    一、資料來源: \n
+            1. 政府資料開放平臺 - 全國5大超商資料集
+                https://data.gov.tw/dataset/32086 \n
+    二、Input \n
+            1. 
+    三、Output \n
+            1. 
+    四、說明 \n
+            1.
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
 

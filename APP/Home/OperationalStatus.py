@@ -11,9 +11,19 @@ security = HTTPBearer()
 @router.get("/Operationalstatus", summary="【Read】大眾運輸-營運狀況(Dev)") # 先初步以北中南東離島分類，以後再依照縣市分類
 async def operationalstatus(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
-    green: 正常營運
-    yellow: 部分營運
-    red: 停止營運
+    一、資料來源: \n
+            1. 交通部運輸資料流通服務平臺(TDX)
+                資料類型: 營運通阻
+                https://tdx.transportdata.tw/data-service/basic/ \n
+    二、Input \n
+            1. 
+    三、Output \n
+            1. 
+    四、說明 \n
+            1.status:
+                green: 正常營運
+                yellow: 部分營運
+                red: 停止營運
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
