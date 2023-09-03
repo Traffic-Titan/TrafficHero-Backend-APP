@@ -64,6 +64,7 @@ app.include_router(GoogleMaps.router)
 app.include_router(TDX.router)
 app.include_router(Token.router)
 
+
 # 0.會員管理(APP)
 from APP.Account import Login, Register, SSO, Code, Password, Profile
 app.include_router(Login.router)
@@ -91,8 +92,9 @@ app.include_router(Scooter.router)
 app.include_router(PublicTransport.router)
 
 # 3.即時訊息推播(APP)
-from APP.CMS import Main
+from APP.CMS import Main,PBS
 app.include_router(Main.router)
+app.include_router(PBS.router)
 
 # 4-1.道路資訊(APP)
 from APP.RoadInformation import Main
