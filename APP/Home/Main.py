@@ -68,7 +68,9 @@ def get_Gas_Station_LatLng(CurrentLat:str,CurrentLng:str,Type:str):
 @router.get("/QuickSearch/GasStation")
 async def gasStation(CurrentLat:str,CurrentLng:str,Type:str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
-    Type 加油站類型：自營站 or 加盟站
+    Type 加油站類型：直營站 or 加盟站
+    資料來源：
+        1.
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
@@ -79,7 +81,7 @@ async def gasStation(CurrentLat:str,CurrentLng:str,Type:str, token: HTTPAuthoriz
 
 
 def get_ConvenientStore(CurrentLat:str,CurrentLng:str):
-    #Points_After_Output:存半徑 N 公里生成的點、match_Station:存符合資格的站點
+    #Points_After_Output:存半徑 N 公里生成的點
     Points_After_Output = []
     nearestRange = 1
     nearestData = {}
@@ -117,6 +119,10 @@ def get_ConvenientStore(CurrentLat:str,CurrentLng:str):
     return nearestData
 @router.get("/QuickSearch/ConvenientStore")
 async def convenientStore(CurrentLat:str,CurrentLng:str, token: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    資料來源：
+        1.全國5大超商：https://data.gov.tw/dataset/32086
+    """
     Token.verifyToken(token.credentials,"user") # JWT驗證
 
     Url = []

@@ -4,10 +4,11 @@
 3. 部分座標資料有誤，尚待修正 (需考慮是否要使用geocode)
 4. NLP Function尚未重構
 """
-
+from fastapi import APIRouter, Depends, HTTPException
 from urllib import request
 import json
 from Main import MongoDB # 引用MongoDB連線實例
+from Service.ChatGPT import chatGPT
 import requests
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
@@ -16,6 +17,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
+router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/PBS")
 
 #讀取警廣API資料
 """
@@ -36,8 +38,9 @@ def getData():
             "Road" : i['road'],
             "RoadCondition" : i['comment'],
             "Direction" : i['direction'],
-            "Lat" : i['y1'],
-            "Lng" : i['x1'],
+            "Latitude" : i['y1'],
+            "Longitude" : i['x1'],
+            # "OpenAI_Process": chatGPT(i['comment'],"。請用10~15字整理重點")
 
             # "_id": i,
             # "type": "道路施工",
