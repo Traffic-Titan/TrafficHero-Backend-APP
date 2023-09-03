@@ -17,9 +17,15 @@ collection = MongoDB.getCollection("traffic_hero","news_public_bicycle")
 @router.put("/PublicBicycle",summary="【Update】最新消息-公共自行車")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     """
-    縣市列表：臺北市、新北市、桃園市、新竹縣、新竹市、新竹科學園區、苗栗縣、台中市、嘉義市、臺南市、高雄市、屏東縣
-
-    YouBike最新消息：https://www.youbike.com.tw/region/main/news/status/
+    一、資料來源: \n
+            1. YouBike微笑單車 - 最新消息 - 站點公告
+                https://www.youbike.com.tw/region/main/news/status/ \n
+    二、Input \n
+            1. 縣市列表：臺北市、新北市、桃園市、新竹縣、新竹市、新竹科學園區、苗栗縣、台中市、嘉義市、臺南市、高雄市、屏東縣
+    三、Output \n
+            1. 
+    四、說明 \n
+            1.
     """
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     

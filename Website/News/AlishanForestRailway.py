@@ -13,6 +13,17 @@ collection = MongoDB.getCollection("traffic_hero","news_alishan_forest_railway")
 
 @router.put("/AlishanForestRailway",summary="【Update】最新消息-阿里山林業鐵路")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    一、資料來源: \n
+            1. 交通部運輸資料流通服務平臺(TDX) - 阿里山林業鐵路最新消息 v3
+                https://tdx.transportdata.tw/api-service/swagger/basic/5fa88b0c-120b-43f1-b188-c379ddb2593d#/AFR/LiteTrain_News_3291 \n
+    二、Input \n
+            1. 
+    三、Output \n
+            1. 
+    四、說明 \n
+            1.
+    """
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
     collection.drop() # 刪除該collection所有資料

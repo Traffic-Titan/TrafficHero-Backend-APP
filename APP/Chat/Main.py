@@ -10,6 +10,17 @@ security = HTTPBearer()
 
 @router.get("/ChatGPT",summary="ChatGPT(Dev)")
 async def ChatGPT(str:str,token: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    一、資料來源: \n
+            1. OpenAI API
+                https://platform.openai.com/docs/introduction \n
+    二、Input \n
+            1. 
+    三、Output \n
+            1. 
+    四、說明 \n
+            1.
+    """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     openai.api_key = app_id = os.getenv('OpenAI_Key')

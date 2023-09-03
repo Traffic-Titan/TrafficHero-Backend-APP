@@ -10,13 +10,13 @@ from Service.GoogleMaps import *
 import json
 from urllib import request
 
-"""
-1.資料來源:臺北市智慧管理科技執法設備資料表
-    https://data.taipei/dataset/detail?id=986fa73e-c470-4ebf-9f35-3a1c9d2a8788
-"""
-
 #轉換"臺北市"科技執法的經緯度
 def getData():
+    """
+    一、資料來源: \n
+            1. 臺北市資料大平臺- 臺北市智慧管理科技執法設備資料表 \n
+                https://data.taipei/dataset/detail?id=986fa73e-c470-4ebf-9f35-3a1c9d2a8788
+    """
     # 臺北市
     url = "https://data.taipei/api/v1/dataset/2e499797-1233-48d9-b7b5-092b6bdd5081?scope=resourceAquire"
     data = json.load(request.urlopen(url))

@@ -16,10 +16,15 @@ security = HTTPBearer()
 @router.get("/ParkingFee", summary="【Read】取得各縣市路邊停車費查詢(Dev)")
 async def parkingFee(license_plate_number: str, type: str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
-    資料來源:全國路邊停車費查詢API
-    https://tdx.transportdata.tw/api-service/parkingFee
-    
-    類別: C：汽車；M：機車；O：其他(如拖車)
+    一、資料來源: \n
+            1. 交通部運輸資料流通服務平臺(TDX) - 路邊停車費查詢API
+                https://tdx.transportdata.tw/api-service/parkingFee \n
+    二、Input \n
+            1. 類別: C：汽車；M：機車；O：其他(如拖車)
+    三、Output \n
+            1. 
+    四、說明 \n
+            1.
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
 

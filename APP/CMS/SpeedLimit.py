@@ -7,17 +7,16 @@ import re
 import time
 from Main import MongoDB # 引用MongoDB連線實例
 
-"""
-1.資料來源:快速公路通車情形與速限統計表
-    https://data.gov.tw/dataset/26376
-2.資料來源:國道行車速限
-    https://data.gov.tw/dataset/40476
-3.資料來源:國道隧道里程
-    https://data.gov.tw/dataset/95069
-"""
-
 # 國道、快速道路限速
 def SpeedLimit():
+    """
+    一、資料來源: \n
+            1. 政府資料開放平臺 - 行車速限資訊 
+                https://data.gov.tw/dataset/40476 \n
+            2. 政府資料開放平臺 - 快速公路通車情形與速限統計表 
+                https://data.gov.tw/dataset/26376 \n
+    """
+
     documents = []
     collection = MongoDB.getCollection('TrafficHero','SpeedLimit_In_Each_Place')
     collection.drop()
@@ -73,6 +72,11 @@ def SpeedLimit():
 
 # 國道隧道
 def FreewayTunnel():
+    """
+    一、資料來源: \n
+            1. 政府資料開放平臺 - 國道隧道里程 \n
+                https://data.gov.tw/dataset/95069
+    """
     documents = []
     collection = MongoDB.getCollection('TrafficHero','FreeWay_Tunnel')
     collection.drop()

@@ -14,7 +14,15 @@ collection = MongoDB.getCollection("traffic_hero","news_freeway")
 @router.put("/Freeway",summary="【Update】最新消息-高速公路")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
     """
-    國道最新消息：https://1968.freeway.gov.tw/n_whatsup
+    一、資料來源: \n
+            1. 高速公路1968 - 最新消息
+                https://1968.freeway.gov.tw/n_whatsup \n
+    二、Input \n
+            1. 
+    三、Output \n
+            1. 
+    四、說明 \n
+            1.
     """
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     

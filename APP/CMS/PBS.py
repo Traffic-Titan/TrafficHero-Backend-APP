@@ -20,11 +20,14 @@ from selenium.webdriver.support.ui import Select
 router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/PBS")
 
 #讀取警廣API資料
-"""
-1.資料來源:警廣即時路況
-    https://data.gov.tw/dataset/15221
-"""
+
 def getData():
+    """
+    一、資料來源: \n
+            1. 政府資料開放平臺 - 警廣即時路況 \n
+                https://data.gov.tw/dataset/15221
+    """
+
     url="https://od.moi.gov.tw/MOI/v1/pbs"
     data =json.load(request.urlopen(url))
 
@@ -78,12 +81,14 @@ def getData():
     #     else:
     #         AfterNLP.delete_one(item)
 
-"""
-1.資料來源:開放路肩即時資料
-    https://1968.freeway.gov.tw/n_shline
-"""
-def getHardShoulder():
 
+def getHardShoulder():
+    """
+    一、資料來源: \n
+            1. 高速公路1968 - 開放路肩 \n
+                https://1968.freeway.gov.tw/n_shline
+    """
+    
     #Initial
     documents = []
 
