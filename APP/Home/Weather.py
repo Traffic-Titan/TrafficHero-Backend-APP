@@ -80,16 +80,19 @@ async def weather_selenium(Longitude: str, Latitude: str, token: HTTPAuthorizati
 @router.get("/Weather", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
 async def weather_api(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
-    Longitude: 經度, Latitude: 緯度\n\n
-    資料來源:
-    1. 中央氣象局官網\n
-        https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID=1000901 (ex: 雲林縣斗六市)
-    2. 單點坐標回傳行政區\n
-        https://data.gov.tw/dataset/101898
-    3. 自動氣象站-氣象觀測資料\n
-        https://opendata.cwb.gov.tw/dataset/observation/O-A0001-001
-    4. 自動氣象站資料集說明檔\n
-        https://opendata.cwb.gov.tw/opendatadoc/DIV2/A0001-001.pdf
+    一、資料來源: \n
+            1. 中央氣象局官網 (ex: 雲林縣斗六市)
+                https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID=1000901 \n
+            2. 政府資料開放平臺 - 單點坐標回傳行政區
+                https://data.gov.tw/dataset/101898 \n
+            3. 氣象資料開放平臺 - 自動氣象站-氣象觀測資料
+                https://opendata.cwb.gov.tw/dataset/observation/O-A0001-001 \n
+    二、Input \n
+            1. Longitude: 經度, Latitude: 緯度\n\n
+    三、Output \n
+            1. 
+    四、說明 \n
+            1.
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     currentTime = datetime.datetime.now() # 取得目前的時間

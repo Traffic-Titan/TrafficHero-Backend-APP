@@ -18,6 +18,19 @@ collection = MongoDB.getCollection("traffic_hero","news_bus")
 
 @router.put("/Bus",summary="【Update】最新消息-公車")
 async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)): 
+    """
+    一、資料來源: \n
+            1. 交通部運輸資料流通服務平臺(TDX)
+                資料類型: 最新消息
+                領域類型: 市區公車
+                https://tdx.transportdata.tw/data-service/basic/ \n
+    二、Input \n
+            1. 
+    三、Output \n
+            1. 
+    四、說明 \n
+            1.
+    """
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     
     collection.drop() # 刪除該collection所有資料
