@@ -10,6 +10,7 @@ import json
 from Main import MongoDB # 引用MongoDB連線實例
 from Service.ChatGPT import chatGPT
 import requests
+import Function.Blob as Blob
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
@@ -22,18 +23,40 @@ router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/PBS")
 #讀取警廣API資料
 
 def getData():
-    """
-    一、資料來源: \n
-            1. 政府資料開放平臺 - 警廣即時路況 \n
-                https://data.gov.tw/dataset/15221
-    """
 
     url="https://od.moi.gov.tw/MOI/v1/pbs"
     data =json.load(request.urlopen(url))
+    iconURL = ""
+    # typeArray = [] typeArray：存type所有類別
 
     # 將資料整理成MongoDB的格式
     documents = []
     for i in data:
+
+        # 判斷有哪些 roadtype
+        # if(i['roadtype'] not in typeArray):
+        #     typeArray.append(i['roadtype'])
+
+        # 根據 roadtype 決定iconURL
+        if(i['roadtype'] == "其他"):
+            iconURL = "https://reurl.cc/517eNM" 
+        elif(i['roadtype'] == "交通障礙"):
+            iconURL = "https://reurl.cc/N053eQ"
+        elif(i['roadtype'] == "道路施工"):
+            iconURL = "https://reurl.cc/aVpQy3"
+        elif(i['roadtype'] == "交通管制"):
+            iconURL = "https://reurl.cc/VLGKAy"
+        elif(i['roadtype'] == "阻塞"):
+            iconURL = "https://reurl.cc/DANaRE"
+        elif(i['roadtype'] == "號誌故障"):
+            iconURL = "https://reurl.cc/WGejex"
+        elif(i['roadtype'] == "災變"):
+            iconURL = "https://reurl.cc/WGepax"
+        elif(i['roadtype'] == "事故"):
+            iconURL = "https://reurl.cc/AAEGqd"
+        else:
+            iconURL = None
+        
         document = {
             "Time"  : i['modDttm'],
             "Type"  : i['roadtype'],
@@ -43,6 +66,7 @@ def getData():
             "Direction" : i['direction'],
             "Latitude" : i['y1'],
             "Longitude" : i['x1'],
+            "icon":Blob.urlToBlob(iconURL)
             # "OpenAI_Process": chatGPT(i['comment'],"。請用10~15字整理重點")
 
             # "_id": i,
@@ -54,7 +78,7 @@ def getData():
             # 'messageLevel': 2
         }
         documents.append(document)
-    
+
     # 將資料存入MongoDB  
     collection = MongoDB.getCollection("TrafficHero","PBS")
     collection.drop()
@@ -128,3 +152,35 @@ def getHardShoulder():
                 }
                 documents.append(document)
     collection.insert_many(documents)
+
+"""
+1.資料來源：臺北市即時交通訊息
+    https://data.taipei/dataset/detail?id=a6fae9f8-8d0f-4605-98ac-577388a7734f
+"""
+def getTaipeiRoadCondition():
+    
+    # URL連接
+    url="https://tcgbusfs.blob.core.windows.net/dotapp/news.json"
+    data =json.load(request.urlopen(url))
+
+    # 將資料整理成MongoDB的格式
+    documents = []
+    for i in data["News"]:
+        document = {
+            "標題"  : i['chtmessage'],
+            "開始時間"  : i['starttime'],
+            "結束時間" : i['endtime'],
+            "內容" : i['content'],
+            "URL" : i['url'],
+            # "Latitude" : i['y1'],
+            # "Longitude" : i['x1'],
+            # "OpenAI_Process": chatGPT(i['comment'],"。請用10~15字整理重點"
+            # "重要性":"1"
+        }
+        documents.append(document)
+    
+    # 連接DataBase，將資料存入MongoDB  
+    collection = MongoDB.getCollection("TrafficHero","Taipei_RoadCondition")
+    collection.drop()
+    collection.insert_many(documents)
+

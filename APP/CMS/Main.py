@@ -59,14 +59,14 @@ async def EventSearching(Longitude:str,Latitude:str,token: HTTPAuthorizationCred
 
     # 警廣資料
     for location in collection_PBS.find():
-        if(location.get('Lat')!=None and location.get('Lat')!=''):
+        if(location.get('Latitude')!=None and location.get('Latitude')!=''):
             data = {
                 "事件內容":location.get('Type'),
                 "地點":location.get('Area'),
                 "方向":location.get('Direction'),
                 "路況說明":location.get('RoadCondition'),
-                "Latitude":location.get('Lat'),
-                "Longitude":location.get('Lng'),
+                "Latitude":location.get('Latitude'),
+                "Longitude":location.get('Longitude'),
             }
             eventArray.append(data)
         
