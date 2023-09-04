@@ -78,7 +78,7 @@ async def weather_selenium(Longitude: str, Latitude: str, token: HTTPAuthorizati
         return {"error": f"XML parse error: {e}"}
     
 @router.get("/Weather", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
-async def weather_api(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
+async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     一、資料來源: \n
             1. 中央氣象局官網 (ex: 雲林縣斗六市)
@@ -88,7 +88,7 @@ async def weather_api(Longitude: str, Latitude: str, token: HTTPAuthorizationCre
             3. 氣象資料開放平臺 - 自動氣象站-氣象觀測資料
                 https://opendata.cwb.gov.tw/dataset/observation/O-A0001-001 \n
     二、Input \n
-            1. Longitude: 經度, Latitude: 緯度\n\n
+            1. longitude: 經度, latitude: 緯度\n\n
     三、Output \n
             1. 
     四、說明 \n
@@ -106,7 +106,7 @@ async def weather_api(Longitude: str, Latitude: str, token: HTTPAuthorizationCre
         nearestRange = 1  
 
         # 取得鄉鎮市區代碼(XML)
-        url = f"https://api.nlsc.gov.tw/other/TownVillagePointQuery/{Longitude}/{Latitude}/4326"
+        url = f"https://api.nlsc.gov.tw/other/TownVillagePointQuery/{longitude}/{latitude}/4326"
         response = requests.get(url)
         root = ET.fromstring(response.content.decode("utf-8"))
         if root.find('error'): # ex: https://api.nlsc.gov.tw/other/TownVillagePointQuery/120.473798/24.307516/4326
@@ -123,7 +123,7 @@ async def weather_api(Longitude: str, Latitude: str, token: HTTPAuthorizationCre
         if(observation_station_unmanned["result"] is not None):
             for observation in observation_station_unmanned['records']["data"]["stationStatus"]['station']:
                 # 比對不到輸入資料之縣市 及 區的氣象站，例如：台北市大安區。 查詢輸入之經緯度比對出最近的氣象站
-                currentPosition = [float(Latitude),float(Longitude)]
+                currentPosition = [float(latitude),float(longitude)]
                 observation_station_Position = [float(observation['StationLatitude']),float(observation['StationLongitude'])]
                 Distance = distance.euclidean(currentPosition,observation_station_Position) # 計算兩點距離的平方差
                 if(nearestRange > Distance):
