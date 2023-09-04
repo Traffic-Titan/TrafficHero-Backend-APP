@@ -172,3 +172,5 @@ def getWeatherIcon(weather: str): # 待辦: 資料庫存取、更多天氣狀況
             return "https://cdn2.iconfinder.com/data/icons/weather-color-2/500/weather-02-256.png"
         case "陰":
             return "https://cdn3.iconfinder.com/data/icons/tiny-weather-1/512/cloud-256.png"
+        case _:
+            return "https://cdn3.iconfinder.com/data/icons/basic-2-black-series/64/a-92-256.png" # 預設
