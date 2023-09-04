@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 security = HTTPBearer()
 
-@router.get("/Operationalstatus", summary="【Read】大眾運輸-營運狀況(Dev)") # 先初步以北中南東離島分類，以後再依照縣市分類
+@router.get("/OperationalStatus", summary="【Read】大眾運輸-營運狀況(Dev)") # 先初步以北中南東離島分類，以後再依照縣市分類
 async def operationalstatus(longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     一、資料來源: \n

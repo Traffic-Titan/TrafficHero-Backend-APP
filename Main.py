@@ -40,7 +40,7 @@ async def startup_event():
     # setInterval(PBS.getData())
     # Speed_Enforcement.getData()
     # Technical_Enforcement.getData()
-    PBS.getData()
+    # PBS.getData()
     # PBS.getTaipeiRoadCondition()
 
 @app.on_event("shutdown")
@@ -64,7 +64,6 @@ app.include_router(Email.router)
 app.include_router(GoogleMaps.router)
 app.include_router(TDX.router)
 app.include_router(Token.router)
-
 
 # 0.會員管理(APP)
 from APP.Account import Login, Register, SSO, Code, Password, Profile
