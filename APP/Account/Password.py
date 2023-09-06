@@ -29,7 +29,7 @@ async def changePassword(user: ChangePasswordModel, token: HTTPAuthorizationCred
         "email": user.email,
         "$or": [
             {"password": hashlib.sha256(user.old_password.encode()).hexdigest()},
-            {"token": user.old_password}
+            {"verification_code": user.old_password}
         ]
     })
     
