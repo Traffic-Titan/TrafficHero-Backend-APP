@@ -8,8 +8,8 @@ import xml.etree.ElementTree as ET
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 security = HTTPBearer()
 
-@router.get("/Operationalstatus", summary="【Read】大眾運輸-營運狀況(Dev)") # 先初步以北中南東離島分類，以後再依照縣市分類
-async def operationalstatus(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
+@router.get("/OperationalStatus", summary="【Read】大眾運輸-營運狀況(Dev)") # 先初步以北中南東離島分類，以後再依照縣市分類
+async def operationalstatus(longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
     """
     一、資料來源: \n
             1. 交通部運輸資料流通服務平臺(TDX)
@@ -28,14 +28,14 @@ async def operationalstatus(Longitude: str, Latitude: str, token: HTTPAuthorizat
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 取得鄉鎮市區代碼(XML)
-    url = f"https://api.nlsc.gov.tw/other/TownVillagePointQuery/{Longitude}/{Latitude}/4326"
+    url = f"https://api.nlsc.gov.tw/other/TownVillagePointQuery/{longitude}/{latitude}/4326"
     response = requests.get(url)
     root = ET.fromstring(response.content.decode("utf-8"))
     if root.find('error'): # ex: https://api.nlsc.gov.tw/other/TownVillagePointQuery/120.473798/24.307516/4326
         return {"detail": "查無資料"}
     
     area = root.find("ctyName").text
-    print(area)
+
     result = [ # 預設顯示的大眾運輸
             {
                 "name": "臺鐵",
@@ -53,7 +53,7 @@ async def operationalstatus(Longitude: str, Latitude: str, token: HTTPAuthorizat
         
     match area:
         case "基隆市" | "臺北市" | "新北市" | "桃園市" | "新竹市" | "新竹縣" | "宜蘭縣": # 北部
-            result.append([
+            result.extend([
                 {
                     "name": "臺北捷運",
                     "status": MRT("TRTC"),
@@ -91,7 +91,7 @@ async def operationalstatus(Longitude: str, Latitude: str, token: HTTPAuthorizat
                 }
             ])
         case "苗栗縣" | "臺中市" | "彰化縣" | "南投縣" | "雲林縣": # 中部  
-            result.append([
+            result.extend([
                 {
                     "name":"苗栗縣公車",
                     "status":Bus("MiaoliCounty"),
@@ -110,7 +110,7 @@ async def operationalstatus(Longitude: str, Latitude: str, token: HTTPAuthorizat
                 }
             ])
         case "嘉義市" | "嘉義縣" | "臺南市" | "高雄市" | "屏東縣": # 南部(不含澎湖)
-            result.append([
+            result.extend([
                 {
                     "name": "高雄捷運",
                     "status": MRT("KRTC"),
@@ -137,7 +137,7 @@ async def operationalstatus(Longitude: str, Latitude: str, token: HTTPAuthorizat
                 }
             ])
         case "臺東縣" | "花蓮縣": # 東部
-            result.append([
+            result.extend([
                 {
                     "name":"臺東縣公車",
                     "status":Bus("TaitungCounty"),
@@ -148,7 +148,7 @@ async def operationalstatus(Longitude: str, Latitude: str, token: HTTPAuthorizat
                 }
             ])
         case "澎湖縣": # 離島
-            result.append([
+            result.extend([
                 {
                 "name":"澎湖縣公車",
                 "status":Bus("PenghuCounty"),

@@ -5,7 +5,7 @@
 from Main import MongoDB # 引用MongoDB連線實例
 
 def get(item: str):
-    collection = MongoDB.getCollection("2_Universal","Message")
+    collection = MongoDB.getCollection("traffic_hero","message")
     result = collection.find_one({"item": item})
     
     if result:

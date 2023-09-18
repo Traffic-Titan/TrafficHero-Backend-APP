@@ -56,4 +56,4 @@ async def verifyCode(user: VerifyCodeModel, token: HTTPAuthorizationCredentials 
         token = encodeToken(payload, 10)
         collection.update_one({"email": user.email}, {"$set": {"token": token}})
         
-        return {"message": "驗證碼驗證成功", "Token": token}
+        return {"message": "驗證碼驗證成功", "token": token}
