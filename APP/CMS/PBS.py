@@ -23,6 +23,11 @@ router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/PBS")
 #讀取警廣API資料
 
 def getData():
+    """
+    一、資料來源: \n
+            1. 政府資料開放平臺 - 警廣即時路況 \n
+                https://data.gov.tw/dataset/15221
+    """
 
     url="https://od.moi.gov.tw/MOI/v1/pbs"
     data =json.load(request.urlopen(url))
@@ -33,40 +38,36 @@ def getData():
     documents = []
     for i in data:
 
-        # 判斷有哪些 roadtype
-        # if(i['roadtype'] not in typeArray):
-        #     typeArray.append(i['roadtype'])
-
         # 根據 roadtype 決定iconURL
         if(i['roadtype'] == "其他"):
-            iconURL = "https://reurl.cc/517eNM" 
+            iconURL = "https://reurl.cc/5Okdv7" 
         elif(i['roadtype'] == "交通障礙"):
-            iconURL = "https://reurl.cc/N053eQ"
+            iconURL = "https://cdn-icons-png.flaticon.com/512/4097/4097450.png"
         elif(i['roadtype'] == "道路施工"):
-            iconURL = "https://reurl.cc/aVpQy3"
+            iconURL = "https://reurl.cc/QZnE52"
         elif(i['roadtype'] == "交通管制"):
-            iconURL = "https://reurl.cc/VLGKAy"
+            iconURL = "https://pic.616pic.com/ys_img/00/87/64/JomMur8bih.jpg"
         elif(i['roadtype'] == "阻塞"):
-            iconURL = "https://reurl.cc/DANaRE"
+            iconURL = "https://cdn.pixabay.com/photo/2016/02/19/15/29/jam-1210513_1280.png" 
         elif(i['roadtype'] == "號誌故障"):
-            iconURL = "https://reurl.cc/WGejex"
+            iconURL = "https://reurl.cc/8N4Xej"
         elif(i['roadtype'] == "災變"):
-            iconURL = "https://reurl.cc/WGepax"
+            iconURL = "https://reurl.cc/gak6rb"
         elif(i['roadtype'] == "事故"):
-            iconURL = "https://reurl.cc/AAEGqd"
+            iconURL = "https://reurl.cc/edvyaQ" 
         else:
             iconURL = None
         
         document = {
-            "Time"  : i['modDttm'],
-            "Type"  : i['roadtype'],
-            "Area" : i['areaNm'],
-            "Road" : i['road'],
-            "RoadCondition" : i['comment'],
-            "Direction" : i['direction'],
-            "Latitude" : i['y1'],
-            "Longitude" : i['x1'],
-            "icon":Blob.urlToBlob(iconURL)
+            "time"  : i['modDttm'],
+            "type"  : i['roadtype'],
+            "area" : i['areaNm'],
+            "road" : i['road'],
+            "road_condition" : i['comment'],
+            "rirection" : i['direction'],
+            "latitude" : i['y1'],
+            "longitude" : i['x1'],
+            "icon":iconURL
             # "OpenAI_Process": chatGPT(i['comment'],"。請用10~15字整理重點")
 
             # "_id": i,
@@ -104,7 +105,6 @@ def getData():
     #         eventLatLng.append(item['EventLatLng'])  
     #     else:
     #         AfterNLP.delete_one(item)
-
 
 def getHardShoulder():
     """
@@ -153,12 +153,11 @@ def getHardShoulder():
                 documents.append(document)
     collection.insert_many(documents)
 
-"""
-1.資料來源：臺北市即時交通訊息
-    https://data.taipei/dataset/detail?id=a6fae9f8-8d0f-4605-98ac-577388a7734f
-"""
 def getTaipeiRoadCondition():
-    
+    """
+    1.資料來源：臺北市即時交通訊息
+        https://data.taipei/dataset/detail?id=a6fae9f8-8d0f-4605-98ac-577388a7734f
+    """
     # URL連接
     url="https://tcgbusfs.blob.core.windows.net/dotapp/news.json"
     data =json.load(request.urlopen(url))
