@@ -1,5 +1,5 @@
 """
-1. 目前設定為每次啟動時，會將資料庫清空，並重新抓取資料，以後必需按照來源狀況，設定更新資料的時間 
+1. 目前設定為每次啟動時，會將資料庫清空，並重新抓取資料，以後必需按照來源狀況，設定更新資料的時間  
 """
 from fastapi import FastAPI, Request
 from dotenv import load_dotenv
