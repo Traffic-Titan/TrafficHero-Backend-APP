@@ -57,8 +57,10 @@ def get_Gas_Station_LatLng(latitude:str,longitude:str):
             except:
                 pass
     return nearestData    
+
 @router.get("/QuickSearch/GasStation")
 async def gasStation(latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends(security)):  
+
     """
     一、資料來源: \n
             1. 政府資料開放平臺 - 加油站服務資訊
@@ -117,8 +119,10 @@ def get_ConvenientStore(latitude:str,longitude:str):
                     nearestData = {"最近距離":nearestRange,"座標":convenientStorePosition,"地址":data.get('地址')}
 
     return nearestData
+
 @router.get("/QuickSearch/ConvenientStore")
 async def convenientStore(latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends(security)):
+
     """
     一、資料來源: \n
             1. 政府資料開放平臺 - 全國5大超商資料集
