@@ -21,29 +21,6 @@ import urllib.request
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 
-@router.get("/QuickSearch/GasStation")
-async def gasStation(latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):  
-    """
-    一、資料來源: \n
-            1. 政府資料開放平臺 - 加油站服務資訊
-                https://data.gov.tw/dataset/6065 \n
-    二、Input \n
-            1. Type 加油站類型：直營站 or 加盟站
-    三、Output \n
-            1. 
-    四、說明 \n
-            1.
-    """
-    Token.verifyToken(token.credentials,"user") # JWT驗證
-    
-    # Url = []
-    # print(get_Gas_Station_LatLng(gas.latitude,gas.longitude,gas.Type)['座標'])
-    url = "https://www.google.com/maps/dir/?api=1&destination="+ str(get_Gas_Station_LatLng(latitude,longitude)['地址']) +"&travelmode=driving&dir_action=navigate"
-    # return Url
-
-    response_data = {"url": url}
-    return response_data
-
 def get_Gas_Station_LatLng(latitude:str,longitude:str):
     
     #Points_After_Output:存半徑 N 公里生成的點、match_Station:存符合資格的站點
@@ -80,7 +57,7 @@ def get_Gas_Station_LatLng(latitude:str,longitude:str):
     return nearestData    
 
 @router.get("/QuickSearch/GasStation")
-async def gasStation(latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends((HTTPBearer())):  
+async def gasStation(latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends((HTTPBearer()))):  
 
     """
     一、資料來源: \n
