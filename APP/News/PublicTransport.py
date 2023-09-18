@@ -8,7 +8,6 @@ import Function.Area as Area
 import concurrent.futures
 
 router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
-security = HTTPBearer()
 
 def processData(type, area):
     collection = MongoDB.getCollection("traffic_hero", f'news_{type}') # 選擇collection
@@ -22,7 +21,7 @@ def processData(type, area):
     return documents # 回傳documents
 
 @router.get("/PublicTransport",summary="【Read】最新消息-大眾運輸")
-async def publicTransport(areas: str = "All", types: str = "All", token: HTTPAuthorizationCredentials = Depends(security)):
+async def publicTransport(areas: str = "All", types: str = "All", token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     types: taiwan_railway,taiwan_high_speed_rail,mrt,bus,intercity_bus,taiwan_tourist_shuttle,alishan_forest_railway,public_bicycle
     """

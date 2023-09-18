@@ -7,12 +7,11 @@ import Function.Time as Time
 import Service.Token as Token
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
-security = HTTPBearer()
 
 collection = MongoDB.getCollection("traffic_hero","news_freeway")
 
 @router.put("/Freeway",summary="【Update】最新消息-高速公路")
-async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
+async def updateNews(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
             1. 高速公路1968 - 最新消息

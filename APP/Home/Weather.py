@@ -13,10 +13,9 @@ import math
 from scipy.spatial import distance
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
-security = HTTPBearer()
 
 # @router.get("/Weather_selenium", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
-async def weather_selenium(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
+async def weather_selenium(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     Longitude: 經度, Latitude: 緯度\n\n
     資料來源:
@@ -78,7 +77,7 @@ async def weather_selenium(Longitude: str, Latitude: str, token: HTTPAuthorizati
         return {"error": f"XML parse error: {e}"}
     
 @router.get("/Weather", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
-async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends(security)):
+async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
             1. 中央氣象局官網 (ex: 雲林縣斗六市)

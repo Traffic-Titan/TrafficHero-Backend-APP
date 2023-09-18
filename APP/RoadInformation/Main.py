@@ -9,10 +9,9 @@ import requests
 from urllib import request
 
 router = APIRouter(tags=["4-1.道路資訊(APP)"],prefix="/APP/RoadInformation")
-security = HTTPBearer()
- 
+
 @router.get("/CityParking_Taipei",summary="指定台北停車場剩餘資料")
-async def CityParking_Taipei(token: HTTPAuthorizationCredentials = Depends(security)):
+async def CityParking_Taipei(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     資料來源：\n
         1.指定台北停車場剩餘資料\n
@@ -41,7 +40,7 @@ async def CityParking_Taipei(token: HTTPAuthorizationCredentials = Depends(secur
 
 
 @router.get("/CityParking",summary="指定縣市停車場剩餘資料")
-async def CityParking(Area:str,token: HTTPAuthorizationCredentials = Depends(security)):
+async def CityParking(Area:str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     Area：Taoyuan、Tainan、Kaohsiung、Keelung、YilanCounty、HuanlienCounty \n
     資料來源：\n

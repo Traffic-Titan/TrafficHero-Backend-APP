@@ -8,27 +8,25 @@ import Function.Time as Time
 from datetime import timedelta
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
-security = HTTPBearer()
 
 class LoginModel(BaseModel):
     email: EmailStr
     password: str
 
 @router.post("/Login",summary="會員登入(Dev)")
-async def login(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(security)):
+async def login(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 連線MongoDB
     collection = MongoDB.getCollection("traffic_hero","user_data")
     
     # 如果查詢結果為None，表示無此帳號
-    result = collection.find_one({"email": user.email})
+    result = collection.find_one({"email": user.email}, {"_id": 0})
     if result is None:
         raise HTTPException(status_code=401, detail="帳號或密碼錯誤")
     
     # 確認是否已驗證Email
-    result = collection.find_one({"email": user.email,"email_confirmed": True})
-    if result is None:
+    if result.get("email_confirmed") is False:
         raise HTTPException(status_code=401, detail="Email尚未驗證，請至信箱收取驗證信，若驗證碼已失效，請重新註冊")
     
     # 檢查密碼是否正確
@@ -41,7 +39,7 @@ async def login(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(
         current_time = Time.getCurrentDatetime()
         if last_failed_timestamp and failed_attempts >= 4:
             # 檢查距離上次失敗的時間是否超過5分鐘
-            if current_time - last_failed_timestamp <= timedelta(minutes=0.1):
+            if current_time - last_failed_timestamp <= timedelta(minutes = 5):
                 raise HTTPException(status_code=403, detail="帳戶已被鎖定，請稍後再試")
 
         # 更新登入失敗記錄
@@ -69,5 +67,5 @@ async def login(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(
             "email": user.email,
             "role": result["role"]
         }
-        token = Token.encode(data, 43200) # Token有效期為30天
-        return {"token": token, "detail": "登入成功"}
+
+        return {"detail": "登入成功", "token": Token.encode(data, 43200)} # Token有效期為30天

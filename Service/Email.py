@@ -8,7 +8,6 @@ import os
 from fastapi.responses import JSONResponse
 
 router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/Email")
-security = HTTPBearer()
 
 def connectSMTPServer():
     # 連線到Gmail SMTP Server
@@ -22,11 +21,11 @@ class EmailBody(BaseModel):
     message: str
 
 @router.post("/Send", summary="Email - 寄送電子郵件")
-async def sendAPI(to : str, subject : str, message : str,token: HTTPAuthorizationCredentials = Depends(security)):
+async def sendAPI(to : str, subject : str, message : str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     send(to,subject,message)
 
-async def send(to : str, subject : str, message : str,token: HTTPAuthorizationCredentials = Depends(security)):
+async def send(to : str, subject : str, message : str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     try:
         # 連線到Gmail SMTP Server
         connectSMTPServer()

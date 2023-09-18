@@ -15,7 +15,6 @@ import Function.Time as Time
 import Function.Link as Link
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
-security = HTTPBearer()
 
 collection = MongoDB.getCollection("News","MRT")
 
@@ -25,7 +24,7 @@ class NewsLinkModel(BaseModel):
     URL: Optional[HttpUrl]
 
 @router.get("/Link",summary="【Read】最新消息-資料來源連結(Dev)")
-async def getNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
+async def getNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     Type:臺鐵:TRA,高鐵:THSR,捷運:MRT,公車:Bus
     
@@ -51,7 +50,7 @@ async def getNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorization
     return documents
 
 @router.put("/Link",summary="【Update】最新消息-資料來源連結(Dev)")
-async def updateNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
+async def updateNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     Type:臺鐵:TRA,高鐵:THSR,捷運:MRT,公車:Bus
     
@@ -74,7 +73,7 @@ async def updateNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizat
     return "success"
 
 @router.post("/Link",summary="【Create】最新消息-資料來源連結(Dev)")
-async def addNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
+async def addNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     Type:臺鐵:TRA,高鐵:THSR,捷運:MRT,公車:Bus
     
@@ -92,7 +91,7 @@ async def addNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorization
     return "Success"
 
 @router.delete("/Link",summary="【Delete】最新消息-資料來源連結(Dev)")
-async def deleteNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(security)):
+async def deleteNewsLink(data: Union[List[NewsLinkModel]], token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     Type:臺鐵:TRA,高鐵:THSR,捷運:MRT,公車:Bus
     

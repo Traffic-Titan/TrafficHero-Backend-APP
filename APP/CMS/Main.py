@@ -9,10 +9,9 @@ from geopy.distance import geodesic
 from shapely.geometry.polygon import Polygon
 
 router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
-security = HTTPBearer()
 
 @router.get("/ServiceArea",summary="從TDX上獲取服務區剩餘位置")
-async def serviceArea(token: HTTPAuthorizationCredentials = Depends(security)):
+async def serviceArea(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
             1. 交通部運輸資料流通服務平臺(TDX) - 全臺高速公路服務區停車場剩餘位資料 v1
@@ -34,7 +33,7 @@ async def serviceArea(token: HTTPAuthorizationCredentials = Depends(security)):
     return {"serviceAreaSpace":serviceAreaSpace}
 
 @router.get("/EventSearching",summary="根據使用者經緯度回傳各個事件及重要性")
-async def EventSearching(Longitude:str,Latitude:str,token: HTTPAuthorizationCredentials = Depends(security)):
+async def EventSearching(Longitude:str,Latitude:str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     #Points_After_Output:存半徑 N 公里生成的點
     Points_After_Output = []
     nearestData  = {}

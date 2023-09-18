@@ -14,12 +14,11 @@ import Function.Link as Link
 from Main import MongoDB
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
-security = HTTPBearer()
 
 collection = MongoDB.getCollection("traffic_hero","news_taiwan_high_speed_rail")
 
 @router.put("/TaiwanHighSpeedRail",summary="【Update】最新消息-高鐵")
-async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
+async def updateNews(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
             1. 交通部運輸資料流通服務平臺(TDX) - 高鐵最新消息資料 v2

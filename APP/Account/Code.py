@@ -8,14 +8,13 @@ from Main import MongoDB # 引用MongoDB連線實例
 import Service.Token as Token
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
-security = HTTPBearer()
 
 class VerifyCodeModel(BaseModel):
     email: EmailStr
     code : str = Field(min_length=6)
 
 @router.post("/VerifyCode",summary="驗證碼驗證(Dev)")
-async def verifyCode(user: VerifyCodeModel, token: HTTPAuthorizationCredentials = Depends(security)):
+async def verifyCode(user: VerifyCodeModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 檢查電子郵件是否存在於資料庫中

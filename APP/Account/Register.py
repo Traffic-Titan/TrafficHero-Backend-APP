@@ -13,7 +13,6 @@ import Function.Message as Message
 import Service.Token as Token
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
-security = HTTPBearer()
 
 class ProfileModel(BaseModel):
     name: str
@@ -25,7 +24,7 @@ class ProfileModel(BaseModel):
     google_avatar: str
 
 @router.post("/Register",summary="會員註冊(Dev)")
-async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Depends(security)):
+async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 連線MongoDB
