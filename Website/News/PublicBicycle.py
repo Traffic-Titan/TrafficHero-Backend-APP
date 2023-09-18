@@ -10,12 +10,11 @@ import Function.Time as Time
 import Service.Token as Token
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
-security = HTTPBearer()
 
 collection = MongoDB.getCollection("traffic_hero","news_public_bicycle")
 
 @router.put("/PublicBicycle",summary="【Update】最新消息-公共自行車")
-async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)):
+async def updateNews(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
             1. YouBike微笑單車 - 最新消息 - 站點公告

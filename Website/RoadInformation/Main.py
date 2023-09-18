@@ -4,10 +4,8 @@ import Service.Token as Token
 
 router = APIRouter(tags=["4-1.道路資訊(Website)"],prefix="/Website/RoadInformation")
 
-security = HTTPBearer()
-
 @router.get("/Test")
-async def test(token: HTTPAuthorizationCredentials = Depends(security)):
+async def test(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     return {"message": "test"}

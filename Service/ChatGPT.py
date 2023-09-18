@@ -6,10 +6,9 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import Service.Token as Token
 
 router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/Email")
-security = HTTPBearer()
 
 @router.get("/ChatGPT", summary="OpenAI NLP處理")
-async def ChatGPT(message : str,require: str,token: HTTPAuthorizationCredentials = Depends(security)):
+async def ChatGPT(message : str,require: str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     require： 對輸出的要求
     message：傳入訊息
@@ -27,7 +26,7 @@ async def ChatGPT(message : str,require: str,token: HTTPAuthorizationCredentials
         return (response['choices'][0]['message']['content'])
     
 
-def chatGPT(message : str,require: str,token: HTTPAuthorizationCredentials = Depends(security)):
+def chatGPT(message : str,require: str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     openai.api_key = app_id = os.getenv('OpenAI_Key')
     user = message + require
     if user:

@@ -6,10 +6,8 @@ import Service.Token as Token
 
 router = APIRouter(tags=["0.群組通訊(APP)"],prefix="/APP/Chat")
 
-security = HTTPBearer()
-
 @router.get("/ChatGPT",summary="ChatGPT(Dev)")
-async def ChatGPT(str:str,token: HTTPAuthorizationCredentials = Depends(security)):
+async def ChatGPT(str:str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
             1. OpenAI API

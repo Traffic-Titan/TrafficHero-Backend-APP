@@ -15,7 +15,7 @@ async def getExecutionTime(request: Request, call_next): # 計算執行時間
     response = await call_next(request) # 等待執行
     end = Time.getCurrentTimestamp() # 結束時間
 
-    print(f"執行時間: {end - start:.2f} 秒") # 輸出執行時間
+    print(f"執行時間: {end - start:.4f} 秒") # 輸出執行時間
     return response # 回傳結果
 
 # ---------------------------------------------------------------

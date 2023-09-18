@@ -12,12 +12,11 @@ import Function.Area as Area
 import time
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
-security = HTTPBearer()
 
 collection = MongoDB.getCollection("traffic_hero","news_bus")
 
 @router.put("/Bus",summary="【Update】最新消息-公車")
-async def updateNews(token: HTTPAuthorizationCredentials = Depends(security)): 
+async def updateNews(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())): 
     """
     一、資料來源: \n
             1. 交通部運輸資料流通服務平臺(TDX)

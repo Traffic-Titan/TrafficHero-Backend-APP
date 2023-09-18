@@ -13,7 +13,6 @@ import Function.Blob as Blob
 from typing import Optional
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
-security = HTTPBearer()
 
 class ProfileModel(BaseModel):
     name: Optional[str]
@@ -29,14 +28,15 @@ async def viewProfile(token: HTTPAuthorizationCredentials = Depends(HTTPBearer()
     
     # 取得使用者資料
     collection = MongoDB.getCollection("traffic_hero","user_data")
-    result = collection.find_one({"email": payload["data"]["email"]})
+    result = collection.find_one({"email": payload["data"]["email"]}, {"_id": 0})
     data = {
         "name": result["name"] if "name" in result else None,
         "email": result["email"] if "email" in result else None,
         "gender": result["gender"] if "gender" in result else None,
         "birthday": result["birthday"] if "birthday" in result else None,
         "google_id": result["google_id"] if "google_id" in result else None,
-        "avatar": Blob.encode_image_to_base64(result["avatar"]) if "avatar" in result else None
+        "avatar": Blob.encode_image_to_base64(result["avatar"]) if "avatar" in result else None,
+        "rule": result["rule"] if "rule" in result else None
     }
     
     return data

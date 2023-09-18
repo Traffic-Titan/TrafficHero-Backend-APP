@@ -10,7 +10,6 @@ import Service.Email as Email
 import Function.Time as Time
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
-security = HTTPBearer()
 
 class ChangePasswordModel(BaseModel):
     email: EmailStr
@@ -18,7 +17,7 @@ class ChangePasswordModel(BaseModel):
     new_password: str
     
 @router.put("/ChangePassword",summary="更改密碼(Dev)")
-async def changePassword(user: ChangePasswordModel, token: HTTPAuthorizationCredentials = Depends(security)):
+async def changePassword(user: ChangePasswordModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 連線MongoDB
@@ -52,7 +51,7 @@ class ForgetPasswordModel(BaseModel):
     birthday: str
 
 @router.post("/ForgotPassword",summary="忘記密碼(Dev)")
-async def forgotPassword(user: ForgetPasswordModel, token: HTTPAuthorizationCredentials = Depends(security)):
+async def forgotPassword(user: ForgetPasswordModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 檢查電子郵件是否存在於資料庫中

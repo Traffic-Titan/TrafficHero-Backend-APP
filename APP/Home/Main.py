@@ -10,7 +10,6 @@ from enum import Enum
 import csv
 from pydantic import BaseModel
 from Service.TDX import getData
-# from Main import MongoDB # 引用MongoDB連線實例
 from shapely.geometry import Point
 from geopy.distance import geodesic
 from shapely.geometry.polygon import Polygon
@@ -22,7 +21,28 @@ import urllib.request
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 
-security = HTTPBearer()
+@router.get("/QuickSearch/GasStation")
+async def gasStation(latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):  
+    """
+    一、資料來源: \n
+            1. 政府資料開放平臺 - 加油站服務資訊
+                https://data.gov.tw/dataset/6065 \n
+    二、Input \n
+            1. Type 加油站類型：直營站 or 加盟站
+    三、Output \n
+            1. 
+    四、說明 \n
+            1.
+    """
+    Token.verifyToken(token.credentials,"user") # JWT驗證
+    
+    # Url = []
+    # print(get_Gas_Station_LatLng(gas.latitude,gas.longitude,gas.Type)['座標'])
+    url = "https://www.google.com/maps/dir/?api=1&destination="+ str(get_Gas_Station_LatLng(latitude,longitude)['地址']) +"&travelmode=driving&dir_action=navigate"
+    # return Url
+
+    response_data = {"url": url}
+    return response_data
 
 def get_Gas_Station_LatLng(latitude:str,longitude:str):
     
@@ -56,29 +76,7 @@ def get_Gas_Station_LatLng(latitude:str,longitude:str):
                         nearestData = {"最近距離":nearestRange,"座標":[float(row[24]), float(row[23])],"地址":row[3]+row[4]+row[5]}
             except:
                 pass
-    return nearestData    
-@router.get("/QuickSearch/GasStation")
-async def gasStation(latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends(security)):  
-    """
-    一、資料來源: \n
-            1. 政府資料開放平臺 - 加油站服務資訊
-                https://data.gov.tw/dataset/6065 \n
-    二、Input \n
-            1. Type 加油站類型：直營站 or 加盟站
-    三、Output \n
-            1. 
-    四、說明 \n
-            1.
-    """
-    Token.verifyToken(token.credentials,"user") # JWT驗證
-    
-    # Url = []
-    # print(get_Gas_Station_LatLng(gas.latitude,gas.longitude,gas.Type)['座標'])
-    url = "https://www.google.com/maps/dir/?api=1&destination="+ str(get_Gas_Station_LatLng(latitude,longitude)['地址']) +"&travelmode=driving&dir_action=navigate"
-    # return Url
-
-    response_data = {"url": url}
-    return response_data
+    return nearestData
 
 def get_ConvenientStore(latitude:str,longitude:str):
     #Points_After_Output:存半徑 N 公里生成的點
@@ -118,7 +116,7 @@ def get_ConvenientStore(latitude:str,longitude:str):
 
     return nearestData
 @router.get("/QuickSearch/ConvenientStore")
-async def convenientStore(latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends(security)):
+async def convenientStore(latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
             1. 政府資料開放平臺 - 全國5大超商資料集

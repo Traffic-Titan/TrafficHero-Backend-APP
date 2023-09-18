@@ -11,10 +11,9 @@ import asyncio
 from typing import Optional
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
-security = HTTPBearer()
 
 @router.get("/ParkingFee", summary="【Read】取得各縣市路邊停車費查詢(Dev)")
-async def parkingFee(license_plate_number: str, type: str, token: HTTPAuthorizationCredentials = Depends(security)):
+async def parkingFee(license_plate_number: str, type: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
             1. 交通部運輸資料流通服務平臺(TDX) - 路邊停車費查詢API
@@ -100,7 +99,7 @@ class Vehicle(BaseModel):
     type: Optional[str]
 
 @router.get("/Vehicle", summary="【Read】取得使用者車牌資料")
-async def getVehicleInfo(token: HTTPAuthorizationCredentials = Depends(security)):
+async def getVehicleInfo(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
     collection = MongoDB.getCollection("traffic_hero","user_data") # 連線MongoDB
@@ -109,7 +108,7 @@ async def getVehicleInfo(token: HTTPAuthorizationCredentials = Depends(security)
     return result
 
 @router.post("/Vehicle", summary="【Create】新增使用者車牌資料")
-async def setVehicleInfo(data: Vehicle, token: HTTPAuthorizationCredentials = Depends(security)):
+async def setVehicleInfo(data: Vehicle, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     payload = Token.verifyToken(token.credentials, "user")  # JWT驗證
     
     collection = MongoDB.getCollection("traffic_hero", "user_data")  # 連線MongoDB
@@ -132,7 +131,7 @@ async def setVehicleInfo(data: Vehicle, token: HTTPAuthorizationCredentials = De
         return {"message": "新增車牌資料失敗"}
 
 @router.delete("/Vehicle", summary="【Delete】刪除使用者車牌資料")
-async def deleteVehicleInfo(data: Vehicle,token: HTTPAuthorizationCredentials = Depends(security)):
+async def deleteVehicleInfo(data: Vehicle,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     payload = Token.verifyToken(token.credentials, "user")  # JWT驗證
     
     collection = MongoDB.getCollection("traffic_hero", "user_data")  # 連線MongoDB
