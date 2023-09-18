@@ -40,7 +40,7 @@ async def startup_event():
     # setInterval(PBS.getData())
     # Speed_Enforcement.getData()
     # Technical_Enforcement.getData()
-    PBS.getData()
+    # PBS.getData()
     # PBS.getTaipeiRoadCondition()
 
 @app.on_event("shutdown")
