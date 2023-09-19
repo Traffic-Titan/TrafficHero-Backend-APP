@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+# 暫時性檔案，放Router用
+from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import Service.Token as Token
 
-router = APIRouter(tags=["4-1.道路資訊(Website)"],prefix="/Website/RoadInformation")
+router = APIRouter(tags=["4-2.大眾運輸資訊(APP)"],prefix="/APP/Information/PublicTransport")
 
 @router.get("/Test")
 async def test(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):

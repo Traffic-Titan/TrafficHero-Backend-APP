@@ -8,7 +8,7 @@ from Main import MongoDB # 引用MongoDB連線實例
 import requests
 from urllib import request
 
-router = APIRouter(tags=["4-1.道路資訊(APP)"],prefix="/APP/RoadInformation")
+router = APIRouter(tags=["4-1.道路資訊(APP)"],prefix="/APP/Information/Road")
 
 @router.get("/CityParking_Taipei",summary="指定台北停車場剩餘資料")
 async def CityParking_Taipei(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
