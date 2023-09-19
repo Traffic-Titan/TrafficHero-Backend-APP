@@ -97,15 +97,15 @@ app.include_router(Main.router)
 app.include_router(PBS.router)
 
 # 4-1.道路資訊(APP)
-from APP.RoadInformation import Main
+from APP.Information.Road import Main
 app.include_router(Main.router)
 
 # 4-2.大眾運輸資訊(APP)
-from APP.PublicTransportInformation import Main
+from APP.Information.PublicTransport import Main
 app.include_router(Main.router)
 
 # 5.觀光資訊(APP)
-from APP.TourismInformation import Main
+from APP.Information.Tourism import Main
 app.include_router(Main.router)
 
 # ---------------------------------------------------------------
@@ -142,15 +142,15 @@ from Website.CMS import Main
 app.include_router(Main.router)
 
 # 4-1.道路資訊(Website)
-from Website.RoadInformation import Main
+from Website.Information.Road import Main
 app.include_router(Main.router)
 
 # 4-2.大眾運輸資訊(Website)
-from Website.PublicTransportInformation import Main
+from Website.Information.PublicTransport import Main
 app.include_router(Main.router)
 
 # 5.觀光資訊(Website)
-from Website.TourismInformation import Main
+from Website.Information.Tourism import Main
 app.include_router(Main.router)
 
 # ---------------------------------------------------------------
