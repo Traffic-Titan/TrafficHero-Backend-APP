@@ -24,8 +24,12 @@ def decode(token: str):
     try:
         payload = jwt.decode(token, secret_key, algorithms=["HS256"])
         return payload
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Invalid token format")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="JWT has expired")
     except Exception as e:
-        raise HTTPException(status_code=403, detail=e)
+        raise HTTPException(status_code=403, detail="JWT validation failed")
 
 def verifyClient(token: str):
     clientToken = { # 建立驗證清單
@@ -44,6 +48,4 @@ def verifyToken(token: str, role: str):
             return payload
     except ValueError:
         raise HTTPException(status_code=403, detail="Invalid token format")
-    except Exception as e:
-        raise HTTPException(status_code=403, detail=e)
     
