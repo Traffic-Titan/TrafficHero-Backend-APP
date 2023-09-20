@@ -101,8 +101,9 @@ from APP.Information.Road import Main
 app.include_router(Main.router)
 
 # 4-2.大眾運輸資訊(APP)
-from APP.Information.PublicTransport import Main
+from APP.Information.PublicTransport import Main, PublicBicycle
 app.include_router(Main.router)
+app.include_router(PublicBicycle.router)
 
 # 5.觀光資訊(APP)
 from APP.Information.Tourism import Main
@@ -146,8 +147,9 @@ from Website.Information.Road import Main
 app.include_router(Main.router)
 
 # 4-2.大眾運輸資訊(Website)
-from Website.Information.PublicTransport import Main
+from Website.Information.PublicTransport import Main, PublicBicycle
 app.include_router(Main.router)
+app.include_router(PublicBicycle.router)
 
 # 5.觀光資訊(Website)
 from Website.Information.Tourism import Main
