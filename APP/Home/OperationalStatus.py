@@ -4,8 +4,10 @@ import Service.Token as Token
 import Service.TDX as TDX
 import requests
 import xml.etree.ElementTree as ET
+from Main import MongoDB # 引用MongoDB連線實例
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
+collection = MongoDB.getCollection("traffic_hero","operational_status")
 
 @router.get("/OperationalStatus", summary="【Read】大眾運輸-營運狀況(Dev)") # 先初步以北中南東離島分類，以後再依照縣市分類
 async def operationalstatus(longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
@@ -35,125 +37,56 @@ async def operationalstatus(longitude: str, latitude: str, token: HTTPAuthorizat
     
     area = root.find("ctyName").text
 
-    result = [ # 預設顯示的大眾運輸
-            {
-                "name": "臺鐵",
-                "status": TRA(),
-            },
-            {
-                "name": "高鐵",
-                "status": THSR(),
-            },
-            {
-                "name": "公路客運",
-                "status": InterCityBus(),
-            }
-    ]
-        
     match area:
-        case "基隆市" | "臺北市" | "新北市" | "桃園市" | "新竹市" | "新竹縣" | "宜蘭縣": # 北部
-            result.extend([
-                {
-                    "name": "臺北捷運",
-                    "status": MRT("TRTC"),
-                },
-                {
-                    "name": "桃園捷運",
-                    "status": MRT("TYMC"),
-                },
-                {
-                    "name": "臺北市公車",
-                    "status": Bus("Taipei"),
-                },
-                {
-                    "name":"新北市公車",
-                    "status":Bus("NewTaipei"),
-                },
-                {
-                    "name": "基隆市公車",
-                    "status": Bus("Keelung"),
-                },
-                {
-                    "name":"桃園市公車",
-                    "status":Bus("Taoyuan"),
-                },
-                {
-                    "name":"新竹市公車",
-                    "status":Bus("Hsinchu"),
-                },
-                {
-                    "name":"新竹縣公車",
-                    "status":Bus("HsinchuCounty"),
-                },{
-                    "name":"宜蘭縣公車",
-                    "status":Bus("YilanCounty"),
-                }
-            ])
-        case "苗栗縣" | "臺中市" | "彰化縣" | "南投縣" | "雲林縣": # 中部  
-            result.extend([
-                {
-                    "name":"苗栗縣公車",
-                    "status":Bus("MiaoliCounty"),
-                },
-                {
-                    "name":"臺中市公車",
-                    "status":Bus("Taichung"),
-                },
-                {
-                    "name":"彰化縣公車",
-                    "status":Bus("ChanghuaCounty"),
-                },
-                {
-                    "name":"雲林縣公車",
-                    "status":Bus("YunlinCounty"),
-                }
-            ])
-        case "嘉義市" | "嘉義縣" | "臺南市" | "高雄市" | "屏東縣": # 南部(不含澎湖)
-            result.extend([
-                {
-                    "name": "高雄捷運",
-                    "status": MRT("KRTC"),
-                },
-                {
-                    "name":"嘉義市公車",
-                    "status":Bus("Chiayi"),
-                },
-                {
-                    "name":"嘉義縣公車",
-                    "status":Bus("ChiayiCounty"),
-                },
-                {
-                    "name":"台南市公車",
-                    "status":"待處理",
-                },
-                {
-                    "name":"高雄市公車",
-                    "status":Bus("Kaohsiung"),
-                },
-                {
-                    "name":"屏東縣公車",
-                    "status":Bus("PingtungCounty"),
-                }
-            ])
-        case "臺東縣" | "花蓮縣": # 東部
-            result.extend([
-                {
-                    "name":"臺東縣公車",
-                    "status":Bus("TaitungCounty"),
-                },
-                {
-                    "name":"花蓮縣公車",
-                    "status":Bus("HualienCounty"),
-                }
-            ])
-        case "澎湖縣": # 離島
-            result.extend([
-                {
-                "name":"澎湖縣公車",
-                "status":Bus("PenghuCounty"),
-                }
-            ])
-    
+        # 北部
+        case "基隆市":
+            name = ["基隆市公車","臺北捷運","桃園捷運"]
+        case "臺北市":
+            name = ["臺北市公車","臺北捷運","桃園捷運"]
+        case "新北市":
+            name = ["新北市公車","臺北捷運","桃園捷運"]
+        case "桃園市":
+            name = ["桃園市公車","臺北捷運","桃園捷運"]
+        case "宜蘭縣":
+            name = ["宜蘭縣公車","臺北捷運","桃園捷運"]
+        case "新竹市":
+            name = ["新竹市公車","臺北捷運","桃園捷運"]
+        case "新竹縣":
+            name = ["新竹縣公車","臺北捷運","桃園捷運"]
+        # 中部
+        case "苗栗縣":
+            name = ["苗栗縣公車"]
+        case "臺中市":
+            name = ["臺中市公車"]
+        case "彰化縣":
+            name = ["彰化縣公車"]
+        case "雲林縣":
+            name = ["雲林縣公車"]
+        # 南部
+        case "嘉義市":
+            name = ["嘉義市公車","高雄捷運"]
+        case "嘉義縣":
+            name = ["嘉義縣公車","高雄捷運"]
+        case "臺南市":
+            name = ["臺南市公車","高雄捷運"]
+        case "高雄市":
+            name = ["高雄市公車","高雄捷運"]
+        case "屏東縣":
+            name = ["屏東縣公車","高雄捷運"]
+        # 東部
+        case "臺東縣":
+            name = ["臺東縣公車"]
+        case "花蓮縣":
+            name = ["花蓮縣公車"]
+        # 離島
+        case "澎湖縣":
+            name = ["澎湖縣公車"]
+
+    result = {
+        "intercity": list(collection.find({"name": {"$in": ["臺鐵", "高鐵", "公路客運"]}},{"_id": 0, "name":1, "status":1})), # 預設顯示的大眾運輸
+        "local": list(sorted(collection.find({"name": {"$in": name}},{"_id": 0, "name":1, "status":1}), key=lambda x: name.index(x["name"]))),
+        "url": "https://tdx.transportdata.tw/alertInfo"
+    }
     return result
     
 def TRA(): # 臺鐵

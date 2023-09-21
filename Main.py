@@ -120,8 +120,9 @@ from Website.Chat import Main
 app.include_router(Main.router)
 
 # 1.首頁(Website)
-from Website.Home import Main
+from Website.Home import Main, OperationalStatus
 app.include_router(Main.router)
+app.include_router(OperationalStatus.router)
 
 # 2.最新消息(Website)
 from Website.News import TaiwanRailway, TaiwanHighSpeedRail, MRT, Bus, IntercityBus, ProvincialHighway, LocalRoad, TaiwanTouristShuttle, Link, AlishanForestRailway, Freeway, PublicBicycle
