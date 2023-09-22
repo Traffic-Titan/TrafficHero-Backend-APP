@@ -11,14 +11,8 @@ router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
 
 def processData(type, area):
     collection = MongoDB.getCollection("traffic_hero", f'news_{type}') # 選擇collection
-    documents = []
     result = collection.find({"area": area}, {"_id": 0}) # 取得資料
-    logo_url = Logo.get(type, area) # 取得Logo
-    for d in result:
-        d["logo_url"] = logo_url # 新增Logo
-        if d.get("news_url") != "": d["description"] = "" # 若有NewsURL則清空Description，以減少傳輸內容
-        documents.append(d) # 將資料存入documents
-    return documents # 回傳documents
+    return list(result)
 
 @router.get("/Car",summary="【Read】最新消息-汽車")
 async def car(areas: str = "All", types: str = "All", token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):

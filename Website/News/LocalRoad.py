@@ -14,6 +14,7 @@ from Main import MongoDB # 引用MongoDB連線實例
 import Function.Time as Time
 import Function.Link as Link
 import Function.Area as Area
+import Function.Logo as Logo
 import time
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
@@ -51,6 +52,7 @@ def dataToDatabase(area: str):
         data = TDX.getData(url) # 取得資料
         
         documents = []
+        logo_url = Logo.get("local_road", area) # 取得Logo
         for d in data["Newses"]: # 將資料轉換成MongoDB格式
             document = {
                 "area": area,
@@ -59,7 +61,8 @@ def dataToDatabase(area: str):
                 "news_category": numberToText(d['NewsCategory']),
                 "description": d['Description'],
                 "news_url": "", # 因此資料集的新聞網址有問題，所以以空值取代，讓前端可以直接顯示Description
-                "update_time": Time.format(d['UpdateTime'])
+                "update_time": Time.format(d['UpdateTime']),
+                "logo_url": logo_url
             }
             documents.append(document)
         collection.insert_many(documents) # 將資料存入MongoDB

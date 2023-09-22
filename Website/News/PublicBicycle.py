@@ -8,6 +8,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Main import MongoDB # 引用MongoDB連線實例
 import Function.Time as Time
 import Service.Token as Token
+import Function.Logo as Logo
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 
@@ -76,13 +77,16 @@ def processData(area, soup): # 尚未完成縣市分類
         # url處理，url是 class:news-list-date 的父類
         url = time.findParent('a')
         url_array.append(url.get('href'))
+        
+    logo_url = Logo.get("public_bicycle", "All") # 取得Logo
     
     for data in range(0,len(all_title)):
         document = {
             "area":"All", # 尚未完成縣市分類
             "title":title_array[data],
             "update_time":publicTime_array[data],
-            "news_url":url_array[data]
+            "news_url":url_array[data],
+            "logo_url": logo_url
         }
         documents.append(document)
     return documents

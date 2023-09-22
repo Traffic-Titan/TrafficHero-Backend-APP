@@ -5,6 +5,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from Main import MongoDB # 引用MongoDB連線實例
 import Function.Time as Time
 import Service.Token as Token
+import Function.Logo as Logo
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 
@@ -53,13 +54,15 @@ def processData(url):
         all_update_time = [time.text for time in soup.find_all('span', class_="wup_time")] # 取得所有發布時間
 
         documents = [] # 儲存所有資料
+        logo_url = Logo.get("freeway", "All") # 取得Logo
         for data in range(len(all_title)): # 將資料轉換成MongoDB格式
             document = {
                 "area": "All",
                 "title": all_title[data],
                 "news_category": all_type[data],
                 "news_url": all_url[data],
-                "update_time": Time.format(all_update_time[data])
+                "update_time": Time.format(all_update_time[data]),
+                "logo_url": logo_url
             }
             documents.append(document) # 將資料加入documents
         return documents

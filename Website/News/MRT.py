@@ -13,6 +13,7 @@ import hashlib
 from collections import OrderedDict
 import Function.Time as Time
 import Function.Link as Link
+import Function.Logo as Logo
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 
@@ -49,6 +50,7 @@ def dataToDatabase(area: str):
         data = TDX.getData(url)
         
         documents = []
+        logo_url = Logo.get("mrt", area) # 取得Logo
         for d in data["Newses"]: # 將資料整理成MongoDB的格式
             document = {
                 "area": area,
@@ -57,7 +59,8 @@ def dataToDatabase(area: str):
                 "news_category": numberToText(d['NewsCategory']),
                 "description": d['Description'],
                 "news_url": d['NewsURL'] if 'NewsURL' in d else "",
-                "update_time": Time.format(d['UpdateTime'])
+                "update_time": Time.format(d['UpdateTime']),
+                "logo_url": logo_url
             }
             documents.append(document)
 
