@@ -20,11 +20,13 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
             https://tdx.transportdata.tw/api-service/swagger/advanced/75571df3-8f34-45ee-862d-525774ff7250#/Locator/Locator_03013
         3. TDX - 指定[坐標][範圍]之全臺公車預估到站資料(N1) v2 \n
             https://tdx.transportdata.tw/api-service/swagger/advanced/b1b2b02c-b5f3-405f-aff5-7b912b3e8623#/Bus%20Advanced(Near%20By)/BusApi_EstimatedTimeOfArrival_NearBy_2855
-        4.  政府資料開放平臺 - 單點坐標回傳行政區
-            https://data.gov.tw/dataset/101898 \n   
+        4.  政府資料開放平臺 - 單點坐標回傳行政區 \n  
+            https://data.gov.tw/dataset/101898  \n  
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
+    documents = []
+
     # TDX - 指定[坐標]周邊公共運輸服務資料，預設為範圍 500m 內
     nearbyTransportUrl="https://tdx.transportdata.tw/api/advanced/V3/Map/GeoLocating/Transit/Nearby/LocationX/"+longitude+"/LocationY/"+latitude+"/Distance/500?%24format=JSON"
     nearbyTransportdata = getData(nearbyTransportUrl)
@@ -98,16 +100,26 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
                         for index in context['Stops']:
                             if(index['StopID'] == DestinationStop):
                                 DestinationName = index['StopName']['Zh_tw']
-
-                print(RouteUID +"," +str(EstimateTime)+","+DestinationName)
+                document = {
+                    "路線名稱":RouteUID,
+                    "預估到站時間 (min)":str(EstimateTime),
+                    "終點站":DestinationName
+                }
+                documents.append(document)
             
     # 查詢附近"鐵路"站點，若Count回傳不為0，則表示有站點
     if(nearbyTransportdata[0]['RailStations']['Count'] != 0):
         for data in nearbyTransportdata[0]['RailStations']['RailStationList']:
-            print(data)
+            document = {
+                    "鐵路":data
+                }
+            documents.append(document)
 
     # 查詢附近"公共自行車"站點，若Count回傳不為0，則表示有站點
     if(nearbyTransportdata[0]['BikeStations']['Count'] != 0):
         for data in nearbyTransportdata[0]['BikeStations']['BikeStationList']:
-            print(data)
-    return {"message": "test"}
+            document = {
+                    "公共自行車":data
+                }
+            documents.append(document)
+    return documents
