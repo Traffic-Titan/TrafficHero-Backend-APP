@@ -12,6 +12,7 @@ import urllib.request as request
 import Function.Time as Time
 import Function.Link as Link
 from Main import MongoDB # 引用MongoDB連線實例
+import Function.Logo as Logo
 
 router = APIRouter(tags=["2.最新消息(Website)"],prefix="/Website/News")
 
@@ -59,6 +60,7 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
         data = TDX.getData(url) # 取得資料
         
         documents = []
+        logo_url = Logo.get("provincial_highway", "All") # 取得Logo
         for d in data["Newses"]: # 將資料整理成MongoDB的格式
             document = {
                 "area": "All",
@@ -67,7 +69,8 @@ async def updateNews(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
                 "news_category": numberToText(d['NewsCategory']),
                 "description": d['Description'],
                 "news_url": d['NewsURL'] if 'NewsURL' in d else "",
-                "update_time": Time.format(d['UpdateTime'])
+                "update_time": Time.format(d['UpdateTime']),
+                "logo_url": logo_url
             }
             documents.append(document)
 
