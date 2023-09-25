@@ -7,6 +7,7 @@ import requests
 import json
 import xml.etree.ElementTree as ET
 from Service.TDX import getData
+import time
 
 router = APIRouter(tags=["4-2.大眾運輸資訊(APP)"],prefix="/APP/Information/PublicTransport")
 
@@ -21,11 +22,14 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
         3. TDX - 指定[坐標][範圍]之全臺公車預估到站資料(N1) v2 \n
             https://tdx.transportdata.tw/api-service/swagger/advanced/b1b2b02c-b5f3-405f-aff5-7b912b3e8623#/Bus%20Advanced(Near%20By)/BusApi_EstimatedTimeOfArrival_NearBy_2855
         4.  政府資料開放平臺 - 單點坐標回傳行政區 \n  
-            https://data.gov.tw/dataset/101898  \n  
+            https://data.gov.tw/dataset/101898  \n
+        5.  取得指定縣市之市區公車路線引用參數\n
+            https://tdx.transportdata.tw/api-service/swagger/basic/30bc573f-0d73-47f2-ac3c-37c798b86d37#/Basic/TransportNetwork_03003\n  
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     documents = []
+    DestinationStop = ""
 
     # TDX - 指定[坐標]周邊公共運輸服務資料，預設為範圍 500m 內
     nearbyTransportUrl="https://tdx.transportdata.tw/api/advanced/V3/Map/GeoLocating/Transit/Nearby/LocationX/"+longitude+"/LocationY/"+latitude+"/Distance/500?%24format=JSON"
@@ -38,9 +42,16 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
         predictedArrivedUrl = "https://tdx.transportdata.tw/api/advanced/v2/Bus/EstimatedTimeOfArrival/NearBy?%24top=30&%24spatialFilter=nearby("+ latitude +","+ longitude +","+ str(500) +")&%24format=JSON"
 
         for data in getData(predictedArrivedUrl):
+            
+            # 部分縣市的第一筆資料並非車牌號碼，故跳過第一筆ex. 桃園
+            if('PlateNumb' not in data):
+                continue
+
+            # StopSequence：計算站的總數量
+            StopSequence = 0
 
             # 判斷公車車牌若不為 -1 ，則表示目前正在行駛中
-            if(data['PlateNumb'] != "-1" and data['PlateNumb'] != " ") :
+            if(data['PlateNumb'] != "-1" and data['PlateNumb'] != "") :
 
                 RouteUID = data['RouteUID'] # 公車路線UID
 
@@ -76,7 +87,26 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
                 
                 CityName = cityNameDict[ctyName] # 取得縣市名稱代號 
                 EstimateTime = int(data['EstimateTime']/60) # 估計到站時間，單位 分鐘
-                DestinationStop = data['DestinationStop'] # 終點站StopID
+                if('DestinationStop' in data):
+                    DestinationStop = data['DestinationStop'] # 終點站StopID
+                else:
+                    allCountryBus_URL = "https://tdx.transportdata.tw/api/basic/V3/Map/Basic/Bus/Route/City/"+ CityName +"?%24format=JSON"
+                    allCountryBus_response = getData(allCountryBus_URL)
+                    
+                    try:
+                        for response in allCountryBus_response:
+                            if(response['RouteUID'] == RouteUID):
+                                busRoute_URL = "https://tdx.transportdata.tw/api/basic/v2/Bus/StopOfRoute/City/"+CityName+"/"+response["RouteName"]+"?%24top=1&%24format=JSON"
+                                busRoute_response = getData(busRoute_URL)
+                                for sequence in busRoute_response[0]['Stops']:
+                                    # 透過StopSequence找出最終站
+                                    if(StopSequence < sequence['StopSequence']):
+                                        StopSequence = sequence['StopSequence']
+                                
+                                        # 終點站StopID
+                                        DestinationStop = sequence['StopID']
+                    except Exception as e:
+                        print(e)
                 DestinationName = "" # 終點站名稱
 
                 # 判斷公車是 市區公車 還是 客運公車，給出不同的URL進行處理
@@ -91,22 +121,22 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
                 
                 # 市區公車
                 else:
-                    RouteUID = data['RouteName']['Zh_tw']
-                    processURL = "https://tdx.transportdata.tw/api/basic/v2/Bus/StopOfRoute/City/"+CityName+"/"+RouteUID+"?%24top=30&%24format=JSON"
-                    cityBus_Data = getData(processURL)
-
-                    # 拆解 cityBus_Data，因為有兩層，所以用了兩層迴圈進行
-                    for context in cityBus_Data:
-                        for index in context['Stops']:
-                            if(index['StopID'] == DestinationStop):
-                                DestinationName = index['StopName']['Zh_tw']
+                    processURL = "https://tdx.transportdata.tw/api/basic/v2/Bus/StopOfRoute/City/"+CityName+"/"+data['RouteName']['Zh_tw']+"?%24top=1&%24format=JSON"
+                    try:
+                        cityBus_Data = getData(processURL)
+                        for context in cityBus_Data[0]['Stops']:
+                            if(context['StopID'] == DestinationStop):
+                                DestinationName = context['StopName']['Zh_tw']
+                    except Exception as e:
+                        print(e)
                 document = {
-                    "路線名稱":RouteUID,
+                    "路線名稱":data['RouteName']['Zh_tw'],
+                    "站點名稱":data['StopName']['Zh_tw'],
                     "預估到站時間 (min)":str(EstimateTime),
                     "終點站":DestinationName
                 }
                 documents.append(document)
-            
+
     # 查詢附近"鐵路"站點，若Count回傳不為0，則表示有站點
     if(nearbyTransportdata[0]['RailStations']['Count'] != 0):
         for data in nearbyTransportdata[0]['RailStations']['RailStationList']:
