@@ -3,7 +3,7 @@
 2. 讀取資料庫的各個API再分析。
 3. 超商因為資料太大，而且沒有附上經緯度座標，需要一個一個寫入。因此仍需要點時間
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import Service.Token as Token
 from enum import Enum
@@ -57,7 +57,7 @@ def get_Gas_Station_LatLng(latitude:str,longitude:str):
     return nearestData    
 
 @router.get("/QuickSearch/GasStation")
-async def gasStation(latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends((HTTPBearer()))):  
+async def gasStation(mode:str, latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends((HTTPBearer()))):  
 
     """
     一、資料來源: \n
@@ -72,13 +72,15 @@ async def gasStation(latitude:str,longitude:str, token: HTTPAuthorizationCredent
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    # Url = []
-    # print(get_Gas_Station_LatLng(gas.latitude,gas.longitude,gas.Type)['座標'])
-    url = "https://www.google.com/maps/dir/?api=1&destination="+ str(get_Gas_Station_LatLng(latitude,longitude)['地址']) +"&travelmode=driving&dir_action=navigate"
-    # return Url
-
-    response_data = {"url": url}
-    return response_data
+    match mode:
+        case "Car":
+            mode = "driving"
+        case "Scooter":
+            mode = "motorcycle"
+        case _:
+            raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
+        
+    return {"url": f"https://www.google.com/maps/dir/?api=1&destination={str(get_Gas_Station_LatLng(latitude,longitude)['地址'])}&travelmode={mode}&dir_action=navigate"}
 
 def get_ConvenientStore(latitude:str,longitude:str):
     #Points_After_Output:存半徑 N 公里生成的點
@@ -96,7 +98,7 @@ def get_ConvenientStore(latitude:str,longitude:str):
     for angle in range(0, 360, 60):
         # 以使用者目前的經緯度查詢 半徑 5 公里 內的便利商店
         Points_After_Output.append(geodesic(kilometers=5).destination((latitude, longitude),bearing = angle))
-    
+        
     #讀取資料庫內的所有便利商店經緯度
     all_ConvenienceStore_LatLng = collection.find({"LatLng":{"$ne":None}})
     
@@ -119,7 +121,7 @@ def get_ConvenientStore(latitude:str,longitude:str):
     return nearestData
 
 @router.get("/QuickSearch/ConvenientStore")
-async def convenientStore(latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+async def convenientStore(mode: str, latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
             1. 政府資料開放平臺 - 全國5大超商資料集
@@ -133,10 +135,12 @@ async def convenientStore(latitude:str,longitude:str, token: HTTPAuthorizationCr
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
 
-    # Url = []
-    # print(get_ConvenientStore(convenient.latitude,convenient.longitude)['座標'])
-    url = "https://www.google.com/maps/dir/?api=1&destination="+ str(get_ConvenientStore(latitude,longitude)['地址']) +"&travelmode=driving&dir_action=navigate"
-    # return Url
+    match mode:
+        case "Car":
+            mode = "driving"
+        case "Scooter":
+            mode = "motorcycle"
+        case _:
+            raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
 
-    response_data = {"url": url}
-    return response_data
+    return {"url": f"https://www.google.com/maps/dir/?api=1&destination={str(get_ConvenientStore(latitude,longitude)['地址'])}&travelmode={mode}&dir_action=navigate"}
