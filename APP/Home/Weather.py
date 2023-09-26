@@ -11,71 +11,11 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import math
 from scipy.spatial import distance
+from Main import MongoDB # 引用MongoDB連線實例
+import Function.Time as Time
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 
-# @router.get("/Weather_selenium", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
-async def weather_selenium(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    """
-    Longitude: 經度, Latitude: 緯度\n\n
-    資料來源:
-    1. 中央氣象局官網\n
-        https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID=1000901 (ex: 雲林縣斗六市)
-    2. 單點坐標回傳行政區\n
-        https://data.gov.tw/dataset/101898
-    3. 自動氣象站-氣象觀測資料\n
-        https://opendata.cwb.gov.tw/dataset/observation/O-A0001-001
-    """
-    Token.verifyToken(token.credentials,"user") # JWT驗證
-    currentTime = datetime.datetime.now() # 取得目前的時間 
-    # timeInterval = [datetime.datetime.strptime(str(datetime.datetime.now().date())+'00:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'03:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'06:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'09:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'12:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'15:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'18:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'21:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'23:59','%Y-%m-%d%H:%M%S')] # 中央氣象局上時間的區間分配
-
-    try:
-        # 取得鄉鎮市區代碼(XML)
-        url = f"https://api.nlsc.gov.tw/other/TownVillagePointQuery/{Longitude}/{Latitude}/4326"
-        response = requests.get(url)
-        root = ET.fromstring(response.content.decode("utf-8"))
-        if root.find('error'): # ex: https://api.nlsc.gov.tw/other/TownVillagePointQuery/120.473798/24.307516/4326
-            return {"detail": "查無資料"}
-        TownID = root.find('villageCode').text[0:7] # 僅取前7碼，ex: 10009010011 -> 1000901
-        
-        if TownID[0] == "6": # 6開頭為6都，需刪除多餘的0，ex: 63000020 -> 6300200)
-            temp = TownID.split("0") # 用0分割，ex: 63000020 -> ["63", "", "", "", "2", ""]
-            temp = [item for item in temp if item != ""] # 將空字串刪除，ex: ["63", "2"]
-            TownID = temp[0].ljust(3, "0") + str(int(temp[1]) * 100).rjust(4, "0") # 前三字為縣市，後四字為鄉鎮市區，最後補0成7碼
-        
-        ResultURL = f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={TownID}" # 取得最終的URL
-        
-        #Python Selenium 
-        chrome_options = Options()
-        service = Service()
-
-        chrome_options.add_argument('log-level=3') # 指定不出現js.console的回覆
-        chrome_options.add_argument("--start-maximized") #指定啟動時以視窗最大化顯示
-        # chrome_options.add_argument("--headless") # 指定selenium在背景運行
-        browser = webdriver.Chrome(service=service, options=chrome_options)
-        # browser.maximize_window() # 將視窗最大化，以利後續定位按鈕用
-        browser.get(ResultURL)
-
-        GT_T = browser.find_elements(By.CSS_SELECTOR,'span.GT_T') # 定位目前攝氏溫度
-        for celsius in GT_T:
-            if(len(celsius.text)!=0):
-                Current_Celsius = celsius.text # 取得目前攝氏溫度
-
-        Temperature = browser.find_element(By.CSS_SELECTOR,'span.temperature') # 定位最高、最低溫 (不能指定selenium在背景！)
-        Current_TemperatureInterval = Temperature.text # 取得最高、最低溫度區間 Ex: 29~32
-
-        probabilityOfRain = browser.find_element(By.XPATH,'//*[@id="TableId3hr"]/tbody/tr[5]/td[1]') # 定位降雨機率
-        
-
-        return {"Area": f'{root.find("ctyName").text}{root.find("townName").text}', "URL": f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={TownID}","Temperature":Current_Celsius + '°C',"Lowest to Highest Temperature":Current_TemperatureInterval,"Probability Of Rain":probabilityOfRain.text}
-        
-    except requests.exceptions.RequestException as e:
-        return {"error": f"Request error: {e}"}
-    
-    except ET.ParseError as e:
-        return {"error": f"XML parse error: {e}"}
-    
 @router.get("/Weather", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
 async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
@@ -144,6 +84,15 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
                 stationName = data_from_observation_station['records']['location'][0]['locationName'] # 觀測站名稱
                 result_stationID = data_from_observation_station['records']['location'][0]['stationId'] # 觀測站名稱
         
+        # 根據系統時間判斷白天或晚上(以後可改成根據日出日落時間判斷)
+        if 6 <= Time.getCurrentDatetime().hour <= 18:
+            type = "day"
+        else:
+            type = "night"
+        
+        collection = MongoDB.getCollection("traffic_hero","weather_icon")   
+        weather_icon_url = collection.find_one({"type": type, "weather": weatherDescription},{"_id":0,"icon_url":1}).get("icon_url") # 取得天氣圖示URL
+        
         result = {
             "area": f'{root.find("ctyName").text}{root.find("townName").text}',
             "url": f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={TownID}",
@@ -151,7 +100,7 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
             "the_lowest_temperature": round(temperatureInterval_Low),
             "the_highest_temperature": round(temperatureInterval_High),
             "weather": weatherDescription,
-            "weather_icon_url": getWeatherIcon(weatherDescription),
+            "weather_icon_url": weather_icon_url if weather_icon_url else "https://cdn3.iconfinder.com/data/icons/basic-2-black-series/64/a-92-256.png" # 預設
             # "觀測站":stationName, # (Dev)
             # "觀測站ID":result_stationID # (Dev)
         }
@@ -162,14 +111,65 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
         return {"error": f"Request error: {e}"}
     except ET.ParseError as e:
         return {"error": f"XML parse error: {e}"}
+        
+# @router.get("/Weather_selenium", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
+# async def weather_selenium(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+#     """
+#     Longitude: 經度, Latitude: 緯度\n\n
+#     資料來源:
+#     1. 中央氣象局官網\n
+#         https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID=1000901 (ex: 雲林縣斗六市)
+#     2. 單點坐標回傳行政區\n
+#         https://data.gov.tw/dataset/101898
+#     3. 自動氣象站-氣象觀測資料\n
+#         https://opendata.cwb.gov.tw/dataset/observation/O-A0001-001
+#     """
+#     Token.verifyToken(token.credentials,"user") # JWT驗證
+#     currentTime = datetime.datetime.now() # 取得目前的時間 
+#     # timeInterval = [datetime.datetime.strptime(str(datetime.datetime.now().date())+'00:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'03:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'06:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'09:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'12:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'15:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'18:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'21:00','%Y-%m-%d%H:%M%S'),datetime.datetime.strptime(str(datetime.datetime.now().date())+'23:59','%Y-%m-%d%H:%M%S')] # 中央氣象局上時間的區間分配
+
+#     try:
+#         # 取得鄉鎮市區代碼(XML)
+#         url = f"https://api.nlsc.gov.tw/other/TownVillagePointQuery/{Longitude}/{Latitude}/4326"
+#         response = requests.get(url)
+#         root = ET.fromstring(response.content.decode("utf-8"))
+#         if root.find('error'): # ex: https://api.nlsc.gov.tw/other/TownVillagePointQuery/120.473798/24.307516/4326
+#             return {"detail": "查無資料"}
+#         TownID = root.find('villageCode').text[0:7] # 僅取前7碼，ex: 10009010011 -> 1000901
+        
+#         if TownID[0] == "6": # 6開頭為6都，需刪除多餘的0，ex: 63000020 -> 6300200)
+#             temp = TownID.split("0") # 用0分割，ex: 63000020 -> ["63", "", "", "", "2", ""]
+#             temp = [item for item in temp if item != ""] # 將空字串刪除，ex: ["63", "2"]
+#             TownID = temp[0].ljust(3, "0") + str(int(temp[1]) * 100).rjust(4, "0") # 前三字為縣市，後四字為鄉鎮市區，最後補0成7碼
+        
+#         ResultURL = f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={TownID}" # 取得最終的URL
+        
+#         #Python Selenium 
+#         chrome_options = Options()
+#         service = Service()
+
+#         chrome_options.add_argument('log-level=3') # 指定不出現js.console的回覆
+#         chrome_options.add_argument("--start-maximized") #指定啟動時以視窗最大化顯示
+#         # chrome_options.add_argument("--headless") # 指定selenium在背景運行
+#         browser = webdriver.Chrome(service=service, options=chrome_options)
+#         # browser.maximize_window() # 將視窗最大化，以利後續定位按鈕用
+#         browser.get(ResultURL)
+
+#         GT_T = browser.find_elements(By.CSS_SELECTOR,'span.GT_T') # 定位目前攝氏溫度
+#         for celsius in GT_T:
+#             if(len(celsius.text)!=0):
+#                 Current_Celsius = celsius.text # 取得目前攝氏溫度
+
+#         Temperature = browser.find_element(By.CSS_SELECTOR,'span.temperature') # 定位最高、最低溫 (不能指定selenium在背景！)
+#         Current_TemperatureInterval = Temperature.text # 取得最高、最低溫度區間 Ex: 29~32
+
+#         probabilityOfRain = browser.find_element(By.XPATH,'//*[@id="TableId3hr"]/tbody/tr[5]/td[1]') # 定位降雨機率
+        
+
+#         return {"Area": f'{root.find("ctyName").text}{root.find("townName").text}', "URL": f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={TownID}","Temperature":Current_Celsius + '°C',"Lowest to Highest Temperature":Current_TemperatureInterval,"Probability Of Rain":probabilityOfRain.text}
+        
+#     except requests.exceptions.RequestException as e:
+#         return {"error": f"Request error: {e}"}
     
-def getWeatherIcon(weather: str): # 待辦: 資料庫存取、更多天氣狀況
-    match weather[0]: # 取得第一個字
-        case "晴":
-            return "https://cdn2.iconfinder.com/data/icons/weather-color-2/500/weather-01-256.png"
-        case "多": # 多雲
-            return "https://cdn2.iconfinder.com/data/icons/weather-color-2/500/weather-02-256.png"
-        case "陰":
-            return "https://cdn3.iconfinder.com/data/icons/tiny-weather-1/512/cloud-256.png"
-        case _:
-            return "https://cdn3.iconfinder.com/data/icons/basic-2-black-series/64/a-92-256.png" # 預設
+#     except ET.ParseError as e:
+#         return {"error": f"XML parse error: {e}"}
