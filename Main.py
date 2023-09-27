@@ -109,63 +109,63 @@ app.include_router(PublicBicycle.router)
 from APP.Information.Tourism import Main
 app.include_router(Main.router)
 
-# ---------------------------------------------------------------
+# # ---------------------------------------------------------------
 
-# 0.會員管理(Website)
-from Website.Account import Main
-app.include_router(Main.router)
+# # 0.會員管理(Website)
+# from Website.Account import Main
+# app.include_router(Main.router)
 
-# 0.群組通訊(Website)
-from Website.Chat import Main
-app.include_router(Main.router)
+# # 0.群組通訊(Website)
+# from Website.Chat import Main
+# app.include_router(Main.router)
 
-# 1.首頁(Website)
-from Website.Home import Main, OperationalStatus
-app.include_router(Main.router)
-app.include_router(OperationalStatus.router)
+# # 1.首頁(Website)
+# from Website.Home import Main, OperationalStatus
+# app.include_router(Main.router)
+# app.include_router(OperationalStatus.router)
 
-# 2.最新消息(Website)
-from Website.News import TaiwanRailway, TaiwanHighSpeedRail, MRT, Bus, IntercityBus, ProvincialHighway, LocalRoad, TaiwanTouristShuttle, Link, AlishanForestRailway, Freeway, PublicBicycle
-app.include_router(TaiwanRailway.router)
-app.include_router(TaiwanHighSpeedRail.router)
-app.include_router(MRT.router)
-app.include_router(Bus.router)
-app.include_router(IntercityBus.router)
-app.include_router(ProvincialHighway.router)
-app.include_router(LocalRoad.router)
-app.include_router(TaiwanTouristShuttle.router)
-app.include_router(AlishanForestRailway.router)
-app.include_router(Freeway.router)
-app.include_router(PublicBicycle.router)
-app.include_router(Link.router)
+# # 2.最新消息(Website)
+# from Website.News import TaiwanRailway, TaiwanHighSpeedRail, MRT, Bus, IntercityBus, ProvincialHighway, LocalRoad, TaiwanTouristShuttle, Link, AlishanForestRailway, Freeway, PublicBicycle
+# app.include_router(TaiwanRailway.router)
+# app.include_router(TaiwanHighSpeedRail.router)
+# app.include_router(MRT.router)
+# app.include_router(Bus.router)
+# app.include_router(IntercityBus.router)
+# app.include_router(ProvincialHighway.router)
+# app.include_router(LocalRoad.router)
+# app.include_router(TaiwanTouristShuttle.router)
+# app.include_router(AlishanForestRailway.router)
+# app.include_router(Freeway.router)
+# app.include_router(PublicBicycle.router)
+# app.include_router(Link.router)
 
-# 3.即時訊息推播(Website)
-from Website.CMS import Main
-app.include_router(Main.router)
+# # 3.即時訊息推播(Website)
+# from Website.CMS import Main
+# app.include_router(Main.router)
 
-# 4-1.道路資訊(Website)
-from Website.Information.Road import Main
-app.include_router(Main.router)
+# # 4-1.道路資訊(Website)
+# from Website.Information.Road import Main
+# app.include_router(Main.router)
 
-# 4-2.大眾運輸資訊(Website)
-from Website.Information.PublicTransport import Main, PublicBicycle,BusRoute,InterCityBusRoute
-app.include_router(Main.router)
-app.include_router(BusRoute.router)
-app.include_router(PublicBicycle.router)
-app.include_router(InterCityBusRoute.router)
+# # 4-2.大眾運輸資訊(Website)
+# from Website.Information.PublicTransport import Main, PublicBicycle,BusRoute,InterCityBusRoute
+# app.include_router(Main.router)
+# app.include_router(BusRoute.router)
+# app.include_router(PublicBicycle.router)
+# app.include_router(InterCityBusRoute.router)
 
-# 5.觀光資訊(Website)
-from Website.Information.Tourism import Main
-app.include_router(Main.router)
+# # 5.觀光資訊(Website)
+# from Website.Information.Tourism import Main
+# app.include_router(Main.router)
 
-# ---------------------------------------------------------------
+# # ---------------------------------------------------------------
 
-# 通用功能
-from Universal import Logo, API
-app.include_router(API.router)
-app.include_router(Logo.router)
+# # 通用功能
+# from Universal import Logo, API
+# app.include_router(API.router)
+# app.include_router(Logo.router)
 
-# ---------------------------------------------------------------
+# # ---------------------------------------------------------------
 
 # #每天0點0分定時執行Function
 # def setInterval(function):
