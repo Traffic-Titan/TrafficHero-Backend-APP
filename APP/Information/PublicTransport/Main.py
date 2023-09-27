@@ -10,6 +10,8 @@ import time
 
 router = APIRouter(tags=["4-2.大眾運輸資訊(APP)"],prefix="/APP/Information/PublicTransport")
 collection = MongoDB.getCollection("traffic_hero","information_bus_route")
+collection_interCity = MongoDB.getCollection("traffic_hero","information_interCity_bus_route")
+
 
 @router.get("/NearbyStationInfo")
 async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
@@ -34,14 +36,14 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
     DestinationStop = ""
 
     # TDX - 指定[坐標]周邊公共運輸服務資料，預設為範圍 500m 內
-    nearbyTransportUrl="https://tdx.transportdata.tw/api/advanced/V3/Map/GeoLocating/Transit/Nearby/LocationX/"+longitude+"/LocationY/"+latitude+"/Distance/500?%24format=JSON"
+    nearbyTransportUrl="https://tdx.transportdata.tw/api/advanced/V3/Map/GeoLocating/Transit/Nearby/LocationX/"+longitude+"/LocationY/"+latitude+"/Distance/"+str(500)+"?%24format=JSON"
     nearbyTransportdata = getData(nearbyTransportUrl)
 
     # 查詢附近"公車"站點，若Count回傳不為0，則表示有站點
     if(nearbyTransportdata[0]['BusStations']['Count'] != 0):
 
         # 取得指定[位置,範圍]的全臺公車預估到站資料
-        predictedArrivedUrl = "https://tdx.transportdata.tw/api/advanced/v2/Bus/EstimatedTimeOfArrival/NearBy?%24top=30&%24spatialFilter=nearby("+ latitude +","+ longitude +","+ str(500) +")&%24format=JSON"
+        predictedArrivedUrl = "https://tdx.transportdata.tw/api/advanced/v2/Bus/EstimatedTimeOfArrival/NearBy?%24spatialFilter=nearby("+ latitude +","+ longitude +","+ str(500) +")&%24format=JSON"
 
         for data in getData(predictedArrivedUrl):
             
@@ -58,25 +60,24 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
                 # 預估到站時間
                 EstimateTime = int(data['EstimateTime']/60) # 估計到站時間，單位 分鐘
 
-                # 從資料庫 traffic_hero.information_bus_route 找出對應UID的車輛
-                cursors = collection.find_one({"RouteUID":RouteUID})
-
-                DestinationName = "" # 終點站名稱
+                # 終點站名稱Initial
+                DestinationName = "" 
 
                 # 判斷公車是 市區公車 還是 客運公車，給出不同的URL進行處理
                 # 客運公車
                 if(RouteUID[0:3] == "THB"):
-                    RouteUID = RouteUID[3:len(RouteUID)+1]
-                    processURL = "https://tdx.transportdata.tw/api/basic/v2/Bus/Route/InterCity/"+RouteUID+"?%24format=JSON"
-                    roadWayBus_Data = getData(processURL)
-
-                    for context in roadWayBus_Data:
-                        DestinationName = context['DestinationStopNameZh']
-                
-                # 市區公車
-                else:
+                    # 從資料庫 traffic_hero.information_interCity_bus_route 找出對應UID的車輛
+                    cursors = collection_interCity.find_one({"RouteUID":RouteUID})
                     # 從資料庫查詢終點站名稱
                     DestinationName = cursors['Stops'][len(cursors['Stops'])-1]['StopName']['Zh_tw']
+                    
+                # 市區公車
+                else:
+                    # 從資料庫 traffic_hero.information_bus_route 找出對應UID的車輛
+                    cursors = collection.find_one({"RouteUID":RouteUID})
+                    # 從資料庫查詢終點站名稱
+                    DestinationName = cursors['Stops'][len(cursors['Stops'])-1]['StopName']['Zh_tw']
+                
                 document = {
                     "路線名稱":data['RouteName']['Zh_tw'],
                     "站點名稱":data['StopName']['Zh_tw'],
