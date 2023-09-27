@@ -52,7 +52,7 @@ async def processData(area, url):
         "detail": "服務維護中" # 狀態
     }
     try:
-        async with httpx.AsyncClient(timeout = 2) as client: # timeout: 2秒
+        async with httpx.AsyncClient(timeout = 5) as client: # timeout: 5秒
             response = await client.get(url) # 發送請求
             dataAll = response.json()
         
@@ -60,9 +60,9 @@ async def processData(area, url):
             totalAmount = 0 # 自行計算金額 - 預設為0
             
             if len(dataAll['Result']['Bills']) != 0: # 未繳費 - 未過期
-                totalAmount += sum(dataAll['Result']['Bills'][i]['Amount'] for i in range(len(dataAll['Result']['Bills'])))
+                totalAmount += sum(dataAll['Result']['Bills'][i]['PayAmount'] for i in range(len(dataAll['Result']['Bills'])))
             if dataAll['Result']['Reminders'] is not None: # 未繳費 - 已過期
-                totalAmount += sum(reminder['Bills'][i]['Amount'] for reminder in dataAll['Result']['Reminders'] for i in range(len(reminder['Bills'])))
+                totalAmount += sum(reminder['Bills'][i]['PayAmount'] for reminder in dataAll['Result']['Reminders'] for i in range(len(reminder['Bills'])))
             
             detail = { # 存單一縣市的繳費資訊
                 "area": Area.englishToChinese(area), # 縣市中文名稱
