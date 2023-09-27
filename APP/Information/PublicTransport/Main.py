@@ -84,6 +84,7 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
                     "終點站":DestinationName
                 }
                 documents.append(document)
+                documents.sort(key=lambda x: x['預估到站時間 (min)'])
 
     # 查詢附近"鐵路"站點，若Count回傳不為0，則表示有站點
     if(nearbyTransportdata[0]['RailStations']['Count'] != 0):
