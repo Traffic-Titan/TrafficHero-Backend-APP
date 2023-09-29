@@ -106,8 +106,14 @@ app.include_router(Main.router)
 app.include_router(PublicBicycle.router)
 
 # 5.觀光資訊(APP)
-from APP.Information.Tourism import Main
+from APP.Information.Tourism import Main,TouristSpot,TouristHotel,TouristFood,TouristActivity
 app.include_router(Main.router)
+app.include_router(TouristSpot.router)
+app.include_router(TouristHotel.router)
+app.include_router(TouristFood.router)
+app.include_router(TouristActivity.router)
+
+
 
 # # ---------------------------------------------------------------
 
