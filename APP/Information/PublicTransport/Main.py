@@ -13,7 +13,7 @@ collection = MongoDB.getCollection("traffic_hero","information_bus_route")
 collection_interCity = MongoDB.getCollection("traffic_hero","information_interCity_bus_route")
 
 
-@router.get("/NearbyStationInfo")
+@router.get("/NearbyStationInfo",summary="【Read】附近站點資訊")
 async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
      一、資料來源: \n
