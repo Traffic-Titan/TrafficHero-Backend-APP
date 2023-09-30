@@ -32,11 +32,16 @@ async def TouristHotel(latitude:str,longitude:str,token: HTTPAuthorizationCreden
             else:
                 picture = "無附圖"
             document = {
-                "飯店名稱":cursor['HotelName'],
-                "飯店經緯度":(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']),
-                "飯店地址":cursor['Address'],
-                "飯店連絡電話":cursor['Phone'],
-                "飯店縮圖":picture,
+                "名稱":cursor['HotelName'],
+                "經緯度":(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']),
+                "地址":cursor['Address'],
+                "聯絡電話":cursor['Phone'],
+                "圖片":picture,
+                "收費":"無詳細收費",
+                "說明":cursor['DescriptionDetail'],
+                "開放時間":"無詳細開放時間",
+                "連結":"無連結",
+                "活動主辦":"無主辦",
             }
             documents.append(document)
 

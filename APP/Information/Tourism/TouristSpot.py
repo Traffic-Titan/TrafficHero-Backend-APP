@@ -40,14 +40,16 @@ async def TouristSpot(latitude:str,longitude:str,token: HTTPAuthorizationCredent
                 spotCharge = "不需收費" # 部分景點為開放式，不需收費
             
             document = {
-                "景點名稱":cursor['ScenicSpotName'],
-                "景點經緯度":(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']),
-                "景點地址":cursor['Address'],
-                "景點開放時間":openTime,
-                "景點縮圖":picture,
-                "景點收費":spotCharge,
-                "景點說明":cursor['DescriptionDetail'],
-
+                "名稱":cursor['ScenicSpotName'],
+                "經緯度":(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']),
+                "地址":cursor['Address'],
+                "聯絡電話":"無聯絡電話",
+                "圖片":picture,
+                "收費":spotCharge,
+                "說明":cursor['DescriptionDetail'],
+                "開放時間":openTime,
+                "連結":"無連結",
+                "活動主辦":"無主辦",
             }
             documents.append(document)
 

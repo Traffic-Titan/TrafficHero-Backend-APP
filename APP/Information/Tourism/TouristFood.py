@@ -37,12 +37,16 @@ async def TouristFood(latitude:str,longitude:str,token: HTTPAuthorizationCredent
             else:
                 websiteURL = "無連結"
             document = {
-                "店家名稱":cursor['RestaurantName'],
-                "店家經緯度":(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']),
-                "店家地址":cursor['Address'],
-                "店家連絡電話":cursor['Phone'],
-                "店家縮圖":picture,
-                "店家連結":websiteURL
+                "名稱":cursor['RestaurantName'],
+                "經緯度":(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']),
+                "地址":cursor['Address'],
+                "聯絡電話":cursor['Phone'],
+                "圖片":picture,
+                "收費":"無詳細收費",
+                "說明":cursor['DescriptionDetail'],
+                "開放時間":"無詳細開放時間",
+                "連結":websiteURL,
+                "活動主辦":"無主辦",
             }
             documents.append(document)
 
