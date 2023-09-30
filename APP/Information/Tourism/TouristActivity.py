@@ -39,7 +39,7 @@ async def TouristActivity(latitude:str,longitude:str,token: HTTPAuthorizationCre
                 "聯絡電話":cursor['Phone'],
                 "圖片":picture,
                 "收費":"無詳細收費",
-                "說明":cursor['DescriptionDetail'],
+                "說明":cursor['Description'],
                 "開放時間":cursor['StartTime'][0:10]+"~"+cursor['EndTime'][0:10],
                 "連結":"無連結",
                 "活動主辦":cursor['Organizer'],

@@ -38,7 +38,7 @@ async def TouristHotel(latitude:str,longitude:str,token: HTTPAuthorizationCreden
                 "聯絡電話":cursor['Phone'],
                 "圖片":picture,
                 "收費":"無詳細收費",
-                "說明":cursor['DescriptionDetail'],
+                "說明":cursor['Description'],
                 "開放時間":"無詳細開放時間",
                 "連結":"無連結",
                 "活動主辦":"無主辦",
