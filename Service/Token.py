@@ -34,7 +34,7 @@ def decode(token: str):
 def verifyClient(token: str):
     clientToken = { # 建立驗證清單
         "App": os.getenv('appToken'),
-        "Website": os.getenv('websiteToken')
+        # "Website": os.getenv('websiteToken') # 不提供Website Token使用APP API
     }
     if token not in clientToken.values(): # 檢查Token是否存在於驗證清單中
         raise HTTPException(status_code=403, detail="Forbidden")
