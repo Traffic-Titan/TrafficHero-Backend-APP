@@ -36,6 +36,10 @@ async def TouristFood(latitude:str,longitude:str,token: HTTPAuthorizationCredent
                 websiteURL = cursor['WebsiteUrl'] # 店家超連結
             else:
                 websiteURL = "無連結"
+            if(("ParkingPosition" in cursor) and (len(cursor['ParkingPosition']))!=0):
+                parkingSpot = cursor['ParkingPosition'] # 美食店家提供停車
+            else:
+                parkingSpot = f"https://www.google.com/maps/search/附近停車場/@{cursor['Position']['PositionLat']},{cursor['Position']['PositionLon']},16z" # 部分美食店家無提供停車，導至Google Maps搜尋最近停車場或路邊停車
             document = {
                 "名稱":cursor['RestaurantName'],
                 "經緯度":(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']),
@@ -47,6 +51,7 @@ async def TouristFood(latitude:str,longitude:str,token: HTTPAuthorizationCredent
                 "開放時間":"無詳細開放時間",
                 "連結":websiteURL,
                 "活動主辦":"無主辦",
+                "附近停車場":parkingSpot
             }
             documents.append(document)
 

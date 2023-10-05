@@ -88,12 +88,35 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
                 documents.sort(key=lambda x: x['預估到站時間 (min)'])
 
     # 查詢附近"鐵路"站點，若Count回傳不為0，則表示有站點
+    """
+        1. 指定臺鐵[車站]列車即時到離站資料 
+        https://tdx.transportdata.tw/api-service/swagger/basic/5fa88b0c-120b-43f1-b188-c379ddb2593d#/TRA/StationLiveBoardApiController_Get_3213_1
+    """
     if(nearbyTransportdata[0]['RailStations']['Count'] != 0):
         for data in nearbyTransportdata[0]['RailStations']['RailStationList']:
-            document = {
-                    "鐵路":data
-                }
-            documents.append(document)
+            # 判斷列車是否為 " 台鐵 "
+            if(data['StationUID'][0:3] == "TRA"): 
+
+                # 取得 TRA_StationID
+                TRA_StationUID = data['StationUID'][4:len(data['StationUID']) + 1] 
+
+                # 查詢指定臺鐵[車站]列車即時到離站資料 
+                TRA_data = getData(f"https://tdx.transportdata.tw/api/basic/v3/Rail/TRA/StationLiveBoard/Station/{TRA_StationUID}?%24format=JSON")
+                for context in TRA_data['StationLiveBoards']:
+                    
+                    # data['StationUID']:列車UID、TrainNo:列車編號、Direction: 1(逆行)、0(順行)、TrainTypeName:列車車種、StationName:本站名稱、EndingStationName:終點站名稱、ScheduleDepartureTime:預估出發時間
+                    document = {
+                        "StationUID": data['StationUID'],
+                        "StationName" : context['StationName']['Zh_tw'],
+                        "EndingStationName" : context['EndingStationName']['Zh_tw'],
+                        "TrainNo" : context['TrainNo'],
+                        "Direction" : "順行" if(context['Direction'] == 0) else "逆行",
+                        "TrainTypeName" : context['TrainTypeName']['Zh_tw'],
+                        "ScheduleDepartureTime" : context['ScheduleDepartureTime'],
+                    }
+                    documents.append(document)
+            else:
+                documents.append(data)
 
     # 查詢附近"公共自行車"站點，若Count回傳不為0，則表示有站點
     if(nearbyTransportdata[0]['BikeStations']['Count'] != 0):
