@@ -10,28 +10,6 @@ from shapely.geometry.polygon import Polygon
 
 router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
 
-@router.get("/ServiceArea",summary="從TDX上獲取服務區剩餘位置")
-async def serviceArea(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    """
-    一、資料來源: \n
-            1. 交通部運輸資料流通服務平臺(TDX) - 全臺高速公路服務區停車場剩餘位資料 v1
-                https://tdx.transportdata.tw/api-service/swagger/basic/945f57da-f29d-4dfd-94ec-c35d9f62be7d#/FreewayCarPark/ParkingApi_ParkingFreewayAvailability \n
-    二、Input \n
-            1. 
-    三、Output \n
-            1. 
-    四、說明 \n
-            1.
-    """
-    Token.verifyToken(token.credentials,"user") # JWT驗證
-    
-    url = "https://tdx.transportdata.tw/api/basic/v1/Parking/OffStreet/ParkingAvailability/Road/Freeway/ServiceArea?%24top=30&%24format=JSON" 
-    dataAll = getData(url)
-    serviceAreaSpace = []
-    for service in dataAll["ParkingAvailabilities"]:
-        serviceAreaSpace.append(service["CarParkName"]["Zh_tw"]+"剩餘車位："+ str(service["AvailableSpaces"]))
-    return {"serviceAreaSpace":serviceAreaSpace}
-
 @router.get("/EventSearching",summary="根據使用者經緯度回傳各個事件及重要性")
 async def EventSearching(Longitude:str,Latitude:str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     #Points_After_Output:存半徑 N 公里生成的點
