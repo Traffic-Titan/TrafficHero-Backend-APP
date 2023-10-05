@@ -19,3 +19,8 @@ def geocoding(item:str):
 
     for item in result:
         return item['geometry']['location']
+
+@router.get("/GoogleMapsAPI", summary="GoogleMaps API key")
+async def GoogleMapsAPI( token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    Token.verifyToken(token.credentials,"admin") # JWT驗證
+    return os.getenv('Google_Maps_Key')

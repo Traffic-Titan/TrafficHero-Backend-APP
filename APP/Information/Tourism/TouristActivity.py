@@ -31,7 +31,10 @@ async def TouristActivity(latitude:str,longitude:str,token: HTTPAuthorizationCre
                 picture = cursor['Picture']['PictureUrl1'] # 活動附圖
             else:
                 picture = "無附圖"
-            
+            if(("ParkingPosition" in cursor) and (len(cursor['ParkingPosition']))!=0):
+                parkingSpot = cursor['ParkingPosition'] # 活動提供停車
+            else:
+                parkingSpot = f"https://www.google.com/maps/search/附近停車場/@{cursor['Position']['PositionLat']},{cursor['Position']['PositionLon']},16z" # 部分活動無提供停車，導至Google Maps搜尋最近停車場或路邊停車
             document = {
                 "名稱":cursor['ActivityName'],
                 "經緯度":(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']),
@@ -43,6 +46,7 @@ async def TouristActivity(latitude:str,longitude:str,token: HTTPAuthorizationCre
                 "開放時間":cursor['StartTime'][0:10]+"~"+cursor['EndTime'][0:10],
                 "連結":"無連結",
                 "活動主辦":cursor['Organizer'],
+                "附近停車場":parkingSpot
             }
             documents.append(document)
 

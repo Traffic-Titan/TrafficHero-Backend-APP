@@ -31,6 +31,10 @@ async def TouristHotel(latitude:str,longitude:str,token: HTTPAuthorizationCreden
                 picture = cursor['Picture']['PictureUrl1'] # 飯店附圖
             else:
                 picture = "無附圖"
+            if(("ParkingPosition" in cursor) and (len(cursor['ParkingPosition']))!=0):
+                parkingSpot = cursor['ParkingPosition'] # 飯店提供停車
+            else:
+                parkingSpot = f"https://www.google.com/maps/search/附近停車場/@{cursor['Position']['PositionLat']},{cursor['Position']['PositionLon']},16z" # 部分飯店無提供停車，導至Google Maps搜尋最近停車場或路邊停車
             document = {
                 "名稱":cursor['HotelName'],
                 "經緯度":(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']),
@@ -42,6 +46,7 @@ async def TouristHotel(latitude:str,longitude:str,token: HTTPAuthorizationCreden
                 "開放時間":"無詳細開放時間",
                 "連結":"無連結",
                 "活動主辦":"無主辦",
+                "附近停車場":parkingSpot
             }
             documents.append(document)
 
