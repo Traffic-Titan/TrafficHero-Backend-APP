@@ -108,6 +108,9 @@ app.include_router(PublicBicycle.router)
 from APP.Information.PublicTransport.Bus import Search
 app.include_router(Search.router)
 
+from APP.Information.PublicTransport.TaiwanRailway import SearchStation
+app.include_router(SearchStation.router)
+
 # 5.觀光資訊(APP)
 from APP.Information.Tourism import Main,TouristSpot,TouristHotel,TouristFood,TouristActivity,TravelPlan,TourismFindKeyWord
 app.include_router(Main.router)
