@@ -76,8 +76,7 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
                     # 從資料庫 traffic_hero.information_bus_route 找出對應UID的車輛
                     cursors = collection.find_one({"RouteUID":RouteUID})
                     # 從資料庫查詢終點站名稱
-                    DestinationName = cursors['Stops'][len(cursors['Stops'])-1]['StopName']['Zh_tw']
-                
+                    DestinationName = cursors['DestinationStopNameZh']
                 document = {
                     "路線名稱":data['RouteName']['Zh_tw'],
                     "站點名稱":data['StopName']['Zh_tw'],
@@ -89,8 +88,11 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
 
     # 查詢附近"鐵路"站點，若Count回傳不為0，則表示有站點
     """
-        1. 指定臺鐵[車站]列車即時到離站資料 
-        https://tdx.transportdata.tw/api-service/swagger/basic/5fa88b0c-120b-43f1-b188-c379ddb2593d#/TRA/StationLiveBoardApiController_Get_3213_1
+        1. 指定臺鐵[車站]列車即時到離站資料 \n
+        https://tdx.transportdata.tw/api-service/swagger/basic/5fa88b0c-120b-43f1-b188-c379ddb2593d#/TRA/StationLiveBoardApiController_Get_3213_1\n
+        2. 捷運車站別列車即時到離站電子看板資訊\n
+        https://tdx.transportdata.tw/api-service/swagger/basic/268fc230-2e04-471b-a728-a726167c1cfc#/Metro/MetroApi_LiveBoard_2103\n
+
     """
     if(nearbyTransportdata[0]['RailStations']['Count'] != 0):
         for data in nearbyTransportdata[0]['RailStations']['RailStationList']:
@@ -115,6 +117,11 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
                         "ScheduleDepartureTime" : context['ScheduleDepartureTime'],
                     }
                     documents.append(document)
+            # 台北捷運
+            elif(data['StationUID'][0:4] == "TRTC"):
+                
+                # 查詢捷運列車即時到離站資料 
+                MRT_data = getData(f"https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/LiveBoard/{data['StationUID'][0:4]}?%24format=JSON")
             else:
                 documents.append(data)
 
