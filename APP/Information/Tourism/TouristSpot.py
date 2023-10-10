@@ -53,7 +53,7 @@ async def TouristSpot(latitude:str,longitude:str,token: HTTPAuthorizationCredent
             document = {
                 "名稱":cursor['ScenicSpotName'],
                 "經緯度":(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']),
-                "地址":cursor['Address'],
+                "地址":cursor['Address'] if("Address" in cursor) else "無詳細地址",
                 "聯絡電話":"無聯絡電話",
                 "圖片": cursor['Picture']['PictureUrl1'] if("PictureUrl1" in cursor['Picture']) else "無縮圖", # 飯店附圖
                 "收費": cursor['TicketInfo'] if("TicketInfo" in cursor) else "不需收費", #景點收費
