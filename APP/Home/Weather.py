@@ -13,6 +13,7 @@ import math
 from scipy.spatial import distance
 from Main import MongoDB # 引用MongoDB連線實例
 import Function.Time as Time
+import Service.TDX as TDX
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 
@@ -45,17 +46,14 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
         nearestRange = 1  
 
         # 取得鄉鎮市區代碼(XML)
-        url = f"https://api.nlsc.gov.tw/other/TownVillagePointQuery/{longitude}/{latitude}/4326"
-        response = requests.get(url)
-        root = ET.fromstring(response.content.decode("utf-8"))
-        if root.find('error'): # ex: https://api.nlsc.gov.tw/other/TownVillagePointQuery/120.473798/24.307516/4326
-            return {"detail": "查無資料"}
-        TownID = root.find('villageCode').text[0:7] # 僅取前7碼，ex: 10009010011 -> 1000901
+        url = f"https://tdx.transportdata.tw/api/advanced/V3/Map/GeoLocating/District/LocationX/{longitude}/LocationY/{latitude}?%24format=JSON"
+        response = TDX.getData(url)
+        # TownID = root.find('villageCode').text[0:7] # 僅取前7碼，ex: 10009010011 -> 1000901
         
-        if TownID[0] == "6": # 6開頭為6都，需刪除多餘的0，ex: 63000020 -> 6300200)
-            temp = TownID.split("0") # 用0分割，ex: 63000020 -> ["63", "", "", "", "2", ""]
-            temp = [item for item in temp if item != ""] # 將空字串刪除，ex: ["63", "2"]
-            TownID = temp[0].ljust(3, "0") + str(int(temp[1]) * 100).rjust(4, "0") # 前三字為縣市，後四字為鄉鎮市區，最後補0成7碼
+        # if TownID[0] == "6": # 6開頭為6都，需刪除多餘的0，ex: 63000020 -> 6300200)
+        #     temp = TownID.split("0") # 用0分割，ex: 63000020 -> ["63", "", "", "", "2", ""]
+        #     temp = [item for item in temp if item != ""] # 將空字串刪除，ex: ["63", "2"]
+        #     TownID = temp[0].ljust(3, "0") + str(int(temp[1]) * 100).rjust(4, "0") # 前三字為縣市，後四字為鄉鎮市區，最後補0成7碼
                 
         # 無人氣象測站
         observation_station_unmanned =  requests.get('https://opendata.cwb.gov.tw/api/v1/rest/datastore/C-B0074-002?Authorization=CWB-B8C9C901-A011-4D54-B09F-4FC5220B76D9&status=%E7%8F%BE%E5%AD%98%E6%B8%AC%E7%AB%99').json()
@@ -94,8 +92,8 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
         weather_icon_url = collection.find_one({"type": type, "weather": weatherDescription},{"_id":0,"icon_url":1}).get("icon_url") # 取得天氣圖示URL
         
         result = {
-            "area": f'{root.find("ctyName").text}{root.find("townName").text}',
-            "url": f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={TownID}",
+            "area": f'{response[0]["CityName"]}{response[0]["TownName"]}',
+            "url": f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={response[0]['TownCode']}",
             "temperature": round(currentTemperature),
             "the_lowest_temperature": round(temperatureInterval_Low),
             "the_highest_temperature": round(temperatureInterval_High),
