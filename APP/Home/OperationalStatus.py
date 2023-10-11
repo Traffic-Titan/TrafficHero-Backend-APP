@@ -6,6 +6,7 @@ import requests
 import xml.etree.ElementTree as ET
 from Main import MongoDB # 引用MongoDB連線實例
 
+
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 collection = MongoDB.getCollection("traffic_hero","operational_status")
 
@@ -29,13 +30,18 @@ async def operationalstatus(longitude: str, latitude: str, token: HTTPAuthorizat
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     # 取得鄉鎮市區代碼(XML)
-    url = f"https://api.nlsc.gov.tw/other/TownVillagePointQuery/{longitude}/{latitude}/4326"
-    response = requests.get(url)
-    root = ET.fromstring(response.content.decode("utf-8"))
-    if root.find('error'): # ex: https://api.nlsc.gov.tw/other/TownVillagePointQuery/120.473798/24.307516/4326
-        return {"detail": "查無資料"}
+    # url = f"https://api.nlsc.gov.tw/other/TownVillagePointQuery/{longitude}/{latitude}/4326"
+    # response = requests.get(url)
+    url = f"https://tdx.transportdata.tw/api/advanced/V3/Map/GeoLocating/District/LocationX/{longitude}/LocationY/{latitude}?%24format=JSON"
+    response = TDX.getData(url)
+    # root = ET.fromstring(response.content.decode("utf-8"))
+    # if root.find('error'): # ex: https://api.nlsc.gov.tw/other/TownVillagePointQuery/120.473798/24.307516/4326
+    #     return {"detail": "查無資料"}
     
-    area = root.find("ctyName").text
+    # area : 透過經緯度獲得市區名稱
+    area = response[0]["CityName"]
+    # area = root.find("ctyName").text
+
 
     match area:
         # 北部
