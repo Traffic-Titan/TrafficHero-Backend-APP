@@ -7,42 +7,29 @@ from Main import MongoDB # 引用MongoDB連線實例
 from shapely.geometry import Point
 from geopy.distance import geodesic
 from shapely.geometry.polygon import Polygon
+from datetime import datetime
 
 router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
 
-@router.get("/Car",summary="【Read】即時訊息推播-汽車")
+@router.get("/Car",summary="【Read】即時訊息推播-汽車模式")
 async def car(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    Token.verifyToken(token.credentials,"user") # JWT驗證
     # longitude:str, latitude:str, # Dev
-    
-    collection = MongoDB.getCollection("traffic_hero","service_area_parking_status") # 取得MongoDB的collection
-    
-    result = collection.find_one({"name": "楊梅休息站"}, {"_id": 0}) # Demo
-    
-    content = {
-        "type": "高速公路服務區停車位狀態",
-        "icon": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/ROC_Taiwan_Area_National_Freeway_Bureau_Logo.svg/200px-ROC_Taiwan_Area_National_Freeway_Bureau_Logo.svg.png",
-        "content":[
-            f"{result['name']}",
-            f"狀態:{result['status']}",
-            f"尚有{result['available']}格停車位"
-        ],
-        "voice": f"前方 楊梅休息站, 目前還有{result['available']}格停車位，停車位{result['status']}",
-        "longitude": "121.000000", # Demo
-        "latitude": "25.000000", # Demo
-        "piority": "1" # Demo
-    }
-    
-    return content
-    
-@router.get("/Scooter",summary="【Read】即時訊息推播-機車")
-async def scooter(longitude:str, latitude:str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    return "test"
+    collection = MongoDB.getCollection("traffic_hero","cms_car") # 取得MongoDB的collection
+    result = collection.find({"end": {"$gte": datetime.now()}}, {"_id": 0}) # 只顯示end時間未超過現在時間的資料
+    return list(result)
+    
+@router.get("/Scooter",summary="【Read】即時訊息推播-機車模式")
+async def scooter(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    # longitude:str, latitude:str, # Dev
+    Token.verifyToken(token.credentials,"user") # JWT驗證
+    
+    collection = MongoDB.getCollection("traffic_hero","cms_scooter") # 取得MongoDB的collection
+    result = collection.find({"end": {"$gte": datetime.now()}}, {"_id": 0}) # 只顯示end時間未超過現在時間的資料
+    return list(result)
 
-
-@router.get("/EventSearching",summary="根據使用者經緯度回傳各個事件及重要性")
+# @router.get("/EventSearching",summary="根據使用者經緯度回傳各個事件及重要性") # 待處理
 async def EventSearching(Longitude:str,Latitude:str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     #Points_After_Output:存半徑 N 公里生成的點
     Points_After_Output = []
