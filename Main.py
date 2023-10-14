@@ -101,8 +101,11 @@ from APP.Information.Road import Main
 app.include_router(Main.router)
 
 # 4-2.大眾運輸資訊(APP)
-from APP.Information.PublicTransport import Main, PublicBicycle
+from APP.Information.PublicTransport import Main,PublicBicycle,NearbyInfoBus,NearbyInfoTrain,NearbyInfoBike
 app.include_router(Main.router)
+app.include_router(NearbyInfoBus.router)
+app.include_router(NearbyInfoTrain.router)
+app.include_router(NearbyInfoBike.router)
 app.include_router(PublicBicycle.router)
 
 from APP.Information.PublicTransport.Bus import Search
