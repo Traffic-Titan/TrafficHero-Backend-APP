@@ -29,19 +29,11 @@ async def operationalstatus(longitude: str, latitude: str, token: HTTPAuthorizat
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    # 取得鄉鎮市區代碼(XML)
-    # url = f"https://api.nlsc.gov.tw/other/TownVillagePointQuery/{longitude}/{latitude}/4326"
-    # response = requests.get(url)
+    # 取得使用者定位的縣市
     url = f"https://tdx.transportdata.tw/api/advanced/V3/Map/GeoLocating/District/LocationX/{longitude}/LocationY/{latitude}?%24format=JSON"
     response = TDX.getData(url)
-    # root = ET.fromstring(response.content.decode("utf-8"))
-    # if root.find('error'): # ex: https://api.nlsc.gov.tw/other/TownVillagePointQuery/120.473798/24.307516/4326
-    #     return {"detail": "查無資料"}
-    
-    # area : 透過經緯度獲得市區名稱
-    area = response[0]["CityName"]
-    # area = root.find("ctyName").text
 
+    area = response[0]["CityName"]
 
     match area:
         # 北部
@@ -89,101 +81,8 @@ async def operationalstatus(longitude: str, latitude: str, token: HTTPAuthorizat
             name = ["澎湖縣公車"]
 
     result = {
-        "intercity": list(collection.find({"name": {"$in": ["臺鐵", "高鐵", "公路客運"]}},{"_id": 0, "name":1, "status":1})), # 預設顯示的大眾運輸
-        "local": list(sorted(collection.find({"name": {"$in": name}},{"_id": 0, "name":1, "status":1}), key=lambda x: name.index(x["name"]))),
+        "intercity": list(collection.find({"name": {"$in": ["臺鐵", "高鐵", "公路客運"]}},{"_id": 0})), # 預設顯示的大眾運輸
+        "local": list(sorted(collection.find({"name": {"$in": name}},{"_id": 0}), key=lambda x: name.index(x["name"]))),
         "url": "https://tdx.transportdata.tw/alertInfo"
     }
     return result
-    
-def TRA(): # 臺鐵
-    url = "https://tdx.transportdata.tw/api/basic/v3/Rail/TRA/Alert?%24format=JSON" # 先寫死，以後會再放到資料庫
-    status = "無資料" # 預設
-    
-    try:
-        data = TDX.getData(url) # 取得資料
-        
-        for alert in data["Alerts"]:        
-            if  alert["Status"] == 0:
-                status = "red"  # 停止營運
-            elif  alert["Status"] == 2 and status != "red":
-                status = "yellow"  # 部分營運
-            elif  alert["Status"] == 1 and status not in ["red", "yellow"]:
-                status = "green"  # 正常營運
-    except Exception as e:
-        print(e)
-            
-    return status
-
-def THSR(): # 高鐵
-    url = "https://tdx.transportdata.tw/api/basic/v2/Rail/THSR/AlertInfo?%24format=JSON" # 先寫死，以後會再放到資料庫
-    status = "無資料" # 預設
-    
-    try:
-        data = TDX.getData(url) # 取得資料
-        
-        match data[0]["Status"]:
-            case "":
-                status = "green"  # 正常營運
-            case "▲":
-                status = "yellow"  # 部分營運
-            case "X":
-                status = "red"  # 停止營運
-    except Exception as e:
-        print(e)
-            
-    return status
-
-def MRT(system: str): # 捷運
-    url = f"https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/Alert/{system}?%24format=JSON" # 先寫死，以後會再放到資料庫
-    status = "無資料" # 預設
-    
-    try:
-        data = TDX.getData(url) # 取得資料
-        
-        for alert in data["Alerts"]:        
-            if  alert["Status"] == 0:
-                status = "red"  # 停止營運
-            elif  alert["Status"] == 2 and status != "red":
-                status = "yellow"  # 部分營運
-            elif  alert["Status"] == 1 and status not in ["red", "yellow"]:
-                status = "green"  # 正常營運
-    except Exception as e:
-        print(e)
-        
-    return status
-
-def InterCityBus(): # 公路客運
-    url = "https://tdx.transportdata.tw/api/basic/v2/Bus/Alert/InterCity?%24format=JSON" # 先寫死，以後會再放到資料庫
-    status = "無資料" # 預設
-    
-    try:
-        data = TDX.getData(url) # 取得資料
-        
-        if data[0]["Status"] == 0:
-            status = "red"  # 停止營運
-        elif data[0]["Status"] == 2 and status != "red":
-            status = "yellow"  # 部分營運
-        elif data[0]["Status"] == 1 and status not in ["red", "yellow"]:
-            status = "green"  # 正常營運
-    except Exception as e:
-        print(e)
-        
-    return status
-
-def Bus(area: str): # 各縣市公車
-    url = f"https://tdx.transportdata.tw/api/basic/v2/Bus/Alert/City/{area}?%24format=JSON" # 先寫死，以後會再放到資料庫
-    status = "無資料" # 預設
-
-    try:
-        data = TDX.getData(url) # 取得資料
-        
-        if data[0]["Status"] == 0:
-            status = "red"  # 停止營運
-        elif data[0]["Status"] == 2 and status != "red":
-            status = "yellow"  # 部分營運
-        elif data[0]["Status"] == 1 and status not in ["red", "yellow"]:
-            status = "green"  # 正常營運
-    except Exception as e:
-        print(e)
-        
-    return status
