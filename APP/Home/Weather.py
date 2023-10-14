@@ -89,7 +89,7 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
             type = "night"
         
         collection = MongoDB.getCollection("traffic_hero","weather_icon")   
-        weather_icon_url = collection.find_one({"type": type, "weather": weatherDescription},{"_id":0,"icon_url":1}).get("icon_url") # 取得天氣圖示URL
+        weather_icon_url = collection.find_one({"weather": weatherDescription},{"_id":0,f"icon_url_{type}":1}).get(f"icon_url_{type}") # 取得天氣圖示URL 
         
         result = {
             "area": f'{response[0]["CityName"]}{response[0]["TownName"]}',
