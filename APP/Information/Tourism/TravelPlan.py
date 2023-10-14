@@ -19,8 +19,9 @@ async def TravelPlan(latitude:str,longitude:str,DestinationLatitude:str,Destinat
     
     return planTravel(latitude,longitude,DestinationLatitude,DestinationLongitude)
 
-def planTravel(latitude:str,longitude:str,DestinationLatitude:str,DestinationLongitude:str,):
-
-    data = TDX.getData(f"https://tdx.transportdata.tw/api/maas/routing?origin={latitude},{longitude}&destination={DestinationLatitude},{DestinationLongitude}&gc=0.0&top=1&transit=3%2C4%2C5%2C6%2C7%2C8%2C9&transfer_time=15%2C60&first_mile_mode=0&first_mile_time=10&last_mile_mode=0&last_mile_time=10")
+def planTravel(latitude:str,longitude:str,DestinationLatitude:str,DestinationLongitude:str):
+    
+    # 抵達時間訂於目前時間 + 1 日 
+    data = TDX.getData(f"https://tdx.transportdata.tw/api/maas/routing?origin={latitude},{longitude}&destination={DestinationLatitude},{DestinationLongitude}&gc=0.0&top=5&transit=3,4,5,6,7,8,9&transfer_time=0,60&arrival=2023-10-15T14:18:00&first_mile_time=60&last_mile_time=60")
 
     return data
