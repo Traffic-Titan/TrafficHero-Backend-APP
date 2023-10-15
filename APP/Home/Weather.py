@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import Service.Token as Token
 import requests
-import datetime
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
@@ -15,6 +14,7 @@ import Function.Time as Time
 import Service.TDX as TDX
 from dotenv import load_dotenv
 import os
+from datetime import datetime, timedelta
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 
@@ -34,7 +34,6 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
             1.
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
-    currentTime = datetime.datetime.now() # 取得目前的時間
     
     try:
         # Initial
@@ -80,12 +79,14 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
                 result_stationID = data_from_observation_station['records']['location'][0]['stationId'] # 觀測站名稱
         
         # 根據系統時間判斷白天或晚上(以後可改成根據日出日落時間判斷)
-        if 6 <= Time.getCurrentDatetime().hour < 18:
+        currentTime = datetime.now() + timedelta(hours=8) # 取得目前的時間(轉換成台灣時間，伺服器時區為UTC+0)
+        
+        if 6 <= currentTime.hour < 18:
             type = "day"
         else:
             type = "night"
         
-        print(Time.getCurrentDatetime())
+        print(currentTime) # Dev
         
         collection = MongoDB.getCollection("traffic_hero","weather_icon") # 取得天氣圖示URL 
         weather_icon = collection.find_one({"weather": weatherDescription},{"_id":0,f"icon_url_{type}":1}) 
