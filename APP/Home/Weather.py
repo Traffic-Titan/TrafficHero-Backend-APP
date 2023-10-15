@@ -80,7 +80,7 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
                 result_stationID = data_from_observation_station['records']['location'][0]['stationId'] # 觀測站名稱
         
         # 根據系統時間判斷白天或晚上(以後可改成根據日出日落時間判斷)
-        if 6 <= Time.getCurrentDatetime().hour <= 18:
+        if 6 <= Time.getCurrentDatetime().hour < 18:
             type = "day"
         else:
             type = "night"
