@@ -56,17 +56,21 @@ def get_Gas_Station_LatLng(latitude:str,longitude:str):
 
     return nearestData    
 
-@router.get("/QuickSearch/GasStation")
-async def gasStation(mode:str, latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends((HTTPBearer()))):  
+@router.get("/QuickSearch/GasStation", summary="【Read】快速尋找地點-加油站")
+async def gasStation(os: str, mode: str, longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends((HTTPBearer()))):  
 
     """
     一、資料來源: \n
             1. 政府資料開放平臺 - 加油站服務資訊
                 https://data.gov.tw/dataset/6065 \n
     二、Input \n
-            1. Type 加油站類型：直營站 or 加盟站
+            1. os(Client作業系統): Android/IOS
+            2. mode(使用模式): Car/Scooter
+            3. longitude(經度)
+            4. latitude(緯度)
+            5. Type(加油站類型)：直營站/加盟站 (開發中)
     三、Output \n
-            1. 
+            {"url": "(網址)"}
     四、說明 \n
             1.
     """
@@ -80,7 +84,11 @@ async def gasStation(mode:str, latitude:str,longitude:str, token: HTTPAuthorizat
         case _:
             raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
         
-    return {"url": f"https://www.google.com/maps/dir/?api=1&destination={str(get_Gas_Station_LatLng(latitude,longitude)['地址'])}&travelmode={mode}&dir_action=navigate"}
+    match os:
+        case "Android":
+            return {"url": f"https://www.google.com/maps/dir/?api=1&destination={str(get_Gas_Station_LatLng(latitude,longitude)['地址'])}&travelmode={mode}&dir_action=navigate"}
+        case "IOS":
+            return {"url": f"comgooglemapsurl://www.google.com/maps/dir/?api=1&destination={str(get_Gas_Station_LatLng(latitude,longitude)['地址'])}&travelmode={mode}&dir_action=navigate"}
 
 def get_ConvenientStore(latitude:str,longitude:str):
     #Points_After_Output:存半徑 N 公里生成的點
@@ -120,16 +128,19 @@ def get_ConvenientStore(latitude:str,longitude:str):
 
     return nearestData
 
-@router.get("/QuickSearch/ConvenientStore")
-async def convenientStore(mode: str, latitude:str,longitude:str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+@router.get("/QuickSearch/ConvenientStore", summary="【Read】快速尋找地點-便利商店")
+async def convenientStore(os: str, mode: str, longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
             1. 政府資料開放平臺 - 全國5大超商資料集
                 https://data.gov.tw/dataset/32086 \n
     二、Input \n
-            1. 
+            1. os(Client作業系統): Android/IOS
+            2. mode(使用模式): Car/Scooter
+            3. longitude(經度)
+            4. latitude(緯度)
     三、Output \n
-            1. 
+            {"url": "(網址)"}
     四、說明 \n
             1.
     """
@@ -142,5 +153,9 @@ async def convenientStore(mode: str, latitude:str,longitude:str, token: HTTPAuth
             mode = "motorcycle"
         case _:
             raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
-
-    return {"url": f"https://www.google.com/maps/dir/?api=1&destination={str(get_ConvenientStore(latitude,longitude)['地址'])}&travelmode={mode}&dir_action=navigate"}
+        
+    match os:
+        case "Android":
+            return {"url": f"https://www.google.com/maps/dir/?api=1&destination={str(get_ConvenientStore(latitude,longitude)['地址'])}&travelmode={mode}&dir_action=navigate"}
+        case "IOS":
+            return {"url": f"comgooglemapsurl://www.google.com/maps/dir/?api=1&destination={str(get_ConvenientStore(latitude,longitude)['地址'])}&travelmode={mode}&dir_action=navigate"}
