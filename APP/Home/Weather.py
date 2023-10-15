@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import Service.Token as Token
-import xml.etree.ElementTree as ET
 import requests
 import datetime
 from selenium import webdriver
@@ -14,19 +13,19 @@ from scipy.spatial import distance
 from Main import MongoDB # 引用MongoDB連線實例
 import Function.Time as Time
 import Service.TDX as TDX
+from dotenv import load_dotenv
+import os
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 
-@router.get("/Weather", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
+@router.get("/Weather", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象署連結)")
 async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
             1. 中央氣象局官網 (ex: 雲林縣斗六市)
-                https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID=1000901 \n
-            2. 政府資料開放平臺 - 單點坐標回傳行政區
-                https://data.gov.tw/dataset/101898 \n
-            3. 氣象資料開放平臺 - 自動氣象站-氣象觀測資料
-                https://opendata.cwb.gov.tw/dataset/observation/O-A0001-001 \n
+                https://www.cwa.gov.tw/V8/C/W/Town/Town.html?TID=1000901 \n
+            2. 氣象資料開放平臺 - 自動氣象站-氣象觀測資料
+                https://opendata.cwa.gov.tw/dataset/observation/O-A0001-001 \n
     二、Input \n
             1. longitude: 經度, latitude: 緯度\n\n
     三、Output \n
@@ -45,18 +44,16 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
         weatherDescription = ""
         nearestRange = 1  
 
-        # 取得鄉鎮市區代碼(XML)
+        # 取得鄉鎮市區代碼
         url = f"https://tdx.transportdata.tw/api/advanced/V3/Map/GeoLocating/District/LocationX/{longitude}/LocationY/{latitude}?%24format=JSON"
         response = TDX.getData(url)
-        # TownID = root.find('villageCode').text[0:7] # 僅取前7碼，ex: 10009010011 -> 1000901
         
-        # if TownID[0] == "6": # 6開頭為6都，需刪除多餘的0，ex: 63000020 -> 6300200)
-        #     temp = TownID.split("0") # 用0分割，ex: 63000020 -> ["63", "", "", "", "2", ""]
-        #     temp = [item for item in temp if item != ""] # 將空字串刪除，ex: ["63", "2"]
-        #     TownID = temp[0].ljust(3, "0") + str(int(temp[1]) * 100).rjust(4, "0") # 前三字為縣市，後四字為鄉鎮市區，最後補0成7碼
-                
+        # 中央氣象署API Key
+        load_dotenv()
+        CWA_API_Key = os.getenv('CWA_API_Key') 
+          
         # 無人氣象測站
-        observation_station_unmanned =  requests.get('https://opendata.cwb.gov.tw/api/v1/rest/datastore/C-B0074-002?Authorization=CWB-B8C9C901-A011-4D54-B09F-4FC5220B76D9&status=%E7%8F%BE%E5%AD%98%E6%B8%AC%E7%AB%99').json()
+        observation_station_unmanned =  requests.get(f'https://opendata.cwa.gov.tw/api/v1/rest/datastore/C-B0074-002?Authorization={CWA_API_Key}&status=%E7%8F%BE%E5%AD%98%E6%B8%AC%E7%AB%99').json()
         if(observation_station_unmanned["result"] is not None):
             for observation in observation_station_unmanned['records']["data"]["stationStatus"]['station']:
                 # 比對不到輸入資料之縣市 及 區的氣象站，例如：台北市大安區。 查詢輸入之經緯度比對出最近的氣象站
@@ -68,7 +65,7 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
                     stationID = observation['StationID'] # 地區ID ex : 雲林縣斗六市 -> C0K400
 
             # 讀取自動氣象站-氣象觀測資料
-            data_from_observation_station = requests.get(f'https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0001-001?Authorization=CWB-B8C9C901-A011-4D54-B09F-4FC5220B76D9&stationId={stationID}').json()
+            data_from_observation_station = requests.get(f'https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0001-001?Authorization={CWA_API_Key}&stationId={stationID}').json()
             if(data_from_observation_station["result"] is not None):
                 for data in data_from_observation_station['records']['location'][0]['weatherElement']:
                     if(data['elementName'] == "D_TN"):
@@ -88,27 +85,31 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
         else:
             type = "night"
         
-        collection = MongoDB.getCollection("traffic_hero","weather_icon")   
-        weather_icon_url = collection.find_one({"weather": weatherDescription},{"_id":0,f"icon_url_{type}":1}).get(f"icon_url_{type}") # 取得天氣圖示URL 
+        collection = MongoDB.getCollection("traffic_hero","weather_icon") # 取得天氣圖示URL 
+        weather_icon = collection.find_one({"weather": weatherDescription},{"_id":0,f"icon_url_{type}":1}) 
+        weather_icon_url = weather_icon.get(f"icon_url_{type}") if weather_icon and weather_icon.get(f"icon_url_{type}") else "https://cdn3.iconfinder.com/data/icons/basic-2-black-series/64/a-92-256.png" # 預設
+        
+        collection = MongoDB.getCollection("traffic_hero","weather_town_id") # 取得鄉鎮市區代碼
+        TID = collection.find_one({"area": f'{response[0]["CityName"]}{response[0]["TownName"]}'},{"_id":0, "town_id": 1})
+        TID = TID.get("town_id") if TID and TID.get("town_id") else "" # 預設
         
         result = {
             "area": f'{response[0]["CityName"]}{response[0]["TownName"]}',
-            "url": f"https://www.cwb.gov.tw/V8/C/W/Town/Town.html?TID={response[0]['TownCode']}",
+            "url": f"https://www.cwa.gov.tw/V8/C/W/Town/Town.html?TID={TID}",
             "temperature": round(currentTemperature),
             "the_lowest_temperature": round(temperatureInterval_Low),
             "the_highest_temperature": round(temperatureInterval_High),
             "weather": weatherDescription,
-            "weather_icon_url": weather_icon_url if weather_icon_url else "https://cdn3.iconfinder.com/data/icons/basic-2-black-series/64/a-92-256.png" # 預設
+            "weather_icon_url": weather_icon_url
             # "觀測站":stationName, # (Dev)
             # "觀測站ID":result_stationID # (Dev)
         }
             
         return result
         
-    except requests.exceptions.RequestException as e:
-        return {"error": f"Request error: {e}"}
-    except ET.ParseError as e:
-        return {"error": f"XML parse error: {e}"}
+    except Exception as e:
+        return {"message": f"Error: {e}"}
+
         
 # @router.get("/Weather_selenium", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")
 # async def weather_selenium(Longitude: str, Latitude: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
