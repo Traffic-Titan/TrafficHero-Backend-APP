@@ -85,6 +85,8 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
         else:
             type = "night"
         
+        print(Time.getCurrentDatetime())
+        
         collection = MongoDB.getCollection("traffic_hero","weather_icon") # 取得天氣圖示URL 
         weather_icon = collection.find_one({"weather": weatherDescription},{"_id":0,f"icon_url_{type}":1}) 
         weather_icon_url = weather_icon.get(f"icon_url_{type}") if weather_icon and weather_icon.get(f"icon_url_{type}") else "https://cdn3.iconfinder.com/data/icons/basic-2-black-series/64/a-92-256.png" # 預設
