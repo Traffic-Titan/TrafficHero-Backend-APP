@@ -52,7 +52,7 @@ async def processData(area, url):
         "detail": "服務維護中" # 狀態
     }
     try:
-        async with httpx.AsyncClient(timeout = 5) as client: # timeout: 5秒
+        async with httpx.AsyncClient(timeout = 10) as client: # timeout: 10秒
             response = await client.get(url) # 發送請求
             dataAll = response.json()
         
