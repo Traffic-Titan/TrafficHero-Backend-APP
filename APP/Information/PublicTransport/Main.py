@@ -6,6 +6,7 @@ import requests
 from Main import MongoDB # 引用MongoDB連線實例
 import xml.etree.ElementTree as ET
 from Service.TDX import getData
+from APP.Information.PublicTransport.PublicBicycle import getBikeStatus
 import time
 
 router = APIRouter(tags=["4-2.大眾運輸資訊(APP)"],prefix="/APP/Information/PublicTransport")
@@ -261,8 +262,8 @@ def nearbyInfo_train(latitude:str,longitude:str):
                             "剩餘時間":f"{data_mrt['EstimateTime']} 分鐘"
                         }
                         documents.append(document)
-            else:
-                documents.append(data)
+            # else:
+            #     documents.append(data)
     return documents
 # 查詢附近腳踏車站點
 def nearbyInfo_bike(latitude:str,longitude:str):
@@ -271,11 +272,18 @@ def nearbyInfo_bike(latitude:str,longitude:str):
     # TDX - 指定[坐標]周邊公共運輸服務資料，預設為範圍 500m 內
     nearbyTransportUrl="https://tdx.transportdata.tw/api/advanced/V3/Map/GeoLocating/Transit/Nearby/LocationX/"+longitude+"/LocationY/"+latitude+"/Distance/"+str(500)+"?%24format=JSON"
     nearbyTransportdata = getData(nearbyTransportUrl)
+    # 取得鄉鎮市區代碼
+    countryUrl = f"https://tdx.transportdata.tw/api/advanced/V3/Map/GeoLocating/District/LocationX/{longitude}/LocationY/{latitude}?%24format=JSON"
+    countryResponse = getData(countryUrl)
+
     # 查詢附近"公共自行車"站點，若Count回傳不為0，則表示有站點
     if(nearbyTransportdata[0]['BikeStations']['Count'] != 0):
         for data in nearbyTransportdata[0]['BikeStations']['BikeStationList']:
+            bikeStatus = getBikeStatus(countryResponse[0]["City"],data['StationUID'])
             document = {
-                    "公共自行車":data
+                    "公共自行車":data,
+                    "剩餘空位":bikeStatus['station']['BikesCapacity'],
+                    "可借車位":bikeStatus['status']['AvailableRentBikesDetail']['GeneralBikes'],
                 }
             documents.append(document)
     return documents

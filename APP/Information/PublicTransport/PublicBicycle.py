@@ -21,6 +21,11 @@ async def getStatus(area: str, StationUID: str, token: HTTPAuthorizationCredenti
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
 
+    return getBikeStatus(area,StationUID)
+
+    
+def getBikeStatus(area: str, StationUID: str,):
+    
     url = f"https://tdx.transportdata.tw/api/basic/v2/Bike/Availability/City/{area}?%24filter=StationUID%20eq%20%27{StationUID}%27&%24format=JSON" # 取得資料來源網址
     data = TDX.getData(url) # 取得即時車位資料
 
