@@ -11,6 +11,7 @@ import Function.Blob as Blob
 import Function.VerificationCode as Code
 import Function.Message as Message
 import Service.Token as Token
+import bcrypt
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 
@@ -34,20 +35,22 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
     if collection.find_one({"email": user.email}, {"email_confirmed": True}):
         raise HTTPException(status_code=400, detail="此Email已註冊，請使用其他Email")
     
-    # 對密碼進行Hash處理
-    hashed_password = hashlib.sha256(user.password.encode()).hexdigest()
+    # 對密碼進行Hash處理，加上隨機的salt
+    salt = bcrypt.gensalt()  # 產生隨機的salt
+    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), salt)
 
     if user.google_id == "": # 一般註冊
         # 建立新的使用者文件
         data = {
                 "name": user.name, 
                 "email": user.email, 
-                "email_confirmed": False, # 預設為False，當使用者驗證成功後，將此欄位改為True
+                "email_confirmed": False,
                 "password": hashed_password,
+                "salt": salt,
                 "gender": user.gender,
                 "birthday": user.birthday,
                 "google_id": "",
-                "avatar": Blob.urlToBlob("https://cdn.discordapp.com/attachments/989185705014071337/1137058235325620235/Default_Avatar.png"), # 預設大頭貼
+                "avatar": Blob.urlToBlob("https://cdn.discordapp.com/attachments/989185705014071337/1137058235325620235/Default_Avatar.png"),
                 "role": "user"
         }
         
