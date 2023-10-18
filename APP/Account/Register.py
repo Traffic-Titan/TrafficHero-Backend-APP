@@ -70,7 +70,7 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=response.detail)
         
-        return {"detail": Message.get("Sign up")}
+        return {"message": Message.get("Sign up")}
     else: # Google註冊
         # 建立新的使用者文件
         data = {
@@ -88,6 +88,6 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
         # 新增使用者文件至資料庫
         collection.insert_one(data)
         
-        return {"detail": Message.get("Sign up with Google")}
+        return {"message": Message.get("Sign up with Google")}
     
 
