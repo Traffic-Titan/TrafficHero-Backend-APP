@@ -6,6 +6,7 @@ import Service.Token as Token
 import Function.Hash as Hash
 import Function.Time as Time
 from datetime import timedelta
+import bcrypt
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 
@@ -30,7 +31,7 @@ async def login(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(
         raise HTTPException(status_code=401, detail="Email尚未驗證，請至信箱收取驗證信，若驗證碼已失效，請重新註冊")
     
     # 檢查密碼是否正確
-    if result["password"] != Hash.encodeSHA256(user.password):
+    if not bcrypt.checkpw(user.password.encode('utf-8'), result["password"]):
         # 獲取上次失敗的時間戳和失敗次數
         last_failed_timestamp = result.get("last_failed_timestamp")
         failed_attempts = result.get("failed_attempts", 0)
@@ -39,7 +40,7 @@ async def login(user: LoginModel, token: HTTPAuthorizationCredentials = Depends(
         current_time = Time.getCurrentDatetime()
         if last_failed_timestamp and failed_attempts >= 4:
             # 檢查距離上次失敗的時間是否超過5分鐘
-            if current_time - last_failed_timestamp <= timedelta(minutes = 5):
+            if current_time - last_failed_timestamp <= timedelta(minutes=5):
                 raise HTTPException(status_code=403, detail="帳戶已被鎖定，請稍後再試")
 
         # 更新登入失敗記錄

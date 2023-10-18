@@ -17,3 +17,4 @@ fastapi-analytics
 beautifulsoup4
 scipy
 httpx
+bcrypt

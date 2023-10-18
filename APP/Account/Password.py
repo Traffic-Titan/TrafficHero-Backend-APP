@@ -8,6 +8,7 @@ import Service.Token as Token
 import Function.VerificationCode as Code
 import Service.Email as Email
 import Function.Time as Time
+import bcrypt
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 
@@ -35,8 +36,10 @@ async def changePassword(user: ChangePasswordModel, token: HTTPAuthorizationCred
     if result is None:
         raise HTTPException(status_code=401, detail="舊密碼錯誤")
     else:
-        # 儲存新密碼並刪除與忘記密碼相關資料
-        hashed_new_password = hashlib.sha256(user.new_password.encode()).hexdigest()
+        # 使用Bcrypt加密新密碼
+        hashed_new_password = bcrypt.hashpw(user.new_password.encode('utf-8'), bcrypt.gensalt())
+
+        # 更新密碼並刪除相關資料
         collection.update_one(
             {"email": user.email},
             {
@@ -44,7 +47,9 @@ async def changePassword(user: ChangePasswordModel, token: HTTPAuthorizationCred
                 "$unset": {"timestamp": "", "verification_code": "", "token": ""}
             }
         )
+
         return {"message": "密碼已成功更改"}
+
  
 class ForgetPasswordModel(BaseModel):
     email: EmailStr
