@@ -153,6 +153,7 @@ def nearbyInfo_bus(latitude:str,longitude:str):
     """
     
     documents = []
+    StopUID_Array = {}
 
     # TDX - 指定[坐標]周邊公共運輸服務資料，預設為範圍 500m 內
     nearbyTransportUrl="https://tdx.transportdata.tw/api/advanced/V3/Map/GeoLocating/Transit/Nearby/LocationX/"+longitude+"/LocationY/"+latitude+"/Distance/"+str(500)+"?%24format=JSON"
@@ -161,11 +162,15 @@ def nearbyInfo_bus(latitude:str,longitude:str):
     # 查詢附近"公車"站點，若Count回傳不為0，則表示有站點
     if(nearbyTransportdata[0]['BusStations']['Count'] != 0):
 
+        # 將附近所有公車站UID、經緯度存進陣列
+        for index in nearbyTransportdata[0]['BusStations']['BusStationList']:
+            StopUID_Array[index['StopUID']] = {"latitude":index['LocationY'],"longitude":index['LocationX']}
+
         # 取得指定[位置,範圍]的全臺公車預估到站資料
         predictedArrivedUrl = "https://tdx.transportdata.tw/api/advanced/v2/Bus/EstimatedTimeOfArrival/NearBy?%24spatialFilter=nearby("+ latitude +","+ longitude +","+ str(500) +")&%24format=JSON"
 
         for data in getData(predictedArrivedUrl):
-            
+
             # 部分縣市的第一筆資料並非車牌號碼，故跳過第一筆ex. 桃園
             if('PlateNumb' not in data):
                 continue
@@ -196,10 +201,13 @@ def nearbyInfo_bus(latitude:str,longitude:str):
                     cursors = collection.find_one({"RouteUID":RouteUID})
                     # 從資料庫查詢終點站名稱
                     DestinationName = cursors['DestinationStopNameZh']
+
                 document = {
+                    "StopLatitude":StopUID_Array.get(data['StopUID'])['latitude'] if(data['StopUID'] in StopUID_Array.keys()) else None,
+                    "StopLongitude":StopUID_Array.get(data['StopUID'])['longitude'] if(data['StopUID'] in StopUID_Array.keys()) else None,
                     "路線名稱":data['RouteName']['Zh_tw'],
                     "站點名稱":data['StopName']['Zh_tw'],
-                    "預估到站時間 (min)":str(EstimateTime),
+                    "預估到站時間 (min)":"進站中" if(EstimateTime == 0) else str(EstimateTime),
                     "終點站":DestinationName
                 }
                 documents.append(document)
