@@ -113,8 +113,18 @@ app.include_router(PublicBicycle.router)
 from APP.Information.PublicTransport.Bus import Search
 app.include_router(Search.router)
 
-from APP.Information.PublicTransport.TaiwanRailway import SearchStation
+from APP.Information.PublicTransport.TaiwanRailway import SearchStation,StationLiveBoard
 app.include_router(SearchStation.router)
+app.include_router(StationLiveBoard.router)
+
+from APP.Information.PublicTransport.MRT import KRTC,RouteMap
+app.include_router(KRTC.router)
+app.include_router(RouteMap.router)
+
+from APP.Information.PublicTransport.THSR import DailyTimeTable,StationID_THSR,ByID_EachStop_THSR
+app.include_router(StationID_THSR.router)
+app.include_router(DailyTimeTable.router)
+app.include_router(ByID_EachStop_THSR.router)
 
 # 5.觀光資訊(APP)
 from APP.Information.Tourism import Main,TouristSpot,TouristHotel,TouristFood,TouristActivity,TravelPlan,TourismFindKeyWord
