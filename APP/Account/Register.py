@@ -14,7 +14,7 @@ import Service.Token as Token
 import bcrypt
 from datetime import datetime, timedelta
 
-router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
+router = APIRouter(tags=["0.會員管理(Website)"],prefix="/Website/Account")
 
 class ProfileModel(BaseModel):
     name: str
@@ -94,3 +94,4 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
         
         return {"message": Message.get("Sign up with Google")}
     
+
