@@ -12,6 +12,7 @@ import Function.VerificationCode as Code
 import Function.Message as Message
 import Service.Token as Token
 import bcrypt
+from datetime import datetime, timedelta
 
 router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 
@@ -51,7 +52,8 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
                 "birthday": user.birthday,
                 "google_id": "",
                 "avatar": Blob.urlToBlob("https://cdn.discordapp.com/attachments/989185705014071337/1137058235325620235/Default_Avatar.png"),
-                "role": "user"
+                "role": "user",
+                "register_time": datetime.now() + timedelta(hours=8) # 註冊時間(轉換成台灣時間，伺服器時區為UTC+0)
         }
         
         # 新增使用者文件至資料庫
@@ -78,11 +80,13 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
                 "email": user.email, 
                 "email_confirmed": True, # 因使用Google註冊，故預設為True
                 "password": hashed_password,
+                "salt": salt,
                 "gender": user.gender,
                 "birthday": user.birthday,
                 "google_id": user.google_id,
                 "avatar": Blob.urlToBlob(user.google_avatar), # 預設大頭貼
-                "role": "user"
+                "role": "user",
+                "register_time": datetime.now() + timedelta(hours=8) # 註冊時間(轉換成台灣時間，伺服器時區為UTC+0)
         }
         
         # 新增使用者文件至資料庫
@@ -90,4 +94,3 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
         
         return {"message": Message.get("Sign up with Google")}
     
-
