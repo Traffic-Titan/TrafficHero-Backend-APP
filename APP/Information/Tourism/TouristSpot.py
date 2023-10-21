@@ -21,9 +21,12 @@ async def TouristSpot(latitude:str,longitude:str,token: HTTPAuthorizationCredent
     user_location = Point(float(longitude), float(latitude))
 
     # 定義最大距離
-    max_distance = 20
+    max_distance = 10
 
-    # 查詢數據庫以找到指定距離內的旅遊景點
+    # 建立索引
+    collection.create_index([("Position", "2dsphere")])
+
+    # 資料庫查詢
     cursor = collection.aggregate([
         {
             "$geoNear": {
