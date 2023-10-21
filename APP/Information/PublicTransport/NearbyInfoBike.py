@@ -29,3 +29,18 @@ async def NearbyStationInfo_Bike(latitude:str,longitude:str,token: HTTPAuthoriza
                 }
             documents.append(document)
     return documents
+
+def getBikeStatus(area: str, StationUID: str,):
+    
+    url = f"https://tdx.transportdata.tw/api/basic/v2/Bike/Availability/City/{area}?%24filter=StationUID%20eq%20%27{StationUID}%27&%24format=JSON" # 取得資料來源網址
+    data = TDX.getData(url) # 取得即時車位資料
+
+    collection = MongoDB.getCollection("traffic_hero","information_public_bicycle") # 連線MongoDB
+    station = collection.find_one({"StationUID": StationUID}, {"_id": 0}) # 取得租借站位資料
+
+    result = {
+            "status": dict(data[0]),
+            "station": station
+    }
+    
+    return result

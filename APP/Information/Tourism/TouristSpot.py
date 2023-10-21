@@ -8,6 +8,7 @@ from geopy.distance import geodesic
 from shapely.geometry.polygon import Polygon
 from APP.Information.Tourism.TravelPlan import planTravel
 from scipy.spatial import distance
+import time
 
 router = APIRouter(tags=["5.觀光資訊(APP)"],prefix="/APP/Information/Tourism")
 collection = MongoDB.getCollection("traffic_hero","tourism_tourist_spot")
@@ -23,33 +24,36 @@ async def TouristSpot(latitude:str,longitude:str,token: HTTPAuthorizationCredent
     # 搜尋最近觀光停車場用
     nearestRange = 1
 
+    start = time.time()
     for angle in range(0, 360, 60):
         # 以使用者目前的經緯度生成半徑 5 公里的推播範圍
         Points_After_Output.append(geodesic(kilometers=5).destination((latitude, longitude),bearing = angle))
+    end = time.time()
+    print("生成半徑 5 公里的推播範圍花費時間:",end - start)
+    
+    start = time.time()
     for cursor in collection.find({}):
-
         # 判斷使用者半徑 5 公里內涵蓋哪些景點
         if(Polygon(Points_After_Output).contains(Point(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']))):
+            # if(("ParkingPosition" in cursor) and (len(cursor['ParkingPosition']))!=0):
+            #     parkingSpot = cursor['ParkingPosition'] # 景點提供停車
+            # else:
+            #     parkingSpot = f"https://www.google.com/maps/search/附近停車場/@{cursor['Position']['PositionLat']},{cursor['Position']['PositionLon']},16z" # 部分景點無提供停車，導至Google Maps搜尋最近停車場或路邊停車
 
-            if(("ParkingPosition" in cursor) and (len(cursor['ParkingPosition']))!=0):
-                parkingSpot = cursor['ParkingPosition'] # 景點提供停車
-            else:
-                parkingSpot = f"https://www.google.com/maps/search/附近停車場/@{cursor['Position']['PositionLat']},{cursor['Position']['PositionLon']},16z" # 部分景點無提供停車，導至Google Maps搜尋最近停車場或路邊停車
-
-                # 讀取觀光景點停車場
-                collection_parkingLot = MongoDB.getCollection("traffic_hero","tourism_tourist_parkinglot") 
-                for data in collection_parkingLot.find({}):
+            #     # 讀取觀光景點停車場
+            #     collection_parkingLot = MongoDB.getCollection("traffic_hero","tourism_tourist_parkinglot") 
+            #     for data in collection_parkingLot.find({}):
                     
-                    # 處理從資料庫獲得的經緯度
-                    parkingLot = [float(data['CarParkPosition']['PositionLat']),float(data['CarParkPosition']['PositionLon'])]
+            #         # 處理從資料庫獲得的經緯度
+            #         parkingLot = [float(data['CarParkPosition']['PositionLat']),float(data['CarParkPosition']['PositionLon'])]
 
-                    #  經緯度比對出最近的觀光停車場
-                    Distance = distance.euclidean(parkingLot,[(float(cursor['Position']['PositionLat'])),float(cursor['Position']['PositionLon'])]) # 計算兩點距離的平方差     
-                    if(nearestRange > Distance):   
-                        # 找出該地點經緯度最近的觀光停車場之最短距離
-                        nearestRange = Distance 
+            #         #  經緯度比對出最近的觀光停車場
+            #         Distance = distance.euclidean(parkingLot,[(float(cursor['Position']['PositionLat'])),float(cursor['Position']['PositionLon'])]) # 計算兩點距離的平方差     
+            #         if(nearestRange > Distance):   
+            #             # 找出該地點經緯度最近的觀光停車場之最短距離
+            #             nearestRange = Distance 
 
-                        parkingSpot = {"收費":data['FareDescription'],"地址":data.get('Address'),"聯絡電話":data['Telephone']}
+            #             parkingSpot = {"收費":data['FareDescription'],"地址":data.get('Address'),"聯絡電話":data['Telephone']}
             document = {
                 "名稱":cursor['ScenicSpotName'],
                 "經緯度":(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']),
@@ -61,10 +65,12 @@ async def TouristSpot(latitude:str,longitude:str,token: HTTPAuthorizationCredent
                 "開放時間": cursor['OpenTime'] if("OpenTime" in cursor) else "無說明",  # 開放時間
                 "連結":"無連結",
                 "活動主辦":"無主辦",
-                "附近停車場":parkingSpot,
+                # "附近停車場":parkingSpot,
             }
             documents.append(document)
-
+    end = time.time()
+    print("景點資料處理花費時間:",end - start)
+        
     return documents
 
 
