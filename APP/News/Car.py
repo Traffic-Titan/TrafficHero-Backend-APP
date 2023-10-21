@@ -32,7 +32,7 @@ async def car(areas: str = "All", types: str = "All", token: HTTPAuthorizationCr
     documents = [] # 回傳的資料
     with concurrent.futures.ThreadPoolExecutor(max_workers=len(types) * len(areas)) as executor: # 並行處理
         for type in types:
-            if type in ["provincial_highway","freeway"]: # 無區域之分
+            if type in ["freeway"]: # 無區域之分
                 task.append(executor.submit(processData,type,"All")) # 將任務加入任務清單
             else:
                 for area in areas: # 有區域之分
