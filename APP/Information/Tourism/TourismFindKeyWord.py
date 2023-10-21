@@ -112,22 +112,22 @@ async def TourismUID_FindData(UID:str,token: HTTPAuthorizationCredentials = Depe
         if(UID[0:2] == "C1"):
             Name = cursor['ScenicSpotName']
             Description = cursor['DescriptionDetail']
-            Address = cursor['Address']
+            Address = cursor['ScenicSpotName']if('Address' not in cursor) else cursor['Address']
         # 活動
         elif(UID[0:2] == "C2"):
             Name = cursor['ActivityName']
             Description = cursor['Description']
-            Address = cursor['Location']
+            Address = cursor['ActivityName']if('Location' not in cursor) else cursor['Location']
         # 餐廳
         elif(UID[0:2] == "C3"):
             Name = cursor['RestaurantName']
             Description = cursor['Description']
-            Address = cursor['Address']
+            Address = cursor['RestaurantName']if('Address' not in cursor) else cursor['Address']
         # 旅館
         elif(UID[0:2] == "C4"):
             Name = cursor['HotelName']
             Description = cursor['Description']
-            Address = cursor['Address'] 
+            Address = cursor['HotelName']if('Address' not in cursor) else cursor['Address']
 
         document = {
             "名稱":Name,

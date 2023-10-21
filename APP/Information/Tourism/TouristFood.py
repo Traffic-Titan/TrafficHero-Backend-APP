@@ -52,7 +52,7 @@ async def TouristFood(latitude:str,longitude:str,token: HTTPAuthorizationCredent
             document = {
                 "名稱": cursor['RestaurantName'],
                 "經緯度":(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']),
-                "地址": cursor['Address'],
+                "地址": cursor['Address'] if("Address" in cursor) else cursor['RestaurantName'],
                 "聯絡電話":cursor['Phone'],
                 "圖片": cursor['Picture']['PictureUrl1'] if("PictureUrl1" in cursor['Picture']) else "無縮圖", # 飯店附圖
                 "收費":"無詳細收費",
