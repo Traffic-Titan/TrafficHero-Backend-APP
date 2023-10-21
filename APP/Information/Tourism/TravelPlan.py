@@ -22,7 +22,7 @@ async def TravelPlan(latitude:str,longitude:str,DestinationLatitude:str,Destinat
     return planTravel(latitude,longitude,DestinationLatitude,DestinationLongitude,StartTime)
 
 def planTravel(latitude:str,longitude:str,DestinationLatitude:str,DestinationLongitude:str,StartTime:datetime):
-    print(StartTime)
+    
     # 抵達時間訂於目前時間 + 1 日 
     totalTimeArrival = StartTime + timedelta(days=1)
     arrivalTime = f'{totalTimeArrival.year}-{totalTimeArrival.month}-{totalTimeArrival.day}T{totalTimeArrival.strftime("%H:%M:%S")}'
