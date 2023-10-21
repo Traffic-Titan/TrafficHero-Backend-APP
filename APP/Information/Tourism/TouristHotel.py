@@ -15,56 +15,46 @@ collection = MongoDB.getCollection("traffic_hero","tourism_tourist_hotel")
 async def TouristHotel(latitude:str,longitude:str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    # Points_After_Output:存半徑 N 公里生成的點
-    Points_After_Output = []
-    documents = []
+    # 為使用者的當前位置建立一個Point
+    user_location = Point(float(longitude), float(latitude))
 
-    # 搜尋最近觀光停車場用
-    nearestRange = 1
+    # 定義最大距離
+    max_distance = 10
 
-    for angle in range(0, 360, 60):
-        # 以使用者目前的經緯度生成半徑 5 公里的推播範圍
-        Points_After_Output.append(geodesic(kilometers=5).destination((latitude, longitude),bearing = angle))
-    for cursor in collection.find({}):
+    # 建立索引
+    collection.create_index([("Position", "2dsphere")])
 
-        # 判斷使用者半徑 5 公里內涵蓋哪些景點
-        if(Polygon(Points_After_Output).contains(Point(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']))):
-            
-            if(("ParkingPosition" in cursor) and (len(cursor['ParkingPosition']))!=0):
-                parkingSpot = cursor['ParkingPosition'] # 飯店提供停車
-            else:
-                parkingSpot = f"https://www.google.com/maps/search/附近停車場/@{cursor['Position']['PositionLat']},{cursor['Position']['PositionLon']},16z" # 部分景點無提供停車，導至Google Maps搜尋最近停車場或路邊停車
-
-                # 讀取觀光景點停車場
-                collection_parkingLot = MongoDB.getCollection("traffic_hero","tourism_tourist_parkinglot") 
-                for data in collection_parkingLot.find({}):
-                    
-                    # 處理從資料庫獲得的經緯度
-                    parkingLot = [float(data['CarParkPosition']['PositionLat']),float(data['CarParkPosition']['PositionLon'])]
-
-                    #  經緯度比對出最近的觀光停車場
-                    Distance = distance.euclidean(parkingLot,[(float(cursor['Position']['PositionLat'])),float(cursor['Position']['PositionLon'])]) # 計算兩點距離的平方差     
-                    if(nearestRange > Distance):   
-                        # 找出該地點經緯度最近的觀光停車場之最短距離
-                        nearestRange = Distance 
-
-                        parkingSpot = {"收費":data['FareDescription'],"地址":data.get('Address'),"聯絡電話":data['Telephone']}
-            document = {
-                "名稱":cursor['HotelName'],
-                "經緯度":(cursor['Position']['PositionLat'],cursor['Position']['PositionLon']),
-                "地址":cursor['Address'],
-                "聯絡電話":cursor['Phone'],
-                "圖片": cursor['Picture']['PictureUrl1'] if("PictureUrl1" in cursor['Picture']) else "無縮圖", # 飯店附圖
-                "收費":"無詳細收費",
-                "說明":cursor['Description'],
-                "開放時間":"無詳細開放時間",
-                "連結":"無連結",
-                "活動主辦":"無主辦",
-                "附近停車場":parkingSpot
+    # 資料庫查詢
+    cursor = collection.aggregate([
+        {
+            "$geoNear": {
+                "near": {
+                    "type": "Point",
+                    "coordinates": [float(longitude), float(latitude)]
+                },
+                "distanceField": "distance",
+                "spherical": True,
+                "maxDistance": max_distance * 1000  # 將公里轉換為公尺
             }
-            documents.append(document)
+        },
+        {
+            "$sort": {"distance": 1}  # 按距離升序排序（從近到遠）
+        }
+    ])
+    
+    documents = []
+    for document in cursor:
+        documents.append({
+            "名稱":document['HotelName'],
+            "經緯度":(document['Position']['PositionLat'],document['Position']['PositionLon']),
+            "地址":document['Address'],
+            "聯絡電話":document['Phone'],
+            "圖片": document['Picture']['PictureUrl1'] if("PictureUrl1" in document['Picture']) else "無縮圖", # 飯店附圖
+            "收費":"無詳細收費",
+            "說明":document['Description'],
+            "開放時間":"無詳細開放時間",
+            "連結":"無連結",
+            "活動主辦":"無主辦"
+        })
 
     return documents
-
-
-            
