@@ -27,17 +27,14 @@ async def parkingFee(license_plate_number: str, type: str, token: HTTPAuthorizat
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
 
-    areas = Area.english # 縣市英文名稱
     collection = MongoDB.getCollection("traffic_hero","parking_fee") # 連線MongoDB
 
     task = []
-    for area in areas:
-        result = collection.find_one({"area":area}, {"_id": 0, "url": 1})
-        if result is not None: # 如果沒有資料就跳過此縣市
-            url = result.get("url") # 取得URL
-            url = url.replace("Insert_CarID", license_plate_number) # 取代車牌號碼
-            url = url.replace("Insert_CarType", type) # 取代車輛類別
-            task.append(asyncio.create_task(processData(area, url))) # 建立非同步任務
+    for result in collection.find({}, {"_id": 0}): # 取得全部縣市的URL
+        url = result.get("url") # 取得URL
+        url = url.replace("Insert_CarID", license_plate_number) # 取代車牌號碼
+        url = url.replace("Insert_CarType", type) # 取代車輛類別
+        task.append(asyncio.create_task(processData(result["area"], url))) # 建立非同步任務
             
     detail = await asyncio.gather(*task) # 並行處理，存全部縣市的繳費資訊
     detail = [area for area in detail if area["amount"] != 0] # 移除金額為0的縣市
@@ -52,7 +49,7 @@ async def processData(area, url):
         "detail": "服務維護中" # 狀態
     }
     try:
-        async with httpx.AsyncClient(timeout = 10) as client: # timeout: 10秒
+        async with httpx.AsyncClient(timeout = 5) as client: # timeout
             response = await client.get(url) # 發送請求
             dataAll = response.json()
         
