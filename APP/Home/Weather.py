@@ -15,6 +15,7 @@ import Service.TDX as TDX
 from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta
+import time
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 
@@ -44,57 +45,72 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
         nearestRange = 1  
 
         # 取得鄉鎮市區代碼
+        start = time.time()
         url = f"https://tdx.transportdata.tw/api/advanced/V3/Map/GeoLocating/District/LocationX/{longitude}/LocationY/{latitude}?%24format=JSON"
         response = TDX.getData(url)
+        end = time.time()
+        print(f"取得鄉鎮市區代碼: {end-start} sec")
         
-        # 中央氣象署API Key
-        load_dotenv()
-        CWA_API_Key = os.getenv('CWA_API_Key') 
-          
         # 無人氣象測站
-        observation_station_unmanned =  requests.get(f'https://opendata.cwa.gov.tw/api/v1/rest/datastore/C-B0074-002?Authorization={CWA_API_Key}&status=%E7%8F%BE%E5%AD%98%E6%B8%AC%E7%AB%99').json()
-        if(observation_station_unmanned["result"] is not None):
-            for observation in observation_station_unmanned['records']["data"]["stationStatus"]['station']:
-                # 比對不到輸入資料之縣市 及 區的氣象站，例如：台北市大安區。 查詢輸入之經緯度比對出最近的氣象站
-                currentPosition = [float(latitude),float(longitude)]
-                observation_station_Position = [float(observation['StationLatitude']),float(observation['StationLongitude'])]
-                Distance = distance.euclidean(currentPosition,observation_station_Position) # 計算兩點距離的平方差
-                if(nearestRange > Distance):
-                    nearestRange = Distance # 與使用者經緯度最近的觀測站之最短短距離
-                    stationID = observation['StationID'] # 地區ID ex : 雲林縣斗六市 -> C0K400
-
-            # 讀取自動氣象站-氣象觀測資料
-            data_from_observation_station = requests.get(f'https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0001-001?Authorization={CWA_API_Key}&stationId={stationID}').json()
-            if(data_from_observation_station["result"] is not None):
-                for data in data_from_observation_station['records']['location'][0]['weatherElement']:
-                    if(data['elementName'] == "D_TN"):
-                        temperatureInterval_Low = float(data['elementValue']) # 最低溫
-                    elif(data['elementName'] == "D_TX"):
-                        temperatureInterval_High = float(data['elementValue']) # 最高溫
-                    elif(data['elementName'] == "TEMP"):
-                        currentTemperature = float(data['elementValue']) # 目前溫度
-                    elif(data['elementName'] == "Weather"):
-                        weatherDescription = data['elementValue'] # 目前氣象描述
-                stationName = data_from_observation_station['records']['location'][0]['locationName'] # 觀測站名稱
-                result_stationID = data_from_observation_station['records']['location'][0]['stationId'] # 觀測站名稱
+        start = time.time()
+        collection = MongoDB.getCollection("traffic_hero","weather_station_list") # 取得無人氣象測站清單
+        weather_station_list = list(collection.find({"CountyName": response[0]["CityName"]},{"_id":0}))
+        end = time.time()
+        print(f"取得無人氣象測站清單: {end-start} sec")
+        
+        start = time.time()
+        for observation in weather_station_list:
+            # 比對不到輸入資料之縣市 及 區的氣象站，例如：台北市大安區。 查詢輸入之經緯度比對出最近的氣象站
+            currentPosition = [float(latitude),float(longitude)]
+            observation_station_Position = [float(observation['StationLatitude']),float(observation['StationLongitude'])]
+            Distance = distance.euclidean(currentPosition,observation_station_Position) # 計算兩點距離的平方差
+            if(nearestRange > Distance):
+                nearestRange = Distance # 與使用者經緯度最近的觀測站之最短短距離
+                stationID = observation['StationID'] # 地區ID ex : 雲林縣斗六市 -> C0K400
+        end = time.time()
+        print(f"比對不到輸入資料之縣市 及 區的氣象站: {end-start} sec")
+        
+        start = time.time()
+        collection = MongoDB.getCollection("traffic_hero","weather_station") # 取得無人氣象測站資料
+        weather_station = list(collection.find({"stationId": stationID},{"_id":0}))[0]
+        end = time.time()
+        print(f"取得無人氣象測站資料: {end-start} sec")
+        
+        start = time.time()
+        temperatureInterval_Low = float(weather_station["weatherElement"][12]["elementValue"]) # 最低溫
+        temperatureInterval_High = float(weather_station["weatherElement"][10]["elementValue"]) # 最高溫
+        currentTemperature = float(weather_station["weatherElement"][3]["elementValue"]) # 目前溫度
+        weatherDescription = weather_station["weatherElement"][14]["elementValue"] # 目前氣象描述
+        stationName = weather_station["locationName"] # 觀測站名稱
+        result_stationID = weather_station["stationId"] # 觀測站名稱
+        end = time.time()
+        print(f"取得無人氣象測站資料: {end-start} sec")
         
         # 根據系統時間判斷白天或晚上(以後可改成根據日出日落時間判斷)
+        start = time.time()
         currentTime = datetime.now() + timedelta(hours=8) # 取得目前的時間(轉換成台灣時間，伺服器時區為UTC+0)
         
         if 6 <= currentTime.hour < 18:
             type = "day"
         else:
             type = "night"
+            
+        end = time.time()
+        print(f"根據系統時間判斷白天或晚上: {end-start} sec")
         
-        print(currentTime) # Dev
-        
+        start = time.time()
         collection = MongoDB.getCollection("traffic_hero","weather_icon") # 取得天氣圖示URL 
         weather_icon = collection.find_one({"weather": weatherDescription},{"_id":0,f"icon_url_{type}":1}) 
         weather_icon_url = weather_icon.get(f"icon_url_{type}") if weather_icon and weather_icon.get(f"icon_url_{type}") else "https://cdn3.iconfinder.com/data/icons/basic-2-black-series/64/a-92-256.png" # 預設
+        end = time.time()
+        print(f"取得天氣圖示URL: {end-start} sec")
         
+        start = time.time()
         collection = MongoDB.getCollection("traffic_hero","weather_town_id") # 取得鄉鎮市區代碼
         TID = collection.find_one({"area": f'{response[0]["CityName"]}{response[0]["TownName"]}'},{"_id":0, "town_id": 1})
         TID = TID.get("town_id") if TID and TID.get("town_id") else "" # 預設
+        end = time.time()
+        print(f"取得鄉鎮市區代碼: {end-start} sec")
         
         result = {
             "area": f'{response[0]["CityName"]}{response[0]["TownName"]}',
@@ -109,7 +125,7 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
         }
             
         return result
-        
+
     except Exception as e:
         return {"message": f"Error: {e}"}
 
