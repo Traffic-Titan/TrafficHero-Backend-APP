@@ -48,7 +48,7 @@ async def TouristActivity(latitude:str,longitude:str,token: HTTPAuthorizationCre
             "名稱":document['ActivityName'],
             "經緯度":(document['Position']['PositionLat'],document['Position']['PositionLon']),
             "地址":document['Address'] if("Address" in document) else document['ActivityName'],
-            "聯絡電話":document['Phone'],
+            "聯絡電話":document['Phone'] if "Phone" in document else "無電話",
             "圖片": document['Picture']['PictureUrl1'] if("PictureUrl1" in document['Picture']) else "無縮圖", # 飯店附圖
             "收費":"無詳細收費",
             "說明":document['Description'],
