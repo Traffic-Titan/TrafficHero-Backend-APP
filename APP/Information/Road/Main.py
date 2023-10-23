@@ -39,7 +39,7 @@ async def CityParking_Taipei(token: HTTPAuthorizationCredentials = Depends(HTTPB
     # return documents
 
 
-@router.get("/CityParking",summary="指定縣市停車場剩餘資料")
+@router.get("/CityParking",summary="指定縣市停車場剩餘資料(動態)")
 async def CityParking(Area:str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     Area：Taoyuan、Tainan、Kaohsiung、Keelung、YilanCounty、HuanlienCounty \n
@@ -59,6 +59,34 @@ async def CityParking(Area:str,token: HTTPAuthorizationCredentials = Depends(HTT
         document = {   
             "停車場名稱":data['CarParkName']['Zh_tw'],
             "剩餘車位":data['AvailableSpaces']
+        }
+        documents.append(document)
+    return documents
+
+@router.get("/CityParkingInfo",summary="全台縣市停車場資料(靜態)")
+async def CityParkingInfo(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    """
+    資料來源：\n
+        1.各縣市停車場基本資料\n
+            https://tdx.transportdata.tw/api-service/swagger/basic/945f57da-f29d-4dfd-94ec-c35d9f62be7d#/CityCarPark/ParkingApi_CarPark\n
+        2.指定停車場之車位數\n
+            https://tdx.transportdata.tw/api-service/swagger/basic/945f57da-f29d-4dfd-94ec-c35d9f62be7d#/CityCarPark/ParkingApi_ParkingSpace\n
+    """
+    Token.verifyToken(token.credentials,"user") # JWT驗證
+    documents = []
+
+    collection = MongoDB.getCollection("traffic_hero","information_parking_city_parking_info")
+    city_parking_info = collection.find({})
+    for data in city_parking_info:
+        document = {
+            "City": data['City'],
+            "CarParkID": data['CarParkID'],
+            "CarParkName": data['CarParkName'],
+            "Latitude": data['Latitude'],
+            "Longitude": data['Longitude'],
+            "Address": data['Address'],
+            "FareDescription": data['FareDescription'],
+            "TotalSpace": data['TotalSpace']
         }
         documents.append(document)
     return documents
