@@ -103,6 +103,12 @@ app.include_router(QuickSearch.router)
 from APP.Information.Road import Main
 app.include_router(Main.router)
 
+from APP.Information.Road.PBS import RoadInfo_Road_Construction,RoadInfo_Accident,RoadInfo_Traffic_Control,RoadInfo_Trafficjam
+app.include_router(RoadInfo_Road_Construction.router)
+app.include_router(RoadInfo_Accident.router)
+app.include_router(RoadInfo_Traffic_Control.router)
+app.include_router(RoadInfo_Trafficjam.router)
+
 # 4-2.大眾運輸資訊(APP)
 from APP.Information.PublicTransport import Main,PublicBicycle,NearbyInfoBus,NearbyInfoTrain,NearbyInfoBike
 app.include_router(Main.router)
