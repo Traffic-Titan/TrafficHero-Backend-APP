@@ -19,7 +19,7 @@ async def TouristFood(latitude:str,longitude:str,token: HTTPAuthorizationCredent
     user_location = Point(float(longitude), float(latitude))
 
     # 定義最大距離
-    max_distance = 10
+    max_distance = 5
     
     # 建立索引
     collection.create_index([("Position", "2dsphere")])
