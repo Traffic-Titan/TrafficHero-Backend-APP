@@ -43,13 +43,16 @@ async def parkingFee(license_plate_number: str, type: str, token: HTTPAuthorizat
     return {"license_plate_number": license_plate_number, "type": codeToText(type), "total_amount": sum(area["amount"] for area in detail if area["amount"] >= 0), "detail": detail}
 
 async def processData(area, url):
+    start = time.time() # Dev
+    area = Area.englishToChinese(area) # 縣市中文名稱
+    
     detail = { # 預設值
-        "area": Area.englishToChinese(area), # 縣市中文名稱
+        "area": area,
         "amount": -1, # 金額
         "detail": "服務維護中" # 狀態
     }
     try:
-        async with httpx.AsyncClient(timeout = 60) as client: # timeout
+        async with httpx.AsyncClient(timeout = 180) as client: # timeout
             response = await client.get(url) # 發送請求
             dataAll = response.json()
         
@@ -62,7 +65,7 @@ async def processData(area, url):
                 totalAmount += sum(reminder['Bills'][i]['PayAmount'] for reminder in dataAll['Result']['Reminders'] for i in range(len(reminder['Bills'])))
             
             detail = { # 存單一縣市的繳費資訊
-                "area": Area.englishToChinese(area), # 縣市中文名稱
+                "area": area,
                 # "amount": dataAll['Result']['totalAmount'], # 政府提供的總金額有誤，因此使用自行計算的金額
                 "amount": totalAmount, # 自行計算金額
                 "bills": dataAll['Result']['Bills'], # 未繳費 - 未過期
@@ -71,7 +74,7 @@ async def processData(area, url):
             }
         else:
             detail = { # 若無資料就存入0
-                "area": Area.englishToChinese(area), # 縣市中文名稱
+                "area": area,
                 "amount": 0, # 金額
                 "detail": "查詢成功" # 狀態
             }
@@ -80,6 +83,8 @@ async def processData(area, url):
     except Exception as e:
         print(f"Error processing data for area {area}: {e}") # 其他錯誤
 
+    end = time.time() # Dev
+    print(f"處理{area}的資料: {end-start} sec") # Dev
     return detail
 
 def codeToText(code : str): # 類別轉換
