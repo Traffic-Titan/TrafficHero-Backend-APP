@@ -8,10 +8,10 @@ from geopy.distance import geodesic
 from shapely.geometry.polygon import Polygon
 from scipy.spatial import distance
 
-router = APIRouter(tags=["5.觀光資訊(APP)"],prefix="/APP/Information/Tourism")
+router = APIRouter(tags=["5.觀光資訊(APP)"],prefix="/APP/Information")
 collection = MongoDB.getCollection("traffic_hero","tourism_tourist_food")
 
-@router.get("/TouristFood",summary="【Read】觀光景點-全臺觀光餐飲資料")
+@router.get("/Tourism/Food",summary="【Read】觀光景點-全臺觀光餐飲資料")
 async def TouristFood(latitude:str,longitude:str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
