@@ -25,7 +25,7 @@ async def TouristFood(latitude:str,longitude:str,token: HTTPAuthorizationCredent
     collection.create_index([("Position", "2dsphere")])
 
     # 資料庫查詢
-    cursor = collection.aggregate([
+    documents = collection.aggregate([
         {
             "$geoNear": {
                 "near": {
@@ -39,22 +39,27 @@ async def TouristFood(latitude:str,longitude:str,token: HTTPAuthorizationCredent
         },
         {
             "$sort": {"distance": 1}  # 按距離升序排序（從近到遠）
-        }
+        },
+        {
+            "$project": {
+                "_id": 0
+            }
+        }   
     ])
 
-    documents = []
-    for document in cursor:
-        documents.append({
-            "名稱": document['RestaurantName'],
-            "經緯度":(document['Position']['PositionLat'],document['Position']['PositionLon']),
-            "地址": document['Address'] if("Address" in document) else document['RestaurantName'],
-            "聯絡電話":document['Phone'],
-            "圖片": document['Picture']['PictureUrl1'] if("PictureUrl1" in document['Picture']) else "無縮圖", # 飯店附圖
-            "收費":"無詳細收費",
-            "說明": document['Description'],
-            "開放時間":"無詳細開放時間",
-            "連結": document['WebsiteUrl'] if("WebsiteUrl" in document) else "無連結", # 店家超連結,
-            "活動主辦":"無主辦"
-        })
+    # documents = []
+    # for document in cursor:
+    #     documents.append({
+    #         "名稱": document['RestaurantName'],
+    #         "經緯度":(document['Position']['PositionLat'],document['Position']['PositionLon']),
+    #         "地址": document['Address'] if("Address" in document) else document['RestaurantName'],
+    #         "聯絡電話":document['Phone'],
+    #         "圖片": document['Picture']['PictureUrl1'] if("PictureUrl1" in document['Picture']) else "無縮圖", # 飯店附圖
+    #         "收費":"無詳細收費",
+    #         "說明": document['Description'],
+    #         "開放時間":"無詳細開放時間",
+    #         "連結": document['WebsiteUrl'] if("WebsiteUrl" in document) else "無連結", # 店家超連結,
+    #         "活動主辦":"無主辦"
+    #     })
 
-    return documents
+    return list(documents)

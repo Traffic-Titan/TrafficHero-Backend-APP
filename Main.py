@@ -135,16 +135,13 @@ app.include_router(DailyTimeTable.router)
 app.include_router(ByID_EachStop_THSR.router)
 
 # 5.觀光資訊(APP)
-from APP.Information.Tourism import Main,TouristSpot,TouristHotel,TouristFood,TouristActivity,TravelPlan,TourismFindKeyWord
-app.include_router(Main.router)
+from APP.Information.Tourism import TouristSpot,TouristHotel,TouristFood,TouristActivity,TravelPlan,TourismFindKeyWord
 app.include_router(TouristSpot.router)
 app.include_router(TouristHotel.router)
 app.include_router(TouristFood.router)
 app.include_router(TouristActivity.router)
 app.include_router(TravelPlan.router)
 app.include_router(TourismFindKeyWord.router)
-
-
 
 # # ---------------------------------------------------------------
 
