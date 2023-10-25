@@ -25,7 +25,7 @@ async def TouristActivity(latitude:str,longitude:str,token: HTTPAuthorizationCre
     collection.create_index([("Position", "2dsphere")])
 
     # 資料庫查詢
-    cursor = collection.aggregate([
+    documents = collection.aggregate([
         {
             "$geoNear": {
                 "near": {
@@ -39,23 +39,28 @@ async def TouristActivity(latitude:str,longitude:str,token: HTTPAuthorizationCre
         },
         {
             "$sort": {"distance": 1}  # 按距離升序排序（從近到遠）
-        }
+        },
+        {
+            "$project": {
+                "_id": 0
+            }
+        }   
     ])
 
-    documents = []
-    for document in cursor:
-        documents.append({
-            "名稱":document['ActivityName'],
-            "經緯度":(document['Position']['PositionLat'],document['Position']['PositionLon']),
-            "地址":document['Address'] if("Address" in document) else document['ActivityName'],
-            "聯絡電話":document['Phone'] if "Phone" in document else "無電話",
-            "圖片": document['Picture']['PictureUrl1'] if("PictureUrl1" in document['Picture']) else "無縮圖", # 飯店附圖
-            "收費":"無詳細收費",
-            "說明":document['Description'],
-            "開放時間":document['StartTime'][0:10]+"~"+document['EndTime'][0:10],
-            "連結":"無連結",
-            "活動主辦":document['Organizer']
-        })
+    # documents = []
+    # for document in cursor:
+    #     documents.append({
+    #         "名稱":document['ActivityName'],
+    #         "經緯度":(document['Position']['PositionLat'],document['Position']['PositionLon']),
+    #         "地址":document['Address'] if("Address" in document) else document['ActivityName'],
+    #         "聯絡電話":document['Phone'] if "Phone" in document else "無電話",
+    #         "圖片": document['Picture']['PictureUrl1'] if("PictureUrl1" in document['Picture']) else "無縮圖", # 飯店附圖
+    #         "收費":"無詳細收費",
+    #         "說明":document['Description'],
+    #         "開放時間":document['StartTime'][0:10]+"~"+document['EndTime'][0:10],
+    #         "連結":"無連結",
+    #         "活動主辦":document['Organizer']
+    #     })
 
-    return documents
+    return list(documents)
     

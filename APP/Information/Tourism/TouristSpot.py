@@ -27,7 +27,7 @@ async def TouristSpot(latitude:str,longitude:str,token: HTTPAuthorizationCredent
     collection.create_index([("Position", "2dsphere")])
 
     # 資料庫查詢
-    cursor = collection.aggregate([
+    documents = collection.aggregate([
         {
             "$geoNear": {
                 "near": {
@@ -41,22 +41,27 @@ async def TouristSpot(latitude:str,longitude:str,token: HTTPAuthorizationCredent
         },
         {
             "$sort": {"distance": 1}  # 按距離升序排序（從近到遠）
-        }
+        },
+        {
+            "$project": {
+                "_id": 0
+            }
+        }   
     ])
 
-    documents = []
-    for document in cursor:
-        documents.append({
-            "名稱": document['ScenicSpotName'],
-            "經緯度": (document['Position']['PositionLat'], document['Position']['PositionLon']),
-            "地址": document.get('Address', document['ScenicSpotName']),
-            "聯絡電話": "無聯絡電話",
-            "圖片": document['Picture']['PictureUrl1'] if 'Picture' in document and 'PictureUrl1' in document['Picture'] else "無縮圖",
-            "收費": document.get('TicketInfo', "不需收費"),
-            "說明": document['DescriptionDetail'],
-            "開放時間": document.get('OpenTime', "無說明"),
-            "連結": "無連結",
-            "活動主辦": "無主辦",
-        })
+    # documents = []
+    # for document in cursor:
+    #     documents.append({
+    #         "名稱": document['ScenicSpotName'],
+    #         "經緯度": (document['Position']['PositionLat'], document['Position']['PositionLon']),
+    #         "地址": document.get('Address', document['ScenicSpotName']),
+    #         "聯絡電話": "無聯絡電話",
+    #         "圖片": document['Picture']['PictureUrl1'] if 'Picture' in document and 'PictureUrl1' in document['Picture'] else "無縮圖",
+    #         "收費": document.get('TicketInfo', "不需收費"),
+    #         "說明": document['DescriptionDetail'],
+    #         "開放時間": document.get('OpenTime', "無說明"),
+    #         "連結": "無連結",
+    #         "活動主辦": "無主辦",
+    #     })
 
-    return documents
+    return list(documents)
