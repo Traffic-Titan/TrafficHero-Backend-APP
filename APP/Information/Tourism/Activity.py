@@ -6,23 +6,21 @@ import Service.TDX as TDX
 from shapely.geometry import Point
 from geopy.distance import geodesic
 from shapely.geometry.polygon import Polygon
-from APP.Information.Tourism.TravelPlan import planTravel
 from scipy.spatial import distance
-import time
 
-router = APIRouter(tags=["5.觀光資訊(APP)"],prefix="/APP/Information/Tourism")
-collection = MongoDB.getCollection("traffic_hero","tourism_tourist_spot")
+router = APIRouter(tags=["5.觀光資訊(APP)"],prefix="/APP/Information")
+collection = MongoDB.getCollection("traffic_hero","tourism_tourist_activity")
 
-@router.get("/TouristSpot",summary="【Read】觀光景點-全臺觀光景點資料")
-async def TouristSpot(latitude:str,longitude:str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+@router.get("/Tourism/Activity",summary="【Read】觀光景點-全臺觀光活動資料")
+async def TouristActivity(latitude:str,longitude:str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"user") # JWT驗證
-
+    
     # 為使用者的當前位置建立一個Point
     user_location = Point(float(longitude), float(latitude))
 
     # 定義最大距離
     max_distance = 5
-
+    
     # 建立索引
     collection.create_index([("Position", "2dsphere")])
 
@@ -52,16 +50,17 @@ async def TouristSpot(latitude:str,longitude:str,token: HTTPAuthorizationCredent
     # documents = []
     # for document in cursor:
     #     documents.append({
-    #         "名稱": document['ScenicSpotName'],
-    #         "經緯度": (document['Position']['PositionLat'], document['Position']['PositionLon']),
-    #         "地址": document.get('Address', document['ScenicSpotName']),
-    #         "聯絡電話": "無聯絡電話",
-    #         "圖片": document['Picture']['PictureUrl1'] if 'Picture' in document and 'PictureUrl1' in document['Picture'] else "無縮圖",
-    #         "收費": document.get('TicketInfo', "不需收費"),
-    #         "說明": document['DescriptionDetail'],
-    #         "開放時間": document.get('OpenTime', "無說明"),
-    #         "連結": "無連結",
-    #         "活動主辦": "無主辦",
+    #         "名稱":document['ActivityName'],
+    #         "經緯度":(document['Position']['PositionLat'],document['Position']['PositionLon']),
+    #         "地址":document['Address'] if("Address" in document) else document['ActivityName'],
+    #         "聯絡電話":document['Phone'] if "Phone" in document else "無電話",
+    #         "圖片": document['Picture']['PictureUrl1'] if("PictureUrl1" in document['Picture']) else "無縮圖", # 飯店附圖
+    #         "收費":"無詳細收費",
+    #         "說明":document['Description'],
+    #         "開放時間":document['StartTime'][0:10]+"~"+document['EndTime'][0:10],
+    #         "連結":"無連結",
+    #         "活動主辦":document['Organizer']
     #     })
 
     return list(documents)
+    
