@@ -11,6 +11,7 @@ import asyncio
 from typing import Optional
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
+collection = MongoDB.getCollection("traffic_hero","parking_fee") # 連線MongoDB
 
 @router.get("/ParkingFee", summary="【Read】取得各縣市路邊停車費查詢(Dev)")
 async def parkingFee(license_plate_number: str, type: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
@@ -27,14 +28,13 @@ async def parkingFee(license_plate_number: str, type: str, token: HTTPAuthorizat
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
 
-    collection = MongoDB.getCollection("traffic_hero","parking_fee") # 連線MongoDB
-
     task = []
     for result in collection.find({}, {"_id": 0}): # 取得全部縣市的URL
-        url = result.get("url") # 取得URL
-        url = url.replace("Insert_CarID", license_plate_number) # 取代車牌號碼
-        url = url.replace("Insert_CarType", type) # 取代車輛類別
-        task.append(asyncio.create_task(processData(result["area"], url))) # 建立非同步任務
+        if result.get("area") != "test":
+            url = result.get("url") # 取得URL
+            url = url.replace("Insert_CarID", license_plate_number) # 取代車牌號碼
+            url = url.replace("Insert_CarType", type) # 取代車輛類別
+            task.append(asyncio.create_task(processData(result["area"], url))) # 建立非同步任務
             
     detail = await asyncio.gather(*task) # 並行處理，存全部縣市的繳費資訊
     detail = [area for area in detail if area["amount"] != 0] # 移除金額為0的縣市
@@ -44,44 +44,44 @@ async def parkingFee(license_plate_number: str, type: str, token: HTTPAuthorizat
 
 async def processData(area, url):
     start = time.time() # Dev
-    area = Area.englishToChinese(area) # 縣市中文名稱
-    
     detail = { # 預設值
-        "area": area,
+        "area": Area.englishToChinese(area), # 縣市中文名稱
         "amount": -1, # 金額
         "detail": "服務維護中" # 狀態
     }
-    try:
-        async with httpx.AsyncClient(timeout = 180) as client: # timeout
-            response = await client.get(url) # 發送請求
-            dataAll = response.json()
-        
-        if(dataAll['Result'] is not None): # 如果有資料就存入
-            totalAmount = 0 # 自行計算金額 - 預設為0
+    
+    if collection.find_one({"area": area}).get("status"): 
+        try:
+            async with httpx.AsyncClient(timeout = 5) as client: # timeout
+                response = await client.get(url) # 發送請求
+                dataAll = response.json()
             
-            if len(dataAll['Result']['Bills']) != 0: # 未繳費 - 未過期
-                totalAmount += sum(dataAll['Result']['Bills'][i]['PayAmount'] for i in range(len(dataAll['Result']['Bills'])))
-            if dataAll['Result']['Reminders'] is not None: # 未繳費 - 已過期
-                totalAmount += sum(reminder['Bills'][i]['PayAmount'] for reminder in dataAll['Result']['Reminders'] for i in range(len(reminder['Bills'])))
-            
-            detail = { # 存單一縣市的繳費資訊
-                "area": area,
-                # "amount": dataAll['Result']['totalAmount'], # 政府提供的總金額有誤，因此使用自行計算的金額
-                "amount": totalAmount, # 自行計算金額
-                "bills": dataAll['Result']['Bills'], # 未繳費 - 未過期
-                "reminders": dataAll['Result']['Reminders'], # 未繳費 - 已過期
-                "detail": "查詢成功" # 狀態
-            }
-        else:
-            detail = { # 若無資料就存入0
-                "area": area,
-                "amount": 0, # 金額
-                "detail": "查詢成功" # 狀態
-            }
-    except requests.Timeout:
-        print(f"Request timed out for area {area}, using default data") # 請求逾時
-    except Exception as e:
-        print(f"Error processing data for area {area}: {e}") # 其他錯誤
+            if(dataAll['Result'] is not None): # 如果有資料就存入
+                totalAmount = 0 # 自行計算金額 - 預設為0
+                
+                if len(dataAll['Result']['Bills']) != 0: # 未繳費 - 未過期
+                    totalAmount += sum(dataAll['Result']['Bills'][i]['PayAmount'] for i in range(len(dataAll['Result']['Bills'])))
+                if dataAll['Result']['Reminders'] is not None: # 未繳費 - 已過期
+                    totalAmount += sum(reminder['Bills'][i]['PayAmount'] for reminder in dataAll['Result']['Reminders'] for i in range(len(reminder['Bills'])))
+                
+                detail = { # 存單一縣市的繳費資訊
+                    "area": Area.englishToChinese(area), # 縣市中文名稱
+                    # "amount": dataAll['Result']['totalAmount'], # 政府提供的總金額有誤，因此使用自行計算的金額
+                    "amount": totalAmount, # 自行計算金額
+                    "bills": dataAll['Result']['Bills'], # 未繳費 - 未過期
+                    "reminders": dataAll['Result']['Reminders'], # 未繳費 - 已過期
+                    "detail": "查詢成功" # 狀態
+                }
+            else:
+                detail = { # 若無資料就存入0
+                    "area": Area.englishToChinese(area), # 縣市中文名稱
+                    "amount": 0, # 金額
+                    "detail": "查詢成功" # 狀態
+                }
+        except requests.Timeout:
+            print(f"Request timed out for area {area}, using default data") # 請求逾時
+        except Exception as e:
+            print(f"Error processing data for area {area}: {e}") # 其他錯誤
 
     end = time.time() # Dev
     print(f"處理{area}的資料: {end-start} sec") # Dev
