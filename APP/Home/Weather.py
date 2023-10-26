@@ -123,7 +123,19 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
         return result
 
     except Exception as e:
-        return {"message": f"Error: {e}"}
+        result = {
+            "area": "未知",
+            "url": "未知",
+            "temperature": "未知",
+            "the_lowest_temperature": "未知",
+            "the_highest_temperature": "未知",
+            "weather": "未知",
+            "weather_icon_url": "https://cdn3.iconfinder.com/data/icons/basic-2-black-series/64/a-92-256.png"
+            # "觀測站":stationName, # (Dev)
+            # "觀測站ID":result_stationID # (Dev)
+        }
+        
+        return result
 
         
 # @router.get("/Weather_selenium", summary="【Read】天氣資訊(根據使用者定位，含:行政區名稱、中央氣象局連結)")

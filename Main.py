@@ -135,10 +135,13 @@ app.include_router(DailyTimeTable.router)
 app.include_router(ByID_EachStop_THSR.router)
 
 # 5.觀光資訊(APP)
-from APP.Information.Tourism import Spot,Hotel,Food,Activity,TravelPlan,TourismFindKeyWord
-app.include_router(Spot.router)
-app.include_router(Hotel.router)
-app.include_router(Food.router)
+from APP.Information.Tourism import Activity, Hotel, Restaurant, ScenicSpot, TravelPlan,TourismFindKeyWord, GoogleMapsURL
 app.include_router(Activity.router)
+app.include_router(Hotel.router)
+app.include_router(Restaurant.router)
+app.include_router(ScenicSpot.router)
+
+app.include_router(GoogleMapsURL.router)
+
 app.include_router(TravelPlan.router)
 app.include_router(TourismFindKeyWord.router)
