@@ -9,11 +9,12 @@ from shapely.geometry.polygon import Polygon
 from scipy.spatial import distance
 
 router = APIRouter(tags=["5.觀光資訊(APP)"],prefix="/APP/Information")
-collection = MongoDB.getCollection("traffic_hero","tourism_tourist_hotel")
 
-@router.get("/Tourism/Hotel",summary="【Read】觀光景點-全臺觀光飯店資料")
+@router.get("/Tourism/Hotel",summary="【Read】觀光資訊-全臺觀光飯店資料")
 async def TouristHotel(latitude:str,longitude:str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"user") # JWT驗證
+    
+    collection = MongoDB.getCollection("traffic_hero","tourism_hotel")
     
     # 為使用者的當前位置建立一個Point
     user_location = Point(float(longitude), float(latitude))
@@ -22,7 +23,7 @@ async def TouristHotel(latitude:str,longitude:str,token: HTTPAuthorizationCreden
     max_distance = 5
 
     # 建立索引
-    collection.create_index([("Position", "2dsphere")])
+    collection.create_index([("position", "2dsphere")])
 
     # 資料庫查詢
     documents = collection.aggregate([
