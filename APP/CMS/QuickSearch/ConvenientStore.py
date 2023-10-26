@@ -20,21 +20,19 @@ from scipy.spatial import distance
 import urllib.request
 from geojson import Point as GeoJSONPoint
 
-router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
+router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
 
-@router.get("/QuickSearch/GasStation", summary="【Read】快速尋找地點-加油站(需更改成列表呈現)")
-async def getGasStationAPI(os: str, mode: str, longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends((HTTPBearer()))):  
-
+@router.get("/QuickSearch/ConvenientStore", summary="【Read】快速尋找地點-便利商店")
+async def getConvenientStoreAPI(os: str, mode: str, longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
-            1. 政府資料開放平臺 - 加油站服務資訊
-                https://data.gov.tw/dataset/6065 \n
+            1. 政府資料開放平臺 - 全國5大超商資料集
+                https://data.gov.tw/dataset/32086 \n
     二、Input \n
             1. os(Client作業系統): Android/IOS
             2. mode(使用模式): Car/Scooter
             3. longitude(經度)
             4. latitude(緯度)
-            5. Type(加油站類型)：直營站/加盟站 (開發中)
     三、Output \n
             {"url": "(網址)"}
     四、說明 \n
@@ -42,7 +40,7 @@ async def getGasStationAPI(os: str, mode: str, longitude: str, latitude: str, to
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    address = await getGasStation(longitude,latitude)
+    address = await getConvenientStore(longitude,latitude)
     address = str(address['地址'])
     
     match mode:
@@ -59,8 +57,8 @@ async def getGasStationAPI(os: str, mode: str, longitude: str, latitude: str, to
         case "IOS":
             return {"url": f"comgooglemapsurl://www.google.com/maps/dir/?api=1&destination={address}&travelmode={mode}&dir_action=navigate"}
 
-async def getGasStation(longitude:str, latitude:str):
-    collection = MongoDB.getCollection("traffic_hero","gas_station_list")
+async def getConvenientStore(longitude:str, latitude:str):
+    collection = MongoDB.getCollection("traffic_hero","convenient_store_list")
 
     # 為使用者的當前位置建立一個Point
     user_location = Point(float(longitude), float(latitude))
