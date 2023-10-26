@@ -18,3 +18,4 @@ beautifulsoup4
 scipy
 httpx
 bcrypt
+geojson
