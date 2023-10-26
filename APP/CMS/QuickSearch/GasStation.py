@@ -20,9 +20,9 @@ from scipy.spatial import distance
 import urllib.request
 from geojson import Point as GeoJSONPoint
 
-router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
+router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
 
-@router.get("/QuickSearch/GasStation", summary="【Read】快速尋找地點-加油站(需更改成列表呈現)")
+@router.get("/QuickSearch/GasStation", summary="【Read】快速尋找地點-加油站")
 async def getGasStationAPI(os: str, mode: str, longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends((HTTPBearer()))):  
 
     """
