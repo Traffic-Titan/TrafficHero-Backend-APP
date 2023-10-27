@@ -75,7 +75,7 @@ async def StationStopby(area: str, route_id: str, token: HTTPAuthorizationCreden
         if("EstimateTime" in data):
             estimateTime[data['StopName']['Zh_tw']] = {
                 "StopUID": data['StopUID'],
-                "PlateNumb": data['PlateNumb'],
+                "PlateNumb": data['PlateNumb'] if("PlateNumb" in data) else "無車牌",
                 "EstimateTime": data['EstimateTime'],
                 "Direction": data['Direction']
             }
