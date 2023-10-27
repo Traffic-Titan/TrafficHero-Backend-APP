@@ -124,12 +124,12 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
 
     except Exception as e:
         result = {
-            "area": "未知",
-            "url": "未知",
-            "temperature": "未知",
-            "the_lowest_temperature": "未知",
-            "the_highest_temperature": "未知",
-            "weather": "未知",
+            "area": "--",
+            "url": "--",
+            "temperature": "--",
+            "the_lowest_temperature": "--",
+            "the_highest_temperature": "--",
+            "weather": "--",
             "weather_icon_url": "https://cdn3.iconfinder.com/data/icons/basic-2-black-series/64/a-92-256.png"
             # "觀測站":stationName, # (Dev)
             # "觀測站ID":result_stationID # (Dev)
