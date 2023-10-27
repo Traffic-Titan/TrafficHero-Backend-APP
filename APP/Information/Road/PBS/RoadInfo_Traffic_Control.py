@@ -21,17 +21,20 @@ async def RoadInfo_Traffic_Control(token: HTTPAuthorizationCredentials = Depends
     try:
         collection = MongoDB.getCollection("traffic_hero","information_road_info_pbs_traffic_control")
         for data in collection.find({}):
-            document = {
-                "happendate": data['happendate'],
-                "roadtype": data['roadtype'],
-                "happentime": data['happentime'],
-                'areaNm': data['areaNm'],
-                'Latitude': data['y1'],
-                'Longitude': data['x1'],
-                'comment': data['comment'],
-                'region': data['region'],
-                'direction': data['direction']
-            }
+            if(data['y1'] == "" or data['x1'] == ""):
+                continue
+            else:
+                document = {
+                    "happendate": data['happendate'],
+                    "roadtype": data['roadtype'],
+                    "happentime": data['happentime'],
+                    'areaNm': data['areaNm'],
+                    'Latitude': data['y1'],
+                    'Longitude': data['x1'],
+                    'comment': data['comment'],
+                    'region': data['region'],
+                    'direction': data['direction']
+                }
             documents.append(document)
     except Exception as e:
         print(e)
