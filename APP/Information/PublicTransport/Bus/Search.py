@@ -66,7 +66,9 @@ async def StationStopby(area: str, route_id: str, token: HTTPAuthorizationCreden
     EstimateTime_URL = f"https://tdx.transportdata.tw/api/basic/v2/Bus/EstimatedTimeOfArrival/City/{area}/{route_id}?%24format=JSON"
     time.sleep(1)
     EstimateTime_Data = getData(EstimateTime_URL)
-    stationName = {}
+
+    stationName = []
+    documents = []
     estimateTime = {}
     
 
@@ -83,13 +85,17 @@ async def StationStopby(area: str, route_id: str, token: HTTPAuthorizationCreden
 	# 根據縣市、路線，查詢全部站點
     for data in StationStopby_Data[0]['busStop']:
         if (data['StopName'] not in stationName and data['Direction'] not in stationName):
-            stationName[data['StopName']] = {
+            
+            document = {
                 "StopUID": data['StopUID'],
                 "StopSequence": data['StopSequence'],
                 "Geometry": data['Geometry'],
+                "StopName": data['StopName'],
                 "Direction": data['Direction'],
                 "EstimateTime": "未發車" if (estimateTime.get(data['StopName']) == None) else int(estimateTime.get(data['StopName'])['EstimateTime']/60),
                 "PlateNumb": "未發車" if (estimateTime.get(data['StopName']) == None) else estimateTime.get(data['StopName'])['PlateNumb'],
             }
+            stationName.append(data['StopName']) # TDX提供的資料有部分站點會重複，所以會經過排除後才回傳
+            documents.append(document)
 
-    return stationName
+    return documents
