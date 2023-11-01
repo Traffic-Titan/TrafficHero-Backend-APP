@@ -11,7 +11,7 @@ from scipy.spatial import distance
 router = APIRouter(tags=["5.觀光資訊(APP)"],prefix="/APP/Information")
 
 @router.get("/Tourism/Hotel",summary="【Read】觀光資訊-全臺觀光飯店資料")
-async def TouristHotel(latitude:str,longitude:str,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+async def TouristHotel(longitude:str, latitude:str, mode: str, os: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     collection = MongoDB.getCollection("traffic_hero","tourism_hotel")
@@ -35,7 +35,8 @@ async def TouristHotel(latitude:str,longitude:str,token: HTTPAuthorizationCreden
                 },
                 "distanceField": "distance",
                 "spherical": True,
-                "maxDistance": max_distance * 1000  # 將公里轉換為公尺
+                "maxDistance": max_distance * 1000,  # 將公里轉換為公尺
+                "distanceMultiplier": 0.001  # 將距離轉換為公里
             }
         },
         {
@@ -45,22 +46,30 @@ async def TouristHotel(latitude:str,longitude:str,token: HTTPAuthorizationCreden
             "$project": {
                 "_id": 0
             }
-        }   
+        }
     ])
-    
-    # documents = []
-    # for document in cursor:
-    #     documents.append({
-    #         "名稱":document['HotelName'],
-    #         "經緯度":(document['Position']['PositionLat'],document['Position']['PositionLon']),
-    #         "地址":document['Address'],
-    #         "聯絡電話":document['Phone'],
-    #         "圖片": document['Picture']['PictureUrl1'] if("PictureUrl1" in document['Picture']) else "無縮圖", # 飯店附圖
-    #         "收費":"無詳細收費",
-    #         "說明":document['Description'],
-    #         "開放時間":"無詳細開放時間",
-    #         "連結":"無連結",
-    #         "活動主辦":"無主辦"
-    #     })
 
-    return list(documents)
+    match mode:
+        case "Car":
+            mode = "driving"
+        case "Scooter":
+            mode = "motorcycle"
+        case "Transit":
+            mode = "transit"
+        case _:
+            raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
+
+    result = []
+    for d in documents:
+        match os:
+            case "Android":
+                url = "https://www.google.com/maps/dir/?api=1&destination=" + str(d["position"]["latitude"]) + "," + str(d["position"]["longitude"]) + "&travelmode=" + mode + "&dir_action=navigate"
+            case "IOS":
+                url = "comgooglemapsurl://www.google.com/maps/dir/?api=1&destination=" + str(d["position"]["latitude"]) + "," + str(d["position"]["longitude"]) + "&travelmode=" + mode + "&dir_action=navigate"
+        
+        d["google_maps_url"] = url
+        
+        d["distance"] = round(d["distance"], 1)
+        result.append(d)
+
+    return list(result)
