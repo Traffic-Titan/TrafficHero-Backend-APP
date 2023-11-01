@@ -49,23 +49,26 @@ async def NearbyStationInfo_Train(latitude:str,longitude:str,token: HTTPAuthoriz
                         "ScheduleDepartureTime" : context['ScheduleDepartureTime'],
                     }
                     documents.append(document)
-            # 高雄捷運
-            elif(data['StationUID'][0:4] == "KRTC"):
+            
+            # 11.01暫時註解，待統整後再使用
+            # # 高雄捷運
+            # elif(data['StationUID'][0:4] == "KRTC"):
                 
-                # 查詢捷運列車即時到離站資料 
-                MRT_data = TDX.getData(f"https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/LiveBoard/KRTC?%24format=JSON")
+            #     # 查詢捷運列車即時到離站資料 
+            #     MRT_data = TDX.getData(f"https://tdx.transportdata.tw/api/basic/v2/Rail/Metro/LiveBoard/KRTC?%24format=JSON")
 
-                LineNO = data['StationUID'][5] # 高雄捷運 紅(R) or 橘(O) 線
-                StationID = data['StationUID'][5:len(data['StationUID']) + 1] # 高雄捷運站號
-                for data_mrt in MRT_data:
-                    # 將 附近站點的StationID 與 即時到離站資料-車站ID做比對
-                    if(StationID == data_mrt['StationID']):
-                        document = {
-                            "附近站點":data_mrt['StationName']['Zh_tw'],
-                            "目前資訊":f"{data_mrt['TripHeadSign']}",
-                            "剩餘時間":f"{data_mrt['EstimateTime']} 分鐘"
-                        }
-                        documents.append(document)
+            #     LineNO = data['StationUID'][5] # 高雄捷運 紅(R) or 橘(O) 線
+            #     StationID = data['StationUID'][5:len(data['StationUID']) + 1] # 高雄捷運站號
+            #     for data_mrt in MRT_data:
+            #         # 將 附近站點的StationID 與 即時到離站資料-車站ID做比對
+            #         if(StationID == data_mrt['StationID']):
+            #             document = {
+            #                 "附近站點":data_mrt['StationName']['Zh_tw'],
+            #                 "目前資訊":f"{data_mrt['TripHeadSign']}",
+            #                 "剩餘時間":f"{data_mrt['EstimateTime']} 分鐘"
+            #             }
+            #             documents.append(document)
+
             # else:
             #     documents.append(data)
     return documents
