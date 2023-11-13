@@ -30,7 +30,7 @@ async def getConvenientStoreAPI(os: str, mode: str, longitude: str, latitude: st
                 https://data.gov.tw/dataset/32086 \n
     二、Input \n
             1. os(Client作業系統): Android/IOS
-            2. mode(使用模式): Car/Scooter
+            2. mode(使用模式): Car/Scooter/Transit
             3. longitude(經度)
             4. latitude(緯度)
     三、Output \n
@@ -48,6 +48,8 @@ async def getConvenientStoreAPI(os: str, mode: str, longitude: str, latitude: st
             mode = "driving"
         case "Scooter":
             mode = "motorcycle"
+        case "Transit":
+            mode = "transit"
         case _:
             raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
         
