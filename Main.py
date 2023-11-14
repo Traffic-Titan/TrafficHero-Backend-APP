@@ -85,9 +85,11 @@ app.include_router(ParkingFee.router)
 app.include_router(OperationalStatus.router)
 app.include_router(RoadCondition.router)
 
-from APP.Home.QuickSearch import GasStation, ConvenientStore
+from APP.Home.QuickSearch import GasStation, ConvenientStore, ChargingStation, BatterySwapStation
 app.include_router(GasStation.router)
 app.include_router(ConvenientStore.router)
+app.include_router(ChargingStation.router)
+app.include_router(BatterySwapStation.router)
 
 # 2.最新消息(APP)
 from APP.News import Car, Scooter, PublicTransport
