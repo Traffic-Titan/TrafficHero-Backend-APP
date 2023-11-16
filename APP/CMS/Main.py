@@ -11,21 +11,39 @@ from datetime import datetime
 
 router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
 
-@router.get("/Car",summary="【Read】即時訊息推播-汽車模式")
-async def car(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+@router.get("/Main/Car",summary="【Read】即時訊息推播-主要內容-汽車模式")
+async def getMainContent_car(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     # longitude:str, latitude:str, # Dev
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero","cms_car") # 取得MongoDB的collection
+    collection = MongoDB.getCollection("traffic_hero","cms_main_car") # 取得MongoDB的collection
     result = collection.find({"end": {"$gte": datetime.now()}}, {"_id": 0}) # 只顯示end時間未超過現在時間的資料
     return list(result)
     
-@router.get("/Scooter",summary="【Read】即時訊息推播-機車模式")
-async def scooter(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+@router.get("/Main/Scooter",summary="【Read】即時訊息推播-主要內容-機車模式")
+async def getMainContent_scooter(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     # longitude:str, latitude:str, # Dev
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero","cms_scooter") # 取得MongoDB的collection
+    collection = MongoDB.getCollection("traffic_hero","cms_main_scooter") # 取得MongoDB的collection
+    result = collection.find({"end": {"$gte": datetime.now()}}, {"_id": 0}) # 只顯示end時間未超過現在時間的資料
+    return list(result)
+
+@router.get("/Sidebar/Car",summary="【Read】即時訊息推播-側邊欄-汽車模式")
+async def getSidebarContent_car(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    # longitude:str, latitude:str, # Dev
+    Token.verifyToken(token.credentials,"user") # JWT驗證
+    
+    collection = MongoDB.getCollection("traffic_hero","cms_sidebar_car") # 取得MongoDB的collection
+    result = collection.find({"end": {"$gte": datetime.now()}}, {"_id": 0}) # 只顯示end時間未超過現在時間的資料
+    return list(result)
+    
+@router.get("/Sidebar/Scooter",summary="【Read】即時訊息推播-側邊欄-機車模式")
+async def getSidebarContent_scooter(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    # longitude:str, latitude:str, # Dev
+    Token.verifyToken(token.credentials,"user") # JWT驗證
+    
+    collection = MongoDB.getCollection("traffic_hero","cms_sidebar_scooter") # 取得MongoDB的collection
     result = collection.find({"end": {"$gte": datetime.now()}}, {"_id": 0}) # 只顯示end時間未超過現在時間的資料
     return list(result)
 
