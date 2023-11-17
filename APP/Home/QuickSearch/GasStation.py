@@ -31,7 +31,7 @@ async def getGasStationAPI(os: str, mode: str, longitude: str, latitude: str, to
                 https://data.gov.tw/dataset/6065 \n
     二、Input \n
             1. os(Client作業系統): Android/IOS
-            2. mode(使用模式): Car/Scooter/Transit
+            2. mode(使用模式): Car/Scooter/Transit/Walking
             3. longitude(經度)
             4. latitude(緯度)
             5. Type(加油站類型)：直營站/加盟站 (開發中)
@@ -42,24 +42,29 @@ async def getGasStationAPI(os: str, mode: str, longitude: str, latitude: str, to
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    address = await getGasStation(longitude,latitude)
-    address = str(address['地址'])
+    gas_station_list = await getGasStation(longitude,latitude)
     
     match mode:
-        case "Car":
-            mode = "driving"
-        case "Scooter":
-            mode = "motorcycle"
-        case "Transit":
-            mode = "transit"
-        case _:
-            raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
-        
-    match os:
-        case "Android":
-            return {"url": f"https://www.google.com/maps/dir/?api=1&destination={address}&travelmode={mode}&dir_action=navigate"}
-        case "IOS":
-            return {"url": f"comgooglemapsurl://www.google.com/maps/dir/?api=1&destination={address}&travelmode={mode}&dir_action=navigate"}
+            case "Car":
+                mode = "driving"
+            case "Scooter":
+                mode = "motorcycle"
+            case "Transit":
+                mode = "transit"
+            case "Walking":
+                mode = "walking"
+            case _:
+                raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
+    
+    for station in gas_station_list:
+        address = str(station['地址'])
+        match os:
+            case "Android":
+                station["url"] = f"https://www.google.com/maps/dir/?api=1&destination={address}&travelmode={mode}&dir_action=navigate"
+            case "IOS":
+                station["url"] = f"comgooglemapsurl://www.google.com/maps/dir/?api=1&destination={address}&travelmode={mode}&dir_action=navigate"
+                
+    return gas_station_list
 
 async def getGasStation(longitude:str, latitude:str):
     collection = MongoDB.getCollection("traffic_hero","gas_station_list")
@@ -82,16 +87,12 @@ async def getGasStation(longitude:str, latitude:str):
             }
         },
         {
-            "$limit": 1
-        },
-        {
             "$project": {
                 "_id": 0,
-                "地址": 1,
             }
         }
     ]
 
     documents = collection.aggregate(pipeline)
 
-    return list(documents)[0]
+    return list(documents)
