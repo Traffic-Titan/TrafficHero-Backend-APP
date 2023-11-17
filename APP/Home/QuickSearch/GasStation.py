@@ -42,26 +42,29 @@ async def getGasStationAPI(os: str, mode: str, longitude: str, latitude: str, to
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    address = await getGasStation(longitude,latitude)
-    address = str(address['地址'])
+    gas_station_list = await getGasStation(longitude,latitude)
     
     match mode:
-        case "Car":
-            mode = "driving"
-        case "Scooter":
-            mode = "motorcycle"
-        case "Transit":
-            mode = "transit"
-        case "Walking":
-            mode = "walking"
-        case _:
-            raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
-        
-    match os:
-        case "Android":
-            return {"url": f"https://www.google.com/maps/dir/?api=1&destination={address}&travelmode={mode}&dir_action=navigate"}
-        case "IOS":
-            return {"url": f"comgooglemapsurl://www.google.com/maps/dir/?api=1&destination={address}&travelmode={mode}&dir_action=navigate"}
+            case "Car":
+                mode = "driving"
+            case "Scooter":
+                mode = "motorcycle"
+            case "Transit":
+                mode = "transit"
+            case "Walking":
+                mode = "walking"
+            case _:
+                raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
+    
+    for station in gas_station_list:
+        address = str(station['地址'])
+        match os:
+            case "Android":
+                station["url"] = f"https://www.google.com/maps/dir/?api=1&destination={address}&travelmode={mode}&dir_action=navigate"
+            case "IOS":
+                station["url"] = f"comgooglemapsurl://www.google.com/maps/dir/?api=1&destination={address}&travelmode={mode}&dir_action=navigate"
+                
+    return gas_station_list
 
 async def getGasStation(longitude:str, latitude:str):
     collection = MongoDB.getCollection("traffic_hero","gas_station_list")
@@ -84,16 +87,12 @@ async def getGasStation(longitude:str, latitude:str):
             }
         },
         {
-            "$limit": 1
-        },
-        {
             "$project": {
                 "_id": 0,
-                "地址": 1,
             }
         }
     ]
 
     documents = collection.aggregate(pipeline)
 
-    return list(documents)[0]
+    return list(documents)

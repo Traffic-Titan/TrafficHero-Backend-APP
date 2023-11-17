@@ -40,26 +40,29 @@ async def getConvenientStoreAPI(os: str, mode: str, longitude: str, latitude: st
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    address = await getConvenientStore(longitude,latitude)
-    address = str(address['branch_address'])
-    
+    convenience_store_list = await getConvenientStore(longitude, latitude)
+
     match mode:
-        case "Car":
-            mode = "driving"
-        case "Scooter":
-            mode = "motorcycle"
-        case "Transit":
-            mode = "transit"
-        case "Walking":
-            mode = "walking"
-        case _:
-            raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
-        
-    match os:
-        case "Android":
-            return {"url": f"https://www.google.com/maps/dir/?api=1&destination={address}&travelmode={mode}&dir_action=navigate"}
-        case "IOS":
-            return {"url": f"comgooglemapsurl://www.google.com/maps/dir/?api=1&destination={address}&travelmode={mode}&dir_action=navigate"}
+            case "Car":
+                travel_mode = "driving"
+            case "Scooter":
+                travel_mode = "motorcycle"
+            case "Transit":
+                travel_mode = "transit"
+            case "Walking":
+                travel_mode = "walking"
+            case _:
+                raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
+
+    for store in convenience_store_list:
+        address = str(store['branch_address'])
+        match os:
+            case "Android":
+                store["url"] = f"https://www.google.com/maps/dir/?api=1&destination={address}&travelmode={travel_mode}&dir_action=navigate"
+            case "IOS":
+                store["url"] = f"comgooglemapsurl://www.google.com/maps/dir/?api=1&destination={address}&travelmode={travel_mode}&dir_action=navigate"
+
+    return convenience_store_list
 
 async def getConvenientStore(longitude:str, latitude:str):
     collection = MongoDB.getCollection("traffic_hero","convenient_store_list")
@@ -82,16 +85,12 @@ async def getConvenientStore(longitude:str, latitude:str):
             }
         },
         {
-            "$limit": 1
-        },
-        {
             "$project": {
                 "_id": 0,
-                "branch_address": 1,
             }
         }
     ]
 
     documents = collection.aggregate(pipeline)
 
-    return list(documents)[0]
+    return list(documents)
