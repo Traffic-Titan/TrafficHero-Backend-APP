@@ -31,7 +31,7 @@ async def getGasStationAPI(os: str, mode: str, longitude: str, latitude: str, to
                 https://data.gov.tw/dataset/6065 \n
     二、Input \n
             1. os(Client作業系統): Android/IOS
-            2. mode(使用模式): Car/Scooter/Transit
+            2. mode(使用模式): Car/Scooter/Transit/Walking
             3. longitude(經度)
             4. latitude(緯度)
             5. Type(加油站類型)：直營站/加盟站 (開發中)
@@ -52,6 +52,8 @@ async def getGasStationAPI(os: str, mode: str, longitude: str, latitude: str, to
             mode = "motorcycle"
         case "Transit":
             mode = "transit"
+        case "Walking":
+            mode = "walking"
         case _:
             raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
         

@@ -30,7 +30,7 @@ async def getConvenientStoreAPI(os: str, mode: str, longitude: str, latitude: st
                 https://data.gov.tw/dataset/32086 \n
     二、Input \n
             1. os(Client作業系統): Android/IOS
-            2. mode(使用模式): Car/Scooter
+            2. mode(使用模式): Car/Scooter/Transit/Walking
             3. longitude(經度)
             4. latitude(緯度)
     三、Output \n
@@ -41,13 +41,17 @@ async def getConvenientStoreAPI(os: str, mode: str, longitude: str, latitude: st
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
     address = await getConvenientStore(longitude,latitude)
-    address = str(address['地址'])
+    address = str(address['branch_address'])
     
     match mode:
         case "Car":
             mode = "driving"
         case "Scooter":
             mode = "motorcycle"
+        case "Transit":
+            mode = "transit"
+        case "Walking":
+            mode = "walking"
         case _:
             raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
         
@@ -65,7 +69,7 @@ async def getConvenientStore(longitude:str, latitude:str):
     user_location_geojson = GeoJSONPoint((user_location.x, user_location.y))
 
     # 建立索引
-    collection.create_index([("position", "2dsphere")])
+    collection.create_index([("location", "2dsphere")])
 
     # 資料庫查詢
     pipeline = [
@@ -83,7 +87,7 @@ async def getConvenientStore(longitude:str, latitude:str):
         {
             "$project": {
                 "_id": 0,
-                "地址": 1,
+                "branch_address": 1,
             }
         }
     ]
