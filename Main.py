@@ -129,9 +129,10 @@ app.include_router(PublicBicycle.router)
 from APP.Information.PublicTransport.Bus import Search
 app.include_router(Search.router)
 
-from APP.Information.PublicTransport.TaiwanRailway import SearchStation,StationLiveBoard
+from APP.Information.PublicTransport.TaiwanRailway import SearchStation,StationLiveBoard,DailyTimeTable
 app.include_router(SearchStation.router)
 app.include_router(StationLiveBoard.router)
+app.include_router(DailyTimeTable.router)
 
 from APP.Information.PublicTransport.MRT import KRTC,RouteMap
 app.include_router(KRTC.router)
