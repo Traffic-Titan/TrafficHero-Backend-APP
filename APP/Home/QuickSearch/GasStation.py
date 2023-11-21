@@ -22,7 +22,7 @@ from geojson import Point as GeoJSONPoint
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 
-@router.get("/QuickSearch/GasStation", summary="【Read】快速尋找地點-加油站(需更改成列表呈現)")
+@router.get("/QuickSearch/GasStation", summary="【Read】快速尋找地點-加油站(列表)")
 async def getGasStationAPI(os: str, mode: str, longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends((HTTPBearer()))):  
 
     """
@@ -57,7 +57,7 @@ async def getGasStationAPI(os: str, mode: str, longitude: str, latitude: str, to
                 raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
     
     for station in gas_station_list:
-        address = str(station['地址'])
+        address = str(station["basic"]["address"])
         match os:
             case "Android":
                 station["url"] = f"https://www.google.com/maps/dir/?api=1&destination={address}&travelmode={mode}&dir_action=navigate"
@@ -74,7 +74,7 @@ async def getGasStation(longitude:str, latitude:str):
     user_location_geojson = GeoJSONPoint((user_location.x, user_location.y))
 
     # 建立索引
-    collection.create_index([("position", "2dsphere")])
+    collection.create_index([("location", "2dsphere")])
 
     # 資料庫查詢
     pipeline = [

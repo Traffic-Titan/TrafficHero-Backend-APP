@@ -22,7 +22,7 @@ from geojson import Point as GeoJSONPoint
 
 router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
 
-@router.get("/QuickSearch/GasStation", summary="【Read】快速尋找地點-加油站")
+@router.get("/QuickSearch/GasStation", summary="【Read】快速尋找地點-加油站(離使用者最近的一筆資料)")
 async def getGasStationAPI(os: str, mode: str, longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends((HTTPBearer()))):  
 
     """
@@ -42,8 +42,8 @@ async def getGasStationAPI(os: str, mode: str, longitude: str, latitude: str, to
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    address = await getGasStation(longitude,latitude)
-    address = str(address['地址'])
+    station = await getGasStation(longitude,latitude)
+    address = str(station["basic"]["address"])
     
     match mode:
         case "Car":
@@ -71,7 +71,7 @@ async def getGasStation(longitude:str, latitude:str):
     user_location_geojson = GeoJSONPoint((user_location.x, user_location.y))
 
     # 建立索引
-    collection.create_index([("position", "2dsphere")])
+    collection.create_index([("location", "2dsphere")])
 
     # 資料庫查詢
     pipeline = [
@@ -89,7 +89,7 @@ async def getGasStation(longitude:str, latitude:str):
         {
             "$project": {
                 "_id": 0,
-                "地址": 1,
+                "basic": 1,
             }
         }
     ]

@@ -22,7 +22,7 @@ from geojson import Point as GeoJSONPoint
 
 router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
 
-@router.get("/QuickSearch/ConvenientStore", summary="【Read】快速尋找地點-便利商店")
+@router.get("/QuickSearch/ConvenientStore", summary="【Read】快速尋找地點-便利商店(離使用者最近的一筆資料)")
 async def getConvenientStoreAPI(os: str, mode: str, longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
