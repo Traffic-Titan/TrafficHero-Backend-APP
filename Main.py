@@ -134,9 +134,11 @@ app.include_router(SearchStation.router)
 app.include_router(StationLiveBoard.router)
 app.include_router(DailyTimeTable.router)
 
-from APP.Information.PublicTransport.MRT import KRTC,RouteMap
+from APP.Information.PublicTransport.MRT import KRTC,RouteMap,TRTC
 app.include_router(KRTC.router)
 app.include_router(RouteMap.router)
+app.include_router(TRTC.router)
+
 
 from APP.Information.PublicTransport.THSR import DailyTimeTable,StationID_THSR,ByID_EachStop_THSR
 app.include_router(StationID_THSR.router)
