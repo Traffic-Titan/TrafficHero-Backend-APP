@@ -56,7 +56,12 @@ async def getNearby_PublicBicycle(longitude:str, latitude:str, token: HTTPAuthor
         }
     ])
     
-    return list(documents)
+    result = list(documents)
+    
+    if len(result) == 0:
+        return {"station_name_zh_tw":"附近無站點"}
+    else:
+        return result
     
 #     documents = []
 
