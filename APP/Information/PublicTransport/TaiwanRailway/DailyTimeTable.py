@@ -34,11 +34,16 @@ async def DailyTimeTable_ByStartEndStation(OriginStationID :str,DestinationStati
     ticketFee = f"https://tdx.transportdata.tw/api/basic/v2/Rail/TRA/ODFare/{OriginStationID}/to/{DestinationStationID}?%24format=JSON"
     DailyTimeTable_data = getData(DailyTimeTable_URL)
     ticketFeeData = getData(ticketFee)
+
     # 指定時間格式
     timeFormatter = "%H:%M"
     timeFormatted = datetime.strptime(TrainTime, timeFormatter)
-
+    
     for data in DailyTimeTable_data['TrainTimetables']:
+        # trainTimeFormatted:各班次抵達時間進行格式轉換，再與使用者的時間進行比較
+        trainTimeLaunchFormatted = datetime.strptime(data['StopTimes'][0]['ArrivalTime'], timeFormatter)
+        trainTimeArrivalFormatted = datetime.strptime(data['StopTimes'][len(data['StopTimes'])-1]['ArrivalTime'], timeFormatter)
+        trainDuration = str(trainTimeArrivalFormatted - trainTimeLaunchFormatted)
         document = {
                     "TrainNo":data['TrainInfo']['TrainNo'],
                     "Direction": data['TrainInfo']["Direction"],
@@ -56,12 +61,11 @@ async def DailyTimeTable_ByStartEndStation(OriginStationID :str,DestinationStati
                     "ExtraTrainFlag": data['TrainInfo']['ExtraTrainFlag'],
                     "SuspendedFlag":data['TrainInfo']['SuspendedFlag'],
                     "StopTimes":data['StopTimes'],
-                    "Fare":str(int(ticketFeeData[0]['Fares'][0]['Price']))
+                    "Fare":str(int(ticketFeeData[0]['Fares'][0]['Price'])),
+                    "Duration":trainDuration
         }
 
-        # trainTimeFormatted:各班次抵達時間進行格式轉換，再與使用者的時間進行比較
-        trainTimeFormatted = datetime.strptime(data['StopTimes'][0]['ArrivalTime'], timeFormatter)
-        if( trainTimeFormatted > timeFormatted):
+        if( trainTimeLaunchFormatted > timeFormatted):
             documents.append(document)
         
     return documents
@@ -85,7 +89,14 @@ async def DailyTimeTable_ByCarNum(CarNum :str,TrainDate = str,token: HTTPAuthori
 
     DailyTimeTable_URL = f"https://tdx.transportdata.tw/api/basic/v2/Rail/TRA/DailyTimetable/TrainNo/{CarNum}/TrainDate/{TrainDate}?%24format=JSON"
     DailyTimeTable_data = getData(DailyTimeTable_URL)
+
+    # 指定時間格式
+    timeFormatter = "%H:%M"
+    
     for data in DailyTimeTable_data:
+        trainTimeLaunchFormatted = datetime.strptime(data['StopTimes'][0]['ArrivalTime'], timeFormatter)
+        trainTimeArrivalFormatted = datetime.strptime(data['StopTimes'][len(data['StopTimes'])-1]['ArrivalTime'], timeFormatter)
+        trainDuration = str(trainTimeArrivalFormatted - trainTimeLaunchFormatted)
         document = {
             "TrainNo":data['DailyTrainInfo']['TrainNo'],
             "Direction": data['DailyTrainInfo']["Direction"],
@@ -101,6 +112,7 @@ async def DailyTimeTable_ByCarNum(CarNum :str,TrainDate = str,token: HTTPAuthori
             "DailyFlag": data['DailyTrainInfo']['DailyFlag'],
             "SuspendedFlag":data['DailyTrainInfo']['SuspendedFlag'],
             "StopTimes":data['StopTimes'],
+            "Duration":trainDuration
         }
         documents.append(document)
     return documents
