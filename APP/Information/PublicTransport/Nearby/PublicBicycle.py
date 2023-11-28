@@ -7,12 +7,15 @@ from shapely.geometry import Point
 
 router = APIRouter(tags=["4-2.大眾運輸資訊(APP)"],prefix="/APP/Information/PublicTransport")
 @router.get("/Nearby/PublicBicycle",summary="【Read】附近站點-公共自行車")
-async def getNearby_PublicBicycle(longitude:str, latitude:str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+async def getNearby_PublicBicycle(os: str, longitude:str, latitude:str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
             1.  \n
     二、Input \n
-            1. 
+            1. os(Client作業系統): Android/IOS
+            2. mode(使用模式): Walking(預設)
+            3. longitude(經度)
+            4. latitude(緯度)
     三、Output \n
             1. 
     四、說明 \n
@@ -51,7 +54,23 @@ async def getNearby_PublicBicycle(longitude:str, latitude:str, token: HTTPAuthor
         },
         {
             "$project": {
-                "_id": 0
+                "_id": 0,
+                "distance": {
+                    "$round": ["$distance", 2]
+                },
+                "station_uid": 1,
+                "area": 1,
+                "available_rent_bikes": 1,
+                "available_rent_bikes_detail": 1,
+                "available_return_bikes": 1,
+                "bikes_capacity": 1,
+                "icon_url": 1,
+                "location": 1,
+                "service_status": 1,
+                "service_type": 1,
+                "station_address_zh_tw": 1,
+                "station_id": 1,
+                "station_name_zh_tw": 1,
             }
         }
     ])
@@ -59,9 +78,31 @@ async def getNearby_PublicBicycle(longitude:str, latitude:str, token: HTTPAuthor
     result = list(documents)
     
     if len(result) == 0:
-        return {"station_name_zh_tw":"附近無站點"}
+        return [{"station_uid":"",
+                "area":"",
+                "available_rent_bikes":0,
+                "available_rent_bikes_detail":{"general_bikes":0,"electric_bikes":0},
+                "available_return_bikes":0,
+                "bikes_capacity":0,
+                "icon_url":"https://cdn3.iconfinder.com/data/icons/basic-2-black-series/64/a-92-256.png",
+                "location":{"longitude":0,"latitude":0},
+                "service_status":"",
+                "service_type":"",
+                "station_address_zh_tw":"",
+                "station_id":"",
+                "station_name_zh_tw":"附近無站點",
+                "url":""}]
     else:
+        for data in result:
+            match os:
+                case "Android":
+                    data["url"] = f"https://www.google.com/maps/dir/?api=1&destination={data['location']['latitude']},{data['location']['longitude']}&travelmode=walking&dir_action=navigate"
+                case "IOS":
+                    data["url"] = f"comgooglemapsurl://www.google.com/maps/dir/?api=1&destination={data['location']['latitude']},{data['location']['longitude']}&travelmode=walking&dir_action=navigate"
+
+        
         return result
+    
     
 #     documents = []
 
