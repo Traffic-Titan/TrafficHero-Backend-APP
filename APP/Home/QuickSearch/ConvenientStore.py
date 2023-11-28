@@ -81,12 +81,21 @@ async def getConvenientStore(longitude:str, latitude:str):
                 "near": user_location_geojson,
                 "distanceField": "distance",
                 "spherical": True,
-                "maxDistance": 5000
+                "maxDistance": 5000,
+                "distanceMultiplier": 0.001  # 將距離轉換為公里
             }
         },
         {
             "$project": {
                 "_id": 0,
+                "distance": {
+                    "$round": ["$distance", 2]
+                },
+                "company_name": 1,
+                "branch_name": 1,
+                "branch_address": 1,
+                "location": 1,
+                "icon_url": 1                
             }
         }
     ]
