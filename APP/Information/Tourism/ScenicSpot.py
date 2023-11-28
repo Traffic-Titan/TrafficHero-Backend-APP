@@ -13,7 +13,7 @@ import time
 router = APIRouter(tags=["5.觀光資訊(APP)"],prefix="/APP/Information")
 
 @router.get("/Tourism/ScenicSpot",summary="【Read】觀光資訊-全臺觀光景點資料")
-async def TouristSpot(longitude:str, latitude:str, mode: str, os: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+async def TouristSpot(os: str, mode: str, longitude:str, latitude:str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"user") # JWT驗證
 
     collection = MongoDB.getCollection("traffic_hero","tourism_scenic_spot")
@@ -65,11 +65,12 @@ async def TouristSpot(longitude:str, latitude:str, mode: str, os: str, token: HT
     for d in documents:
         match os:
             case "Android":
-                url = "https://www.google.com/maps/dir/?api=1&destination=" + str(d["position"]["latitude"]) + "," + str(d["position"]["longitude"]) + "&travelmode=" + mode + "&dir_action=navigate"
+                d["google_maps_information_url"] = f"https://www.google.com/maps/search/?api=1&query={d['name']}"
+                d["google_maps_navigation_url"] = f"https://www.google.com/maps/dir/?api=1&destination={d['position']['latitude']},{d['position']['longitude']}&travelmode={mode}&dir_action=navigate"
             case "IOS":
-                url = "comgooglemapsurl://www.google.com/maps/dir/?api=1&destination=" + str(d["position"]["latitude"]) + "," + str(d["position"]["longitude"]) + "&travelmode=" + mode + "&dir_action=navigate"
+                d["google_maps_information_url"] = f"comgooglemaps://?q={d['name']}"
+                d["google_maps_url"] = f"comgooglemapsurl://www.google.com/maps/dir/?api=1&destination={d['position']['latitude']},{d['position']['longitude']}&travelmode={mode}&dir_action=navigate"
         
-        d["google_maps_url"] = url
         
         d["distance"] = round(d["distance"], 1)
         result.append(d)
