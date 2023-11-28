@@ -83,12 +83,22 @@ async def getGasStation(longitude:str, latitude:str):
                 "near": user_location_geojson,
                 "distanceField": "distance",
                 "spherical": True,
-                "maxDistance": 5000
+                "maxDistance": 5000,
+                "distanceMultiplier": 0.001  # 將距離轉換為公里
             }
         },
         {
             "$project": {
                 "_id": 0,
+                "distance": {
+                    "$round": ["$distance", 2]
+                },
+                "basic": 1,
+                "gasoline": 1,
+                "payment": 1,
+                "other_service": 1,
+                "location": 1,
+                "icon_url": 1
             }
         }
     ]
