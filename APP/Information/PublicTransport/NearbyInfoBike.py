@@ -24,7 +24,7 @@ async def NearbyStationInfo_Bike(latitude:str,longitude:str,token: HTTPAuthoriza
             bikeStatus = getBikeStatus(countryResponse[0]["City"],data['StationUID'])
             document = {
                     "公共自行車":data,
-                    "剩餘空位":bikeStatus['station']['BikesCapacity'],
+                    "剩餘空位":bikeStatus['status']['AvailableReturnBikes'],
                     "可借車位":bikeStatus['status']['AvailableRentBikesDetail']['GeneralBikes'],
                 }
             documents.append(document)
