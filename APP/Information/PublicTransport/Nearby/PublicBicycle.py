@@ -30,7 +30,7 @@ async def getNearby_PublicBicycle(os: str, longitude:str, latitude:str, token: H
     user_location = Point(float(longitude), float(latitude))
 
     # 定義最大距離
-    max_distance = 10
+    max_distance = 1
     
     # 建立索引
     collection.create_index([("location", "2dsphere")])
