@@ -1,39 +1,61 @@
-"""
-1. 尚未加入資料更新的功能
-2. 訊息等級尚需討論
-"""
-
-import urllib.request as request
-import json
+from fastapi import APIRouter, Depends, HTTPException
+from Service.TDX import getData
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import Service.Token as Token
+from Service.ChatGPT import chatGPT
 from Main import MongoDB # 引用MongoDB連線實例
-from pymongo import InsertOne
+from shapely.geometry import Point
+from geopy.distance import geodesic
+from shapely.geometry.polygon import Polygon
+from datetime import datetime
 
-def getData():
-    """
-    一、資料來源: \n
-            1. 政府資料開放平臺 - 測速執法設置點 \n
-                https://data.gov.tw/dataset/7320
-    """
-    # 取得資料
-    url = "https://od.moi.gov.tw/api/v1/rest/datastore/A01010000C-000674-011"
-    data = json.load(request.urlopen(url))
+router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
+
+@router.get("/SpeedEnforcement",summary="【Read】即時訊息推播-測速執法設置點")
+async def getSpeedEnforcement_car(longitude: str = "all", latitude: str = "all", max_distance: int = 10, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    # 將資料整理成MongoDB的格式
-    documents = []
-    for d in data['result']['records']:
-        document = {
-            "CityName": d['CityName'],
-            'RegionName': d['RegionName'],
-            'Address': d['Address'],
-            'Longitude': d['Longitude'],
-            'Latitude': d['Latitude'],
-            'Direct': d['direct'],
-            'Limit': d['limit'],
-            'MessageLevel': 1
-        }
-        documents.append(document)
+    collection = MongoDB.getCollection("traffic_hero","cms_speed_enforcement") # 取得MongoDB的collection
+    
+    if longitude == "all" and latitude == "all":
+        documents = collection.find({"active": True}, {"_id": 0})
+    else:
+        # 為使用者的當前位置建立一個Point
+        user_location = Point(float(longitude), float(latitude))
 
-    # 將資料存入MongoDB
-    collection = MongoDB.getCollection("TrafficHero","Speed_Enforcement")
-    collection.drop()
-    collection.insert_many(documents)
+        # 定義最大距離
+        max_distance = max_distance
+
+        # 建立索引
+        collection.create_index([("location", "2dsphere")])
+
+        # 資料庫查詢
+        documents = collection.aggregate([
+            {
+                "$geoNear": {
+                    "near": {
+                        "type": "Point",
+                        "coordinates": [float(longitude), float(latitude)]
+                    },
+                    "distanceField": "distance",
+                    "spherical": True,
+                    "maxDistance": max_distance * 1000,  # 將公里轉換為公尺
+                    "distanceMultiplier": 0.001  # 將距離轉換為公里
+                }
+            },
+            {
+                "$match": {
+                    "active": True  # 只選擇 active 為 true 的Document
+                }
+            },
+            {
+                "$sort": {"distance": 1}  # 按距離升序排序（從近到遠）
+            },
+            {
+                "$project": {
+                    "_id": 0
+                }
+            }
+        ])
+
+    return list(documents)

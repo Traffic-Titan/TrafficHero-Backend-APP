@@ -98,9 +98,11 @@ app.include_router(Scooter.router)
 app.include_router(PublicTransport.router)
 
 # 3.即時訊息推播(APP)
-from APP.CMS import Main, Sidebar, ParkingLocation, PBS, Parking
+from APP.CMS import Main, Sidebar, SpeedEnforcement, ParkingLocation, PBS, Parking
 app.include_router(Main.router)
 app.include_router(Sidebar.router)
+app.include_router(SpeedEnforcement.router)
+
 app.include_router(ParkingLocation.router)
 app.include_router(PBS.router)
 app.include_router(Parking.router)
