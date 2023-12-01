@@ -11,12 +11,11 @@ from datetime import datetime
 
 router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
 
-@router.get("/Main/Car",summary="【Read】即時訊息推播-主要內容-汽車模式")
-async def getMainContent_car(longitude: str = "all", latitude: str = "all", token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+@router.get("/Sidebar/Car",summary="【Read】即時訊息推播-側邊欄-汽車模式")
+async def getSidebarContent_car(longitude: str = "all", latitude: str = "all", token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero","cms_main_car") # 取得MongoDB的collection
-    
+    collection = MongoDB.getCollection("traffic_hero","cms_sidebar_car") # 取得MongoDB的collection
     if longitude == "all" and latitude == "all":
         documents = collection.find({"active": True}, {"_id": 0})
     else:
@@ -60,12 +59,11 @@ async def getMainContent_car(longitude: str = "all", latitude: str = "all", toke
 
     return list(documents)
     
-@router.get("/Main/Scooter",summary="【Read】即時訊息推播-主要內容-機車模式")
-async def getMainContent_scooter(longitude: str = "all", latitude: str = "all", token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+@router.get("/Sidebar/Scooter",summary="【Read】即時訊息推播-側邊欄-機車模式")
+async def getSidebarContent_scooter(longitude: str = "all", latitude: str = "all", token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero","cms_main_scooter") # 取得MongoDB的collection
-    
+    collection = MongoDB.getCollection("traffic_hero","cms_sidebar_scooter") # 取得MongoDB的collection
     if longitude == "all" and latitude == "all":
         documents = collection.find({"active": True}, {"_id": 0})
     else:
