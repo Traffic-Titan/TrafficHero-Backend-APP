@@ -14,7 +14,7 @@ import Service.Token as Token
 import bcrypt
 from datetime import datetime, timedelta
 
-router = APIRouter(tags=["0.會員管理(Website)"],prefix="/Website/Account")
+router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 
 class ProfileModel(BaseModel):
     name: str
