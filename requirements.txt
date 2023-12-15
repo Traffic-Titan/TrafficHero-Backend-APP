@@ -19,3 +19,4 @@ scipy
 httpx
 bcrypt
 geojson
+matplotlib
