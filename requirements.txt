@@ -20,3 +20,5 @@ httpx
 bcrypt
 geojson
 matplotlib
+pandas
+motor
