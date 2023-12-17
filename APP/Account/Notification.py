@@ -13,14 +13,14 @@ router = APIRouter(tags=["0.會員管理(APP)"],prefix="/APP/Account")
 async def subscribe(fcm_token:str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero","user_data") # 連線MongoDB
+    collection = await MongoDB.getCollection("traffic_hero","user_data") # 連線MongoDB
     
     # 查詢使用者資料
-    result = collection.find_one({"email": payload["data"]["email"]}, {"_id": 0})
+    result = await collection.find_one({"email": payload["data"]["email"]}, {"_id": 0})
 
     if result:
         # 更新使用者資料，將 FCM Token 加入訂閱列表
-        collection.update_one(
+        await collection.update_one(
             {"email": payload["data"]["email"]},
             {"$addToSet": {"notification_token": fcm_token}}
         )
@@ -34,14 +34,14 @@ async def unsubscribe(fcm_token: str, token: HTTPAuthorizationCredentials = Depe
     payload = Token.verifyToken(token.credentials, "user")
 
     # 連接 MongoDB
-    collection = MongoDB.getCollection("traffic_hero", "user_data")
+    collection = await MongoDB.getCollection("traffic_hero", "user_data")
 
     # 查詢使用者資料
-    result = collection.find_one({"email": payload["data"]["email"]}, {"_id": 0})
+    result = await collection.find_one({"email": payload["data"]["email"]}, {"_id": 0})
 
     if result:
         # 更新使用者資料，從訂閱列表中移除指定的 FCM Token
-        collection.update_one(
+        await collection.update_one(
             {"email": payload["data"]["email"]},
             {"$pull": {"notification_token": fcm_token}}
         )

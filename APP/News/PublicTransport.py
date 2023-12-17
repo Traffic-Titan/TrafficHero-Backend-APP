@@ -9,10 +9,10 @@ import concurrent.futures
 
 router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
 
-def processData(type, area):
-    collection = MongoDB.getCollection("traffic_hero", f'news_{type}') # 選擇collection
-    result = collection.find({"area": area}, {"_id": 0}) # 取得資料
-    return list(result)
+async def processData(type, area):
+    collection = await MongoDB.getCollection("traffic_hero", f'news_{type}') # 選擇collection
+    result = await collection.find({"area": area}, {"_id": 0}).to_list(None) # 取得資料
+    return result
     
 @router.get("/PublicTransport",summary="【Read】最新消息-大眾運輸")
 async def publicTransport(areas: str = "All", types: str = "All", token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
@@ -27,20 +27,17 @@ async def publicTransport(areas: str = "All", types: str = "All", token: HTTPAut
         types = "taiwan_railway,taiwan_high_speed_rail,mrt,bus,intercity_bus,taiwan_tourist_shuttle,alishan_forest_railway,public_bicycle"
     
     types, areas = types.split(','), areas.split(',') # 將types, areas轉成陣列
-    
-    task = [] # 任務清單
-    documents = [] # 回傳的資料
-    with concurrent.futures.ThreadPoolExecutor(max_workers=len(types) * len(areas)) as executor: # 並行處理
-        for type in types:
-            if type in ["taiwan_railway","taiwan_high_speed_rail","intercity_bus","taiwan_tourist_shuttle"]: # 無區域之分
-                task.append(executor.submit(processData, type, "All")) # 將任務加入任務清單
-            else:
-                for area in areas: # 有區域之分
-                    task.append(executor.submit(processData, type, area)) # 將任務加入任務清單
 
-            for future in concurrent.futures.as_completed(task): 
-                documents.extend(future.result()) # 將任務結果存入documents
+    tasks = [] # 任務清單
+    for type in types:
+        if type in ["taiwan_railway","taiwan_high_speed_rail","intercity_bus","taiwan_tourist_shuttle"]: # 無區域之分
+            tasks.append(processData(type, "All")) # 將任務加入任務清單
+        else:
+            for area in areas: # 有區域之分
+                tasks.append(processData(type, area)) # 將任務加入任務清單
+
+    documents = await asyncio.gather(*tasks) # 並行處理所有任務
+    documents = [item for sublist in documents for item in sublist] # 扁平化列表
 
     documents.sort(key=lambda x: x.get("update_time", ""), reverse=True) # 依照UpdateTime排序
-
     return documents

@@ -26,7 +26,7 @@ async def search(area: str, route_id: str, token: HTTPAuthorizationCredentials =
     """
     Token.verifyToken(token.credentials, "user")  # JWT驗證
 
-    collection = MongoDB.getCollection(
+    collection = await MongoDB.getCollection(
         "traffic_hero", "information_bus_route")  # 連線MongoDB
     data = list(collection.find({"City": area, "RouteName.Zh_tw": {
                 "$regex": f"^{route_id}"}}, {"_id": 0}))  # 搜尋公車路線資料

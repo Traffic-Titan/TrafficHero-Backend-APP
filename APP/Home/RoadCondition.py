@@ -20,7 +20,7 @@ async def getNearbyRoadConditionCar(latitude: str, longitude: str, token: HTTPAu
     # 定義最大距離
     max_distance = 10
 
-    collection = MongoDB.getCollection("traffic_hero","road_condition")
+    collection = await MongoDB.getCollection("traffic_hero","road_condition")
     # 建立索引
     collection.create_index([("position", "2dsphere")])
 
@@ -83,7 +83,7 @@ async def getNearbyRoadConditionCar(latitude: str, longitude: str, token: HTTPAu
     # 定義最大距離
     max_distance = 10
 
-    collection = MongoDB.getCollection("traffic_hero","road_condition")
+    collection = await MongoDB.getCollection("traffic_hero","road_condition")
     # 建立索引
     collection.create_index([("position", "2dsphere")])
 

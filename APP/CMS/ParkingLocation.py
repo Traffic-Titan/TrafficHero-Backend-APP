@@ -25,8 +25,8 @@ async def get(os: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer(
     
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero","user_data") # 連線MongoDB
-    result = collection.find_one({"email":  payload["data"]["email"]}, {"_id": 0, "parking_location": 1})
+    collection = await MongoDB.getCollection("traffic_hero","user_data") # 連線MongoDB
+    result = await collection.find_one({"email":  payload["data"]["email"]}, {"_id": 0, "parking_location": 1})
     
     if result == {}:
         return {"message": "尚未儲存停車位置"}
@@ -54,8 +54,8 @@ async def save(data: ParkingLocation, token: HTTPAuthorizationCredentials = Depe
     """
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero","user_data") # 連線MongoDB
-    result = collection.update_one(
+    collection = await MongoDB.getCollection("traffic_hero","user_data") # 連線MongoDB
+    result = await collection.update_one(
         {"email": payload["data"]["email"]},
         {"$set": {"parking_location": {"longitude": data.longitude, "latitude": data.latitude}}}
     )

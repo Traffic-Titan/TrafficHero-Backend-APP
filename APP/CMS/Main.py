@@ -15,7 +15,7 @@ router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
 async def getMainContent_car(longitude: str = "all", latitude: str = "all", token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero","cms_main_car") # 取得MongoDB的collection
+    collection = await MongoDB.getCollection("traffic_hero","cms_main_car") # 取得MongoDB的collection
     
     if longitude == "all" and latitude == "all":
         documents = collection.find({"active": True}, {"_id": 0})
@@ -64,7 +64,7 @@ async def getMainContent_car(longitude: str = "all", latitude: str = "all", toke
 async def getMainContent_scooter(longitude: str = "all", latitude: str = "all", token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero","cms_main_scooter") # 取得MongoDB的collection
+    collection = await MongoDB.getCollection("traffic_hero","cms_main_scooter") # 取得MongoDB的collection
     
     if longitude == "all" and latitude == "all":
         documents = collection.find({"active": True}, {"_id": 0})

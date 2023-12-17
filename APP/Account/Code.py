@@ -18,8 +18,8 @@ async def verifyCode(user: VerifyCodeModel, token: HTTPAuthorizationCredentials 
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 檢查電子郵件是否存在於資料庫中
-    collection = MongoDB.getCollection("traffic_hero","user_data")
-    result = collection.find_one({"email": user.email})
+    collection = await MongoDB.getCollection("traffic_hero","user_data")
+    result = await collection.find_one({"email": user.email})
     if result is None:
         raise HTTPException(status_code=404, detail="此電子郵件不存在")
 
@@ -36,7 +36,7 @@ async def verifyCode(user: VerifyCodeModel, token: HTTPAuthorizationCredentials 
 
     # 驗證碼驗證成功，生成並儲存 token
     if result.get("email_confirmed") == False: # 如果是註冊驗證，則將email_confirmed改為True
-        collection.update_one(
+        await collection.update_one(
             {
                 "email": user.email
             },
@@ -53,6 +53,6 @@ async def verifyCode(user: VerifyCodeModel, token: HTTPAuthorizationCredentials 
             "verification_code": Code.generateCode(),
         }
         token = encodeToken(payload, 10)
-        collection.update_one({"email": user.email}, {"$set": {"token": token}})
+        await collection.update_one({"email": user.email}, {"$set": {"token": token}})
         
         return {"message": "驗證碼驗證成功", "token": token}

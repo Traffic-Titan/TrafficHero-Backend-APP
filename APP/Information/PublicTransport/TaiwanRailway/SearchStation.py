@@ -6,7 +6,6 @@ import Service.TDX as TDX
 from scipy.spatial import distance
 
 router = APIRouter(tags=["4-2.大眾運輸資訊(APP)"],prefix="/APP/Information/PublicTransport/TaiwanRailway")
-collection = MongoDB.getCollection("traffic_hero","information_taiwan_railway_station")
 
 @router.get("/SearchStationByLocation",summary="【Read】大眾運輸資訊-查詢最近臺鐵車站")
 async def search_station_by_location(longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
@@ -22,6 +21,8 @@ async def search_station_by_location(longitude: str, latitude: str, token: HTTPA
         1.
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
+    
+    collection = await MongoDB.getCollection("traffic_hero","information_taiwan_railway_station")
     
     data = collection.find({},{"_id":0})
     nearestRange = 1

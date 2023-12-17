@@ -30,10 +30,10 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 連線MongoDB
-    collection = MongoDB.getCollection("traffic_hero","user_data")
+    collection = await MongoDB.getCollection("traffic_hero","user_data")
 
     # 檢查 Email 是否已經存在
-    if collection.find_one({"email": user.email}, {"email_confirmed": True}):
+    if await collection.find_one({"email": user.email}, {"email_confirmed": True}):
         raise HTTPException(status_code=400, detail="此Email已註冊，請使用其他Email")
     
     # 對密碼進行Hash處理，加上隨機的salt
@@ -66,7 +66,7 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
         expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)  # 計算驗證碼的過期時間
         expiration_time_str = expiration_time.strftime("%Y/%m/%d %H:%M")  # 格式化過期時間(YYYY/MM/DD HH:MM)
         
-        collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})
+        await collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})
         
         response = await Email.send(user.email,"電子郵件驗證","感謝您註冊Traffic Hero會員，您的驗證碼是：" + verification_code + "。<br>請在10分鐘內(" + expiration_time_str +  ")至APP上輸入此驗證碼以完成註冊，謝謝。<br><br>若這不是您本人所為，請直接忽略此電子郵件。")
         if response.status_code != 200:

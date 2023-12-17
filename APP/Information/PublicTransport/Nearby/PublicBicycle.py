@@ -24,7 +24,7 @@ async def getNearby_PublicBicycle(os: str, longitude:str, latitude:str, token: H
     
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero","information_public_bicycle")
+    collection = await MongoDB.getCollection("traffic_hero","information_public_bicycle")
     
     # 為使用者的當前位置建立一個Point
     user_location = Point(float(longitude), float(latitude))
@@ -130,8 +130,8 @@ async def getNearby_PublicBicycle(os: str, longitude:str, latitude:str, token: H
 #     url = f"https://tdx.transportdata.tw/api/basic/v2/Bike/Availability/City/{area}?%24filter=StationUID%20eq%20%27{StationUID}%27&%24format=JSON" # 取得資料來源網址
 #     data = TDX.getData(url) # 取得即時車位資料
 
-#     collection = MongoDB.getCollection("traffic_hero","information_public_bicycle") # 連線MongoDB
-#     station = collection.find_one({"StationUID": StationUID}, {"_id": 0}) # 取得租借站位資料
+#     collection = await MongoDB.getCollection("traffic_hero","information_public_bicycle") # 連線MongoDB
+#     station = await collection.find_one({"StationUID": StationUID}, {"_id": 0}) # 取得租借站位資料
 
 #     result = {
 #             "status": dict(data[0]),

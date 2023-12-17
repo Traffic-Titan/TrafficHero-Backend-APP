@@ -18,7 +18,7 @@ def SpeedLimit():
     """
 
     documents = []
-    collection = MongoDB.getCollection('TrafficHero','SpeedLimit_In_Each_Place')
+    collection = await MongoDB.getCollection('TrafficHero','SpeedLimit_In_Each_Place')
     collection.drop()
     
     # 讀取 快速公路通車情形與速限統計表 並存進陣列documents
@@ -68,7 +68,7 @@ def SpeedLimit():
                     str(locate['Lon'])
                     ]
                     Lat_Lng_array.append(locDocument)
-                collection.update_one({"路段":cursor['路段']},{"$set":{"Lat_Lng":Lat_Lng_array}})
+                await collection.update_one({"路段":cursor['路段']},{"$set":{"Lat_Lng":Lat_Lng_array}})
 
 # 國道隧道
 def FreewayTunnel():
@@ -78,7 +78,7 @@ def FreewayTunnel():
                 https://data.gov.tw/dataset/95069
     """
     documents = []
-    collection = MongoDB.getCollection('TrafficHero','FreeWay_Tunnel')
+    collection = await MongoDB.getCollection('TrafficHero','FreeWay_Tunnel')
     collection.drop()
     with open(r'./APP/CMS/國道隧道一覽表.csv',encoding="Big5") as csv_file:
         reader = csv.reader(csv_file)
@@ -111,7 +111,7 @@ def FreewayTunnel():
                    str(locate['Lon'])
                 ]
                 Lat_Lng_array.append(locDocument)
-            collection.update_one({"隧道名稱":cursor['隧道名稱']},{"$set":{"Lat_Lng":Lat_Lng_array}})     
+            await collection.update_one({"隧道名稱":cursor['隧道名稱']},{"$set":{"Lat_Lng":Lat_Lng_array}})     
 
 
 # 分析出路段的起始點

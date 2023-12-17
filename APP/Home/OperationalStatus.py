@@ -8,7 +8,6 @@ from Main import MongoDB # 引用MongoDB連線實例
 
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
-collection = MongoDB.getCollection("traffic_hero","operational_status")
 
 @router.get("/OperationalStatus", summary="【Read】大眾運輸-營運狀況") # 先初步以北中南東離島分類，以後再依照縣市分類
 async def operationalstatus(longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
@@ -29,6 +28,8 @@ async def operationalstatus(longitude: str, latitude: str, token: HTTPAuthorizat
                 gray: 無資料
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
+    
+    collection = await MongoDB.getCollection("traffic_hero","operational_status")
     
     # 取得使用者定位的縣市
     url = f"https://tdx.transportdata.tw/api/advanced/V3/Map/GeoLocating/District/LocationX/{longitude}/LocationY/{latitude}?%24format=JSON"

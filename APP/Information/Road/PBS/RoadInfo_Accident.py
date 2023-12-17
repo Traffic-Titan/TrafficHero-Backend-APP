@@ -19,7 +19,7 @@ async def RoadInfo_Accident(token: HTTPAuthorizationCredentials = Depends(HTTPBe
     Token.verifyToken(token.credentials,"user") # JWT驗證
     documents = []
     try:
-        collection = MongoDB.getCollection("traffic_hero","information_road_info_pbs_accident")
+        collection = await MongoDB.getCollection("traffic_hero","information_road_info_pbs_accident")
         for data in collection.find({}):
             if(data['y1'] == "" or data['x1'] == ""):
                 continue

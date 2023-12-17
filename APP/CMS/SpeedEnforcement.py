@@ -15,7 +15,7 @@ router = APIRouter(tags=["3.即時訊息推播(APP)"],prefix="/APP/CMS")
 async def getSpeedEnforcement_car(longitude: str = "all", latitude: str = "all", max_distance: int = 10, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero","cms_speed_enforcement") # 取得MongoDB的collection
+    collection = await MongoDB.getCollection("traffic_hero","cms_speed_enforcement") # 取得MongoDB的collection
     
     if longitude == "all" and latitude == "all":
         documents = collection.find({"active": True}, {"_id": 0})

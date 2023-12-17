@@ -67,7 +67,7 @@ async def getGasStationAPI(os: str, mode: str, longitude: str, latitude: str, to
     return gas_station_list
 
 async def getGasStation(longitude:str, latitude:str):
-    collection = MongoDB.getCollection("traffic_hero","gas_station_list")
+    collection = await MongoDB.getCollection("traffic_hero","gas_station_list")
 
     # 為使用者的當前位置建立一個Point
     user_location = Point(float(longitude), float(latitude))

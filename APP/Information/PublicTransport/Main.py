@@ -10,8 +10,6 @@ from APP.Information.PublicTransport.PublicBicycle import getBikeStatus
 import time
 
 router = APIRouter(tags=["4-2.大眾運輸資訊(APP)"],prefix="/APP/Information/PublicTransport")
-collection = MongoDB.getCollection("traffic_hero","information_bus_route")
-collection_interCity = MongoDB.getCollection("traffic_hero","information_interCity_bus_route")
 
 # 查詢所有附近站點(暫留)
 @router.get("/NearbyStationInfo",summary="【Read】附近所有站點資訊")
@@ -32,6 +30,9 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
             https://tdx.transportdata.tw/api-service/swagger/basic/2998e851-81d0-40f5-b26d-77e2f5ac4118#/CityBus/CityBusApi_StopOfRoute_2039_1
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
+    
+    collection = await MongoDB.getCollection("traffic_hero","information_bus_route")
+    collection_interCity = await MongoDB.getCollection("traffic_hero","information_interCity_bus_route")
     
     documents = []
     DestinationStop = ""
@@ -75,7 +76,7 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
                 # 市區公車
                 else:
                     # 從資料庫 traffic_hero.information_bus_route 找出對應UID的車輛
-                    cursors = collection.find_one({"RouteUID":RouteUID})
+                    cursors = await collection.find_one({"RouteUID":RouteUID})
                     # 從資料庫查詢終點站名稱
                     DestinationName = cursors['DestinationStopNameZh']
                 document = {
@@ -199,7 +200,7 @@ async def NearbyStationInfo(latitude:str,longitude:str,token: HTTPAuthorizationC
 #                 # 市區公車
 #                 else:
 #                     # 從資料庫 traffic_hero.information_bus_route 找出對應UID的車輛
-#                     cursors = collection.find_one({"RouteUID":RouteUID})
+#                     cursors = await collection.find_one({"RouteUID":RouteUID})
 #                     # 從資料庫查詢終點站名稱
 #                     DestinationName = cursors['DestinationStopNameZh']
 

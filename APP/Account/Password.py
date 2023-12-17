@@ -22,10 +22,10 @@ async def changePassword(user: ChangePasswordModel, token: HTTPAuthorizationCred
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 連線MongoDB
-    collection = MongoDB.getCollection("traffic_hero","user_data")
+    collection = await MongoDB.getCollection("traffic_hero","user_data")
 
     # 查詢使用者記錄，同時驗證舊密碼和Token的有效性
-    result = collection.find_one({
+    result = await collection.find_one({
         "email": user.email,
         "$or": [
             {"password": hashlib.sha256(user.old_password.encode()).hexdigest()},
@@ -40,7 +40,7 @@ async def changePassword(user: ChangePasswordModel, token: HTTPAuthorizationCred
         hashed_new_password = bcrypt.hashpw(user.new_password.encode('utf-8'), bcrypt.gensalt())
 
         # 更新密碼並刪除相關資料
-        collection.update_one(
+        await collection.update_one(
             {"email": user.email},
             {
                 "$set": {"password": hashed_new_password},
@@ -60,8 +60,8 @@ async def forgotPassword(user: ForgetPasswordModel, token: HTTPAuthorizationCred
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
     # 檢查電子郵件是否存在於資料庫中
-    collection = MongoDB.getCollection("traffic_hero","user_data")
-    result = collection.find_one({"email": user.email, "email_confirmed": True, "birthday": user.birthday})
+    collection = await MongoDB.getCollection("traffic_hero","user_data")
+    result = await collection.find_one({"email": user.email, "email_confirmed": True, "birthday": user.birthday})
     if result is None:
         raise HTTPException(status_code=404, detail="查無此帳號，請重新輸入")
 
@@ -77,7 +77,7 @@ async def forgotPassword(user: ForgetPasswordModel, token: HTTPAuthorizationCred
     verification_code = Code.generateCode()
 
     # 將驗證碼存儲到資料庫中
-    collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})
+    await collection.update_one({"email": user.email}, {"$set": {"verification_code": verification_code, "timestamp": current_time}})
 
     # 寄送郵件
     current_time = Time.getCurrentTimestamp() # 獲取當前時間戳

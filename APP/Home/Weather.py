@@ -49,7 +49,7 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
         
         # 無人氣象測站
         # start = time.time()
-        collection = MongoDB.getCollection("traffic_hero","weather_station_list") # 取得無人氣象測站清單
+        collection = await MongoDB.getCollection("traffic_hero","weather_station_list") # 取得無人氣象測站清單
         weather_station_list = list(collection.find({"CountyName": response[0]["CityName"]},{"_id":0}))
         # end = time.time()
         # print(f"取得無人氣象測站清單: {end-start} sec")
@@ -67,7 +67,7 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
         # print(f"比對不到輸入資料之縣市 及 區的氣象站: {end-start} sec")
         
         # start = time.time()
-        collection = MongoDB.getCollection("traffic_hero","weather_station") # 取得無人氣象測站資料
+        collection = await MongoDB.getCollection("traffic_hero","weather_station") # 取得無人氣象測站資料
         weather_station = list(collection.find({"stationId": stationID},{"_id":0}))[0]
         # end = time.time()
         # print(f"取得無人氣象測站資料: {end-start} sec")
@@ -95,15 +95,15 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
         # print(f"根據系統時間判斷白天或晚上: {end-start} sec")
         
         # start = time.time()
-        collection = MongoDB.getCollection("traffic_hero","weather_icon") # 取得天氣圖示URL 
-        weather_icon = collection.find_one({"weather": weatherDescription},{"_id":0,f"icon_url_{type}":1}) 
+        collection = await MongoDB.getCollection("traffic_hero","weather_icon") # 取得天氣圖示URL 
+        weather_icon = await collection.find_one({"weather": weatherDescription},{"_id":0,f"icon_url_{type}":1}) 
         weather_icon_url = weather_icon.get(f"icon_url_{type}") if weather_icon and weather_icon.get(f"icon_url_{type}") else "https://cdn3.iconfinder.com/data/icons/basic-2-black-series/64/a-92-256.png" # 預設
         # end = time.time()
         # print(f"取得天氣圖示URL: {end-start} sec")
         
         # start = time.time()
-        collection = MongoDB.getCollection("traffic_hero","weather_town_id") # 取得鄉鎮市區代碼
-        TID = collection.find_one({"area": f'{response[0]["CityName"]}{response[0]["TownName"]}'},{"_id":0, "town_id": 1})
+        collection = await MongoDB.getCollection("traffic_hero","weather_town_id") # 取得鄉鎮市區代碼
+        TID = await collection.find_one({"area": f'{response[0]["CityName"]}{response[0]["TownName"]}'},{"_id":0, "town_id": 1})
         TID = TID.get("town_id") if TID and TID.get("town_id") else "" # 預設
         # end = time.time()
         # print(f"取得鄉鎮市區代碼: {end-start} sec")

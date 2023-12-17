@@ -11,7 +11,6 @@ import asyncio
 from typing import Optional
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
-collection = MongoDB.getCollection("traffic_hero","parking_fee") # 連線MongoDB
 
 @router.get("/ParkingFee", summary="【Read】取得各縣市路邊停車費查詢(Dev)")
 async def parkingFee(license_plate_number: str, type: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
@@ -28,6 +27,8 @@ async def parkingFee(license_plate_number: str, type: str, token: HTTPAuthorizat
     """
     Token.verifyToken(token.credentials,"user") # JWT驗證
 
+    collection = await MongoDB.getCollection("traffic_hero","parking_fee") # 連線MongoDB
+    
     task = []
     for result in collection.find({}, {"_id": 0}): # 取得全部縣市的URL
         if result.get("area") != "test":
@@ -50,7 +51,7 @@ async def processData(area, url):
         "detail": "服務維護中" # 狀態
     }
     
-    if collection.find_one({"area": area}).get("status"): 
+    if await collection.find_one({"area": area}).get("status"): 
         try:
             async with httpx.AsyncClient(timeout = 5) as client: # timeout
                 response = await client.get(url) # 發送請求
@@ -104,8 +105,8 @@ class Vehicle(BaseModel):
 async def getVehicleInfo(token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     payload = Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero","user_data") # 連線MongoDB
-    result = collection.find_one({"email":  payload["data"]["email"]}, {"_id": 0, "vehicle": 1})
+    collection = await MongoDB.getCollection("traffic_hero","user_data") # 連線MongoDB
+    result = await collection.find_one({"email":  payload["data"]["email"]}, {"_id": 0, "vehicle": 1})
     
     return result
 
@@ -113,16 +114,16 @@ async def getVehicleInfo(token: HTTPAuthorizationCredentials = Depends(HTTPBeare
 async def setVehicleInfo(data: Vehicle, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     payload = Token.verifyToken(token.credentials, "user")  # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero", "user_data")  # 連線MongoDB
+    collection = await MongoDB.getCollection("traffic_hero", "user_data")  # 連線MongoDB
     
-    if collection.find_one({"email": payload["data"]["email"], "vehicle": {"$elemMatch": {"license_plate_number": data.license_plate_number}}}) is not None:
+    if await collection.find_one({"email": payload["data"]["email"], "vehicle": {"$elemMatch": {"license_plate_number": data.license_plate_number}}}) is not None:
         raise HTTPException(status_code=400, detail="車牌號碼已存在")
     
     if data.type not in ["C", "M", "O"]:
         raise HTTPException(status_code=400, detail="車輛類別錯誤")
     
     # 使用 $push 將車牌資料加入到 "vehicle" 陣列中
-    result = collection.update_one(
+    result = await collection.update_one(
         {"email": payload["data"]["email"]},
         {"$push": {"vehicle": data.dict()}}
     )
@@ -136,8 +137,8 @@ async def setVehicleInfo(data: Vehicle, token: HTTPAuthorizationCredentials = De
 async def deleteVehicleInfo(data: Vehicle,token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     payload = Token.verifyToken(token.credentials, "user")  # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero", "user_data")  # 連線MongoDB
-    result = collection.update_one(
+    collection = await MongoDB.getCollection("traffic_hero", "user_data")  # 連線MongoDB
+    result = await collection.update_one(
         {"email": payload["data"]["email"]},
         {"$pull": {"vehicle": {"license_plate_number": data.license_plate_number, "type": data.type}}}
     )

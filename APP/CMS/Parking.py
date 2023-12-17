@@ -23,7 +23,7 @@ async def parking(longitude:str, latitude:str, token: HTTPAuthorizationCredentia
     
     match response[0]["CityName"]:
         case "臺中市":
-            collection = MongoDB.getCollection("traffic_hero","information_parking_on_street_availability_taichung") # 取得MongoDB的collection
+            collection = await MongoDB.getCollection("traffic_hero","information_parking_on_street_availability_taichung") # 取得MongoDB的collection
             data = collection.find({"status": "0"},{"_id": 0}) # 取得所有資料(status = 0 代表有車位)
             print(data)
     
@@ -46,7 +46,7 @@ async def parking(longitude:str, latitude:str, token: HTTPAuthorizationCredentia
                     print(Section_ID, PS_ID)
             
             # 找到符合Section_ID和PS_ID的完整JSON
-            matching_parking = collection.find_one({"Section_ID": Section_ID, "PS_ID": PS_ID},{"_id": 0})
+            matching_parking = await collection.find_one({"Section_ID": Section_ID, "PS_ID": PS_ID},{"_id": 0})
             url = "https://www.google.com/maps/dir/?api=1&destination=" + str(matching_parking['PS_Lat']) + "," + str(matching_parking['PS_Lng']) + "&travelmode=driving&dir_action=navigate"
             
             
