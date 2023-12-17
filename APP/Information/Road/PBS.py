@@ -51,22 +51,47 @@ async def getPBS(longitude: str, latitude: str, type: str = "all", token: HTTPAu
                 "near": user_location_geojson,
                 "distanceField": "distance",
                 "spherical": True,
-                "maxDistance": max_distance * 1000  # 將公里轉換為公尺
+                "maxDistance": max_distance * 1000
             }
         },
         {
-            "$match": match_condition  # 事件類型篩選
+            "$match": match_condition
         },
         {
-            "$sort": {"distance": 1}  # 按距離升序排序（從近到遠）
+            "$sort": {"distance": 1}
         },
         {
             "$project": {
-                "_id": 0
+                "_id": 0,
+                "srcdetail": 1,
+                "happendate": 1,
+                "roadtype": 1,
+                "happentime": 1,
+                "UID": 1,
+                "road": 1,
+                "areaNm": 1,
+                "modDttm": 1,
+                "comment": 1,
+                "region": 1,
+                "direction": 1,
+                "location": 1,
+                "icon_url": {
+                    "$switch": {
+                        "branches": [
+                            {"case": {"$eq": ["$roadtype", "交通障礙"]}, "then": "https://cdn-icons-png.flaticon.com/512/313/313024.png"},
+                            {"case": {"$eq": ["$roadtype", "交通管制"]}, "then": "https://cdn-icons-png.flaticon.com/512/5917/5917773.png"},
+                            {"case": {"$eq": ["$roadtype", "道路施工"]}, "then": "https://cdn-icons-png.flaticon.com/512/394/394627.png"},
+                            {"case": {"$eq": ["$roadtype", "事故"]}, "then": "https://cdn-icons-png.flaticon.com/512/3932/3932490.png"},
+                            {"case": {"$eq": ["$roadtype", "阻塞"]}, "then": "https://cdn-icons-png.flaticon.com/512/4886/4886426.png"},
+                            {"case": {"$eq": ["$roadtype", "其他"]}, "then": "https://upload.wikimedia.org/wikipedia/zh/thumb/d/d1/ROC_Police_Broadcasting_Service_Seal.svg/200px-ROC_Police_Broadcasting_Service_Seal.svg.png"}
+                        ],
+                        "default": "https://cdn3.iconfinder.com/data/icons/basic-2-black-series/64/a-92-256.png"
+                    }
+                }
             }
         }
     ])
-
+    
     documents = [doc async for doc in cursor]
     return documents
     
