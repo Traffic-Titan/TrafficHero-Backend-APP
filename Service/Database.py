@@ -28,5 +28,6 @@ class MongoDBSingleton:
         if self.client:
             self.client.close()
 
+
 # # 創建 MongoDB 連接單例
 # mongo_db = MongoDBSingleton()

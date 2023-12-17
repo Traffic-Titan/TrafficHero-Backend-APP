@@ -50,7 +50,7 @@ def SpeedLimit():
     # 插入資料庫
     collection.insert_many(documents)
     
-    for cursor in collection.find({}):
+    for cursor in await collection.find({}):
         Lat_Lng_array = []
         roadName = cursor['公路名稱'][0:4]
         if(len(get_Startpoint_Endpoint(cursor['路段']))>0):
@@ -94,7 +94,7 @@ def FreewayTunnel():
             documents.append(document)
     collection.insert_many(documents)
 
-    for cursor in collection.find({}):
+    for cursor in await collection.find({}):
         Lat_Lng_array = []
         roadName = cursor['國道編號']
         if(len(get_Startpoint_Endpoint(cursor['起訖里程']))>0):

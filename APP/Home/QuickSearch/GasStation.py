@@ -105,4 +105,7 @@ async def getGasStation(longitude:str, latitude:str):
 
     documents = collection.aggregate(pipeline)
 
-    return list(documents)
+    result = []
+    async for doc in documents:
+        result.append(doc)
+    return result

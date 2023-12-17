@@ -76,7 +76,7 @@ async def CityParkingInfo(token: HTTPAuthorizationCredentials = Depends(HTTPBear
     documents = []
 
     collection = await MongoDB.getCollection("traffic_hero","information_parking_city_parking_info")
-    city_parking_info = collection.find({})
+    city_parking_info = await collection.find({})
     for data in city_parking_info:
         document = {
             "City": data['City'],

@@ -30,7 +30,7 @@ async def parkingFee(license_plate_number: str, type: str, token: HTTPAuthorizat
     collection = await MongoDB.getCollection("traffic_hero","parking_fee") # 連線MongoDB
     
     task = []
-    for result in collection.find({}, {"_id": 0}): # 取得全部縣市的URL
+    for result in await collection.find({}, {"_id": 0}).to_list(length=None): # 取得全部縣市的URL
         if result.get("area") != "test":
             url = result.get("url") # 取得URL
             url = url.replace("Insert_CarID", license_plate_number) # 取代車牌號碼
@@ -44,6 +44,7 @@ async def parkingFee(license_plate_number: str, type: str, token: HTTPAuthorizat
     return {"license_plate_number": license_plate_number, "type": codeToText(type), "total_amount": sum(area["amount"] for area in detail if area["amount"] >= 0), "detail": detail}
 
 async def processData(area, url):
+    collection = await MongoDB.getCollection("traffic_hero","parking_fee") # 連線MongoDB
     start = time.time() # Dev
     detail = { # 預設值
         "area": Area.englishToChinese(area), # 縣市中文名稱
@@ -51,10 +52,11 @@ async def processData(area, url):
         "detail": "服務維護中" # 狀態
     }
     
-    if await collection.find_one({"area": area}).get("status"): 
+    area_record = await collection.find_one({"area": area})  # 直接等待 find_one 方法的結果
+    if area_record and area_record.get("status"):  # 檢查是否找到記錄並檢查狀態
         try:
-            async with httpx.AsyncClient(timeout = 5) as client: # timeout
-                response = await client.get(url) # 發送請求
+            async with httpx.AsyncClient(timeout=5) as client:  # timeout
+                response = await client.get(url)  # 發送請求
                 dataAll = response.json()
             
             if(dataAll['Result'] is not None): # 如果有資料就存入
@@ -85,7 +87,7 @@ async def processData(area, url):
             print(f"Error processing data for area {area}: {e}") # 其他錯誤
 
     end = time.time() # Dev
-    print(f"處理{area}的資料: {end-start} sec") # Dev
+    # print(f"處理{area}的資料: {end-start} sec") # Dev
     return detail
 
 def codeToText(code : str): # 類別轉換

@@ -60,7 +60,7 @@ async def TouristActivity(os: str, mode: str, longitude:str, latitude:str, token
             raise HTTPException(status_code=400, detail=f"不支援{mode}模式")
 
     result = []
-    for d in documents:
+    async for d in documents:
         match os:
             case "Android":
                 d["google_maps_information_url"] = f"https://www.google.com/maps/search/?api=1&query={d['name']}"

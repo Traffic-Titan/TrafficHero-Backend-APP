@@ -50,7 +50,7 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
         # 無人氣象測站
         # start = time.time()
         collection = await MongoDB.getCollection("traffic_hero","weather_station_list") # 取得無人氣象測站清單
-        weather_station_list = list(collection.find({"CountyName": response[0]["CityName"]},{"_id":0}))
+        weather_station_list = list(await collection.find({"CountyName": response[0]["CityName"]},{"_id":0}))
         # end = time.time()
         # print(f"取得無人氣象測站清單: {end-start} sec")
         
@@ -68,7 +68,7 @@ async def weather_api(longitude: str, latitude: str, token: HTTPAuthorizationCre
         
         # start = time.time()
         collection = await MongoDB.getCollection("traffic_hero","weather_station") # 取得無人氣象測站資料
-        weather_station = list(collection.find({"stationId": stationID},{"_id":0}))[0]
+        weather_station = list(await collection.find({"stationId": stationID},{"_id":0}))[0]
         # end = time.time()
         # print(f"取得無人氣象測站資料: {end-start} sec")
         
