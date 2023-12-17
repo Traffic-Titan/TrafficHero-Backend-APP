@@ -87,7 +87,6 @@ app.include_router(OperationalStatus.router)
 app.include_router(RoadCondition.router)
 app.include_router(Plot.router)
 
-
 from APP.Home.QuickSearch import GasStation, ConvenientStore, ChargingStation, BatterySwapStation
 app.include_router(GasStation.router)
 app.include_router(ConvenientStore.router)
@@ -115,8 +114,11 @@ app.include_router(GasStation.router)
 app.include_router(ConvenientStore.router)
 
 # 4-1.道路資訊(APP)
-from APP.Information.Road import Main
+from APP.Information.Road import Main, Freeway, ProvincialHighway, LocalRoad
 app.include_router(Main.router)
+app.include_router(Freeway.router)
+app.include_router(ProvincialHighway.router)
+app.include_router(LocalRoad.router)
 
 from APP.Information.Road.PBS import RoadInfo_Road_Construction,RoadInfo_Accident,RoadInfo_Traffic_Control,RoadInfo_Trafficjam
 app.include_router(RoadInfo_Road_Construction.router)
