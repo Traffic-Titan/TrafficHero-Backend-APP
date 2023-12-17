@@ -43,11 +43,11 @@ async def startup_event():
     # PBS.getData()
     # PBS.getTaipeiRoadCondition()
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    # 在應用程式關閉時斷開連線
-    # email_server.quit()
-    MongoDB.closeConnection()
+# @app.on_event("shutdown")
+# async def shutdown_event():
+#     # 在應用程式關閉時斷開連線
+#     # email_server.quit()
+#     MongoDB.closeConnection()
 
 # ---------------------------------------------------------------
 
