@@ -155,11 +155,11 @@ from APP.Information.PublicTransport.Nearby import PublicBicycle
 app.include_router(PublicBicycle.router)
 
 # 5.觀光資訊(APP)
-from APP.Information.Tourism import Activity, Hotel, Restaurant, ScenicSpot, TravelPlan,TourismFindKeyWord
+from APP.Information.Tourism import Activity, Hotel, Restaurant, ScenicSpot, TravelPlan, Find
 app.include_router(Activity.router)
 app.include_router(Hotel.router)
 app.include_router(Restaurant.router)
 app.include_router(ScenicSpot.router)
 
-app.include_router(TravelPlan.router)
-app.include_router(TourismFindKeyWord.router)
+# app.include_router(TravelPlan.router)
+app.include_router(Find.router)

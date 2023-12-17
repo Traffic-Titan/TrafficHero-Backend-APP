@@ -6,7 +6,7 @@ import Service.TDX as TDX
 from shapely.geometry import Point
 from geopy.distance import geodesic
 from shapely.geometry.polygon import Polygon
-from APP.Information.Tourism.TravelPlan import planTravel
+# from APP.Information.Tourism.TravelPlan import planTravel
 from scipy.spatial import distance
 import time
 
