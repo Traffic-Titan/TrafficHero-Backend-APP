@@ -20,7 +20,7 @@ async def RoadInfo_Traffic_Control(token: HTTPAuthorizationCredentials = Depends
     documents = []
     try:
         collection = await MongoDB.getCollection("traffic_hero","information_road_info_pbs_traffic_control")
-        for data in collection.find({}):
+        for data in await collection.find({}):
             if(data['y1'] == "" or data['x1'] == ""):
                 continue
             else:

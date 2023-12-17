@@ -18,7 +18,7 @@ async def getSpeedEnforcement_car(longitude: str = "all", latitude: str = "all",
     collection = await MongoDB.getCollection("traffic_hero","cms_speed_enforcement") # 取得MongoDB的collection
     
     if longitude == "all" and latitude == "all":
-        documents = collection.find({"active": True}, {"_id": 0})
+        documents = await collection.find({"active": True}, {"_id": 0}).to_list(length=None)
     else:
         # 為使用者的當前位置建立一個Point
         user_location = Point(float(longitude), float(latitude))

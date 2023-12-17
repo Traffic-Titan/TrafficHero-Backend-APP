@@ -6,6 +6,7 @@ import Function.Logo as Logo
 import Function.Link as Link
 import Function.Area as Area
 import concurrent.futures
+import asyncio
 
 router = APIRouter(tags=["2.最新消息(APP)"],prefix="/APP/News")
 

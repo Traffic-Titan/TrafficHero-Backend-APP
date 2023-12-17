@@ -9,22 +9,25 @@ import time
 
 router = APIRouter(tags=["外部服務(Dev Only)"],prefix="/Service/TDX")
 
-# global count # Dev
-# count = 0 # Dev
-
 @router.get("/getData", summary="TDX - 取得資料")
 async def getDataAPI(url:str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"admin") # JWT驗證
     return getData(url)
 
+request_counter = 0  # 用於追蹤請求次數
+
 def getData(url):
-    # global count # Dev
-    # count += 1 # Dev
-    # print(f"count: {count}") # Dev
-    auth_url = "https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token"
-    app_id = os.getenv('TDX_app_id')
-    app_key = os.getenv('TDX_app_key')
+    global request_counter
+    request_counter = (request_counter + 1) % 3  # 確保計數器值在 0, 1, 2 之間循環
+    app_id_key = f"TDX_app_id_{request_counter + 1}"
+    app_key_key = f"TDX_app_key_{request_counter + 1}"
+    
+    app_id = os.getenv(app_id_key)
+    app_key = os.getenv(app_key_key)
+    
     auth = Auth(app_id, app_key)
+    auth_url = "https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token"
+    
     try:
         auth_response = requests.post(auth_url, auth.get_auth_header())
         while auth_response.status_code != 200: # 確認是否取得token，以確保可以正常call TDX API

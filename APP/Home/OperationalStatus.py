@@ -82,9 +82,25 @@ async def operationalstatus(longitude: str, latitude: str, token: HTTPAuthorizat
         case "澎湖縣":
             name = ["澎湖縣公車"]
 
+
+    intercity_cursor = collection.find({"name": {"$in": ["臺鐵", "高鐵", "公路客運"]}},{"_id": 0}) # 預設顯示的大眾運輸
+    intercity_data = await fetch_data(intercity_cursor)
+    intercity = list(sorted(intercity_data, key=lambda x: ["臺鐵", "高鐵", "公路客運"].index(x["name"])))
+
+    local_cursor = collection.find({"name": {"$in": name}},{"_id": 0})
+    local_data = await fetch_data(local_cursor)
+    local = list(sorted(local_data, key=lambda x: name.index(x["name"])))
+
     result = {
-        "intercity": list(sorted(collection.find({"name": {"$in": ["臺鐵", "高鐵", "公路客運"]}},{"_id": 0}),key=lambda x: ["臺鐵", "高鐵", "公路客運"].index(x["name"]))), # 預設顯示的大眾運輸
-        "local": list(sorted(collection.find({"name": {"$in": name}},{"_id": 0}), key=lambda x: name.index(x["name"]))),
+        "intercity": intercity,
+        "local": local,
         "url": "https://tdx.transportdata.tw/alertInfo"
     }
     return result
+
+# 異步迭代 MongoDB 查詢結果
+async def fetch_data(cursor):
+    results = []
+    async for document in cursor:
+        results.append(document)
+    return results

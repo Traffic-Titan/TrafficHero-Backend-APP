@@ -88,7 +88,7 @@
 
 #     # #只要有重複地點就刪除，只保留一個
 #     # eventLatLng = []
-#     # for item in pbscollection.find():
+#     # for item in pbsawait collection.find():
 #     #     if item['EventLatLng'] not in eventLatLng:
 #     #         eventLatLng.append(item['EventLatLng'])  
 #     #     else:

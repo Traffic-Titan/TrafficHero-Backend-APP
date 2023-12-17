@@ -24,7 +24,7 @@ async def parking(longitude:str, latitude:str, token: HTTPAuthorizationCredentia
     match response[0]["CityName"]:
         case "臺中市":
             collection = await MongoDB.getCollection("traffic_hero","information_parking_on_street_availability_taichung") # 取得MongoDB的collection
-            data = collection.find({"status": "0"},{"_id": 0}) # 取得所有資料(status = 0 代表有車位)
+            data = await collection.find({"status": "0"},{"_id": 0}) # 取得所有資料(status = 0 代表有車位)
             print(data)
     
             closest_distance = float('inf')  # 初始化最近距離為正無限大

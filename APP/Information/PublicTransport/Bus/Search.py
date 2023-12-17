@@ -28,7 +28,7 @@ async def search(area: str, route_id: str, token: HTTPAuthorizationCredentials =
 
     collection = await MongoDB.getCollection(
         "traffic_hero", "information_bus_route")  # 連線MongoDB
-    data = list(collection.find({"City": area, "RouteName.Zh_tw": {
+    data = list(await collection.find({"City": area, "RouteName.Zh_tw": {
                 "$regex": f"^{route_id}"}}, {"_id": 0}))  # 搜尋公車路線資料
 
     search_result = []

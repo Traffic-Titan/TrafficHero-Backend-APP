@@ -24,7 +24,7 @@ async def search_station_by_location(longitude: str, latitude: str, token: HTTPA
     
     collection = await MongoDB.getCollection("traffic_hero","information_taiwan_railway_station")
     
-    data = collection.find({},{"_id":0})
+    data = await collection.find({},{"_id":0})
     nearestRange = 1
     
     for d in data:
@@ -35,7 +35,7 @@ async def search_station_by_location(longitude: str, latitude: str, token: HTTPA
             nearestRange = Distance # 與使用者經緯度最近的車站之最短短距離
             stationID = d['StationUID'] 
             
-    data = collection.find({"StationUID":stationID},{"_id":0})
+    data = await collection.find({"StationUID":stationID},{"_id":0})
 
     return list(data)
     

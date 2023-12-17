@@ -52,7 +52,7 @@ async def getNearbyRoadConditionCar(latitude: str, longitude: str, token: HTTPAu
     unique_content = {}
     merged_content = []
 
-    for doc in documents:
+    async for doc in documents:
         road_name = doc.get("road_name")
         content = doc.get("content")
 
@@ -115,7 +115,7 @@ async def getNearbyRoadConditionCar(latitude: str, longitude: str, token: HTTPAu
     unique_content = {}
     merged_content = []
 
-    for doc in documents:
+    async for doc in documents:
         road_name = doc.get("road_name")
         content = doc.get("content")
 
