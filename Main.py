@@ -114,17 +114,18 @@ app.include_router(GasStation.router)
 app.include_router(ConvenientStore.router)
 
 # 4-1.道路資訊(APP)
-from APP.Information.Road import Main, Freeway, ProvincialHighway, LocalRoad
+from APP.Information.Road import Main, Freeway, ProvincialHighway, LocalRoad, PBS
 app.include_router(Main.router)
 app.include_router(Freeway.router)
 app.include_router(ProvincialHighway.router)
 app.include_router(LocalRoad.router)
+app.include_router(PBS.router)
 
-from APP.Information.Road.PBS import RoadInfo_Road_Construction,RoadInfo_Accident,RoadInfo_Traffic_Control,RoadInfo_Trafficjam
-app.include_router(RoadInfo_Road_Construction.router)
-app.include_router(RoadInfo_Accident.router)
-app.include_router(RoadInfo_Traffic_Control.router)
-app.include_router(RoadInfo_Trafficjam.router)
+# from APP.Information.Road.PBS import RoadInfo_Road_Construction,RoadInfo_Accident,RoadInfo_Traffic_Control,RoadInfo_Trafficjam
+# app.include_router(RoadInfo_Road_Construction.router)
+# app.include_router(RoadInfo_Accident.router)
+# app.include_router(RoadInfo_Traffic_Control.router)
+# app.include_router(RoadInfo_Trafficjam.router)
 
 # 4-2.大眾運輸資訊(APP)
 from APP.Information.PublicTransport import Main,PublicBicycle,NearbyInfoBus,NearbyInfoTrain,NearbyInfoBike
