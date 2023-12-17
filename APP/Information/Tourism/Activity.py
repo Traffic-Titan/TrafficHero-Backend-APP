@@ -14,7 +14,7 @@ router = APIRouter(tags=["5.觀光資訊(APP)"],prefix="/APP/Information")
 async def TouristActivity(os: str, mode: str, longitude:str, latitude:str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyToken(token.credentials,"user") # JWT驗證
     
-    collection = MongoDB.getCollection("traffic_hero","tourism_activity")
+    collection = await MongoDB.getCollection("traffic_hero","tourism_activity")
     
     # 為使用者的當前位置建立一個Point
     user_location = Point(float(longitude), float(latitude))

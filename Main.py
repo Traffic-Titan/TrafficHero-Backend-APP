@@ -107,7 +107,7 @@ app.include_router(Sidebar.router)
 app.include_router(SpeedEnforcement.router)
 
 app.include_router(ParkingLocation.router)
-app.include_router(PBS.router)
+# app.include_router(PBS.router)
 app.include_router(Parking.router)
 
 from APP.CMS.QuickSearch import GasStation, ConvenientStore

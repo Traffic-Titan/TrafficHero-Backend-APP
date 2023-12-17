@@ -52,7 +52,7 @@ async def CityParking(Area:str,token: HTTPAuthorizationCredentials = Depends(HTT
     documents = []
     Url = "https://tdx.transportdata.tw/api/basic/v1/Parking/OffStreet/ParkingAvailability/City/"+ Area +"?%24format=JSON"
     dataAll = getData(Url)
-    # collection = MongoDB.getCollection("TrafficHero","CityParking")
+    # collection = await MongoDB.getCollection("TrafficHero","CityParking")
     # collection.drop()
     
     for data in dataAll['ParkingAvailabilities']:
@@ -75,7 +75,7 @@ async def CityParkingInfo(token: HTTPAuthorizationCredentials = Depends(HTTPBear
     Token.verifyToken(token.credentials,"user") # JWT驗證
     documents = []
 
-    collection = MongoDB.getCollection("traffic_hero","information_parking_city_parking_info")
+    collection = await MongoDB.getCollection("traffic_hero","information_parking_city_parking_info")
     city_parking_info = collection.find({})
     for data in city_parking_info:
         document = {

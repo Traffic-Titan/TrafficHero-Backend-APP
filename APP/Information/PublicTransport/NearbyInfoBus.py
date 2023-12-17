@@ -61,8 +61,8 @@ async def NearbyStationInfo_Bus(latitude:str,longitude:str,token: HTTPAuthorizat
                 DestinationName = "" 
 
                 # 判斷公車是 市區公車 還是 客運公車，給出不同的URL進行處理
-                collection = MongoDB.getCollection("traffic_hero","information_bus_route")
-                collection_interCity = MongoDB.getCollection("traffic_hero","information_interCity_bus_route")
+                collection = await MongoDB.getCollection("traffic_hero","information_bus_route")
+                collection_interCity = await MongoDB.getCollection("traffic_hero","information_interCity_bus_route")
                 
                 # 客運公車
                 if(RouteUID[0:3] == "THB"):
@@ -74,7 +74,7 @@ async def NearbyStationInfo_Bus(latitude:str,longitude:str,token: HTTPAuthorizat
                 # 市區公車
                 else:
                     # 從資料庫 traffic_hero.information_bus_route 找出對應UID的車輛
-                    cursors = collection.find_one({"RouteUID":RouteUID})
+                    cursors = await collection.find_one({"RouteUID":RouteUID})
                     # 從資料庫查詢終點站名稱
                     DestinationName = cursors['DestinationStopNameZh']
 

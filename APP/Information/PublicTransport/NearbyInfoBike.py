@@ -21,7 +21,7 @@ async def NearbyStationInfo_Bike(latitude:str,longitude:str,token: HTTPAuthoriza
     # 查詢附近"公共自行車"站點，若Count回傳不為0，則表示有站點
     if(nearbyTransportdata[0]['BikeStations']['Count'] != 0):
         for data in nearbyTransportdata[0]['BikeStations']['BikeStationList']:
-            bikeStatus = getBikeStatus(countryResponse[0]["City"],data['StationUID'])
+            bikeStatus = await getBikeStatus(countryResponse[0]["City"],data['StationUID'])
             document = {
                     "公共自行車":data,
                     "剩餘空位":bikeStatus['status']['AvailableReturnBikes'],
@@ -30,13 +30,13 @@ async def NearbyStationInfo_Bike(latitude:str,longitude:str,token: HTTPAuthoriza
             documents.append(document)
     return documents
 
-def getBikeStatus(area: str, StationUID: str,):
+async def getBikeStatus(area: str, StationUID: str,):
     
     url = f"https://tdx.transportdata.tw/api/basic/v2/Bike/Availability/City/{area}?%24filter=StationUID%20eq%20%27{StationUID}%27&%24format=JSON" # 取得資料來源網址
     data = TDX.getData(url) # 取得即時車位資料
 
-    collection = MongoDB.getCollection("traffic_hero","information_public_bicycle") # 連線MongoDB
-    station = collection.find_one({"StationUID": StationUID}, {"_id": 0}) # 取得租借站位資料
+    collection = await MongoDB.getCollection("traffic_hero","information_public_bicycle") # 連線MongoDB
+    station = await collection.find_one({"StationUID": StationUID}, {"_id": 0}) # 取得租借站位資料
 
     result = {
             "status": dict(data[0]),

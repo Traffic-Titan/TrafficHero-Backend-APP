@@ -19,10 +19,10 @@ async def getNearbyRoadConditionCar(Topic:str,Type:str,token: HTTPAuthorizationC
     """
     Token.verifyToken(token.credentials, "user")  # JWT驗證
 
-    collection_pbs_accident = MongoDB.getCollection("traffic_hero","information_road_info_pbs_accident")
-    collection_pbs_road_construction = MongoDB.getCollection("traffic_hero","information_road_info_pbs_road_construction")
-    collection_pbs_traffic_control = MongoDB.getCollection("traffic_hero","information_road_info_pbs_traffic_control")
-    collection_pbs_trafficjam = MongoDB.getCollection("traffic_hero","information_road_info_pbs_trafficjam")
+    collection_pbs_accident = await MongoDB.getCollection("traffic_hero","information_road_info_pbs_accident")
+    collection_pbs_road_construction = await MongoDB.getCollection("traffic_hero","information_road_info_pbs_road_construction")
+    collection_pbs_traffic_control = await MongoDB.getCollection("traffic_hero","information_road_info_pbs_traffic_control")
+    collection_pbs_trafficjam = await MongoDB.getCollection("traffic_hero","information_road_info_pbs_trafficjam")
 
     if(Topic == "PBS"):
         East = 0
