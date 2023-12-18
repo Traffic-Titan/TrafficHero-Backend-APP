@@ -17,39 +17,80 @@ class ChangePasswordModel(BaseModel):
     old_password: str
     new_password: str
     
-@router.put("/ChangePassword",summary="更改密碼(Dev)")
-async def changePassword(user: ChangePasswordModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
+@router.put("/ChangePassword", summary="更改密碼")
+async def changePassword(type: str, user: ChangePasswordModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    """
+    一、資料來源: \n
+            1. 
+    二、Input \n
+            1. type: login/forget
+            2. ChangePasswordModel
+    三、Output \n
+            1.
+    四、說明 \n
+            1.
+    """
     
-    # 連線MongoDB
-    collection = await MongoDB.getCollection("traffic_hero","user_data")
+    # 連線 MongoDB
+    collection = await MongoDB.getCollection("traffic_hero", "user_data")
 
-    # 查詢使用者記錄，同時驗證舊密碼和Token的有效性
-    result = await collection.find_one({
-        "email": user.email,
-        "$or": [
-            {"password": hashlib.sha256(user.old_password.encode()).hexdigest()},
-            {"verification_code": user.old_password}
-        ]
-    })
-    
-    if result is None:
-        raise HTTPException(status_code=401, detail="舊密碼錯誤")
-    else:
-        # 使用Bcrypt加密新密碼
-        hashed_new_password = bcrypt.hashpw(user.new_password.encode('utf-8'), bcrypt.gensalt())
+    match type:
+        case "login":
+            # 驗證 Token
+            payload = Token.verifyToken(token.credentials, "user")
 
-        # 更新密碼並刪除相關資料
-        await collection.update_one(
-            {"email": user.email},
-            {
-                "$set": {"password": hashed_new_password},
-                "$unset": {"timestamp": "", "verification_code": "", "token": ""}
-            }
-        )
+            # 查詢使用者記錄
+            user_record = await collection.find_one({"email": payload["data"]["email"]})
 
-        return {"message": "密碼已成功更改"}
+            if user_record is None:
+                raise HTTPException(status_code=401, detail="無此用戶")
 
+            # 檢驗舊密碼
+            if not bcrypt.checkpw(user.old_password.encode('utf-8'), user_record["password"]):
+                raise HTTPException(status_code=401, detail="舊密碼錯誤")
+
+            # 生成新的 salt 和加密的新密碼
+            new_salt = bcrypt.gensalt()
+            new_hashed_password = bcrypt.hashpw(user.new_password.encode('utf-8'), new_salt)
+
+            # 更新密碼和 salt
+            await collection.update_one(
+                {"email": payload.get("email")},
+                {
+                    "$set": {
+                        "password": new_hashed_password,
+                        "salt": new_salt
+                    }
+                }
+            )
+
+        case "forget":
+            # 驗證 Token 是否來自於官方 APP 與 Website
+            Token.verifyClient(token.credentials)
+
+            # 查詢使用者記錄
+            user_record = await collection.find_one({"email": user.email, "verification_code": user.old_password})
+
+            if user_record is None:
+                raise HTTPException(status_code=401, detail="舊密碼錯誤")
+
+            # 生成新的 salt 和加密的新密碼
+            new_salt = bcrypt.gensalt()
+            new_hashed_password = bcrypt.hashpw(user.new_password.encode('utf-8'), new_salt)
+
+            # 更新密碼和 salt
+            await collection.update_one(
+                {"email": user.email},
+                {
+                    "$set": {
+                        "password": new_hashed_password,
+                        "salt": new_salt
+                    },
+                    "$unset": {"verification_code": ""}
+                }
+            )
+
+    return {"message": "密碼已成功更改"}
  
 class ForgetPasswordModel(BaseModel):
     email: EmailStr
