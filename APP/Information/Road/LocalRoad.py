@@ -4,7 +4,7 @@ import Service.Token as Token
 
 router = APIRouter(tags=["4-1.道路資訊(APP)"],prefix="/APP/Information/Road")
 
-@router.get("/LocalRoad",summary="【Read】道路資訊-國道即時路況")
+@router.get("/LocalRoad",summary="【Read】道路資訊-地區道路路況")
 async def getLocalRoadLink(area: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n

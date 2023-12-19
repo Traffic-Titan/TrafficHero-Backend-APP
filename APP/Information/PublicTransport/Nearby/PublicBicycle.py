@@ -75,7 +75,9 @@ async def getNearby_PublicBicycle(os: str, longitude:str, latitude:str, token: H
         }
     ])
     
-    result = list(documents)
+    result = []
+    async for document in documents:
+        result.append(document)
     
     if len(result) == 0:
         return [{"station_uid":"",
