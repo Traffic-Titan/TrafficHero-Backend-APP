@@ -55,7 +55,7 @@ async def changePassword(type: str, user: ChangePasswordModel, token: HTTPAuthor
 
             # 更新密碼和 salt
             await collection.update_one(
-                {"email": payload.get("email")},
+                {"email": payload["data"]["email"]},
                 {
                     "$set": {
                         "password": new_hashed_password,
