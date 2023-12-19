@@ -74,32 +74,35 @@ class UpdateEmailModel(BaseModel):
     old_email: EmailStr
     new_email: EmailStr
 
-@router.patch("/Profile/Email",summary="【Update】會員資料-Email(Dev)") # 尚未處理Bug，應該是要在新Email驗證成功後才能更新
-async def updateEmail(user: UpdateEmailModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    payload = Token.verifyToken(token.credentials,"user") # JWT驗證
+@router.patch("/Profile/Email", summary="【Update】會員資料-Email")
+async def update_email(user: UpdateEmailModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    payload = Token.verifyToken(token.credentials, "user")  # JWT驗證
 
-    # Email驗證
-    collection = await MongoDB.getCollection("traffic_hero","user_data")
-    if user.old_email == payload["data"]["email"]:
-        # 生成驗證碼、寄送郵件、存到資料庫
-        verification_code = Code.generateCode()
-        
-        current_time = Time.getCurrentTimestamp() # 獲取當前時間戳
-        expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)  # 計算驗證碼的過期時間
-        expiration_time_str = expiration_time.strftime("%Y/%m/%d %H:%M")  # 格式化過期時間(YYYY/MM/DD HH:MM)
-        
-        await collection.update_one({"email": user.old_email}, {"$set": {"old_email": user.old_email, "email": user.new_email, "email_confirmed": False, "verification_code": verification_code, "timestamp": current_time}})        
-        
-        # 傳給舊Email
-        response = await Email.send(user.old_email,"電子郵件驗證","您好，我們已收到您修改Email的請求，請至新Email信箱驗證，謝謝。<br><br>若這不是您本人所為，請盡速更改Traffic Hero會員密碼，以確保帳號安全。")
-        if response.status_code != 200:
-            raise HTTPException(status_code=response.status_code, detail=response.detail)
-        
-        # 傳給新Email
-        response = await Email.send(user.new_email,"電子郵件驗證","您好，我們已收到您修改Email的請求，您的驗證碼是：" + verification_code + "。<br>請在10分鐘內(" + expiration_time_str +  ")至APP上輸入此驗證碼以更新Email，謝謝。<br><br>若這不是您本人所為，請直接忽略此電子郵件。")
-        if response.status_code != 200:
-            raise HTTPException(status_code=response.status_code, detail=response.detail)
-        
-        return {"message": "請至Email收取驗證信已更新Email"}
-    else:
+    # 連接到MongoDB
+    collection = await MongoDB.getCollection("traffic_hero", "user_data")
+
+    # 檢查舊Email是否與Token中的Email一致
+    if user.old_email != payload["data"]["email"]:
         raise HTTPException(status_code=403, detail="請勿使用不合法的Token")
+
+    # 檢查新Email是否已存在於資料庫
+    if await collection.find_one({"email": user.new_email}):
+        raise HTTPException(status_code=400, detail="新Email已被註冊，請使用其他Email")
+
+    # 生成驗證碼
+    verification_code = Code.generateCode()
+
+    # 計算並格式化驗證碼過期時間
+    current_time = Time.getCurrentTimestamp()
+    expiration_time = datetime.fromtimestamp(current_time) + timedelta(minutes=10)
+    expiration_time_str = expiration_time.strftime("%Y/%m/%d %H:%M")
+
+    # 更新資料庫中的驗證碼和新Email
+    await collection.update_one({"email": user.old_email}, {"$set": {"pending_new_email": user.new_email, "verification_code": verification_code, "timestamp": current_time}})
+
+    # 向新Email發送驗證郵件
+    response = await Email.send(user.new_email, "電子郵件驗證", "您好，您的驗證碼是：" + verification_code + "。<br>請在10分鐘內(" + expiration_time_str + ")至APP上輸入此驗證碼以完成Email更新，謝謝。<br><br>若這不是您本人所為，請直接忽略此電子郵件。")
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail=response.detail)
+
+    return {"message": "請至新Email收取驗證信以更新Email"}

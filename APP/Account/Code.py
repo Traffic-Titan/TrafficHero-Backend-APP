@@ -13,12 +13,14 @@ class VerifyCodeModel(BaseModel):
     email: EmailStr
     code : str = Field(min_length=6)
 
-@router.post("/VerifyCode",summary="驗證碼驗證(Dev)")
-async def verifyCode(user: VerifyCodeModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
-    
+@router.post("/VerifyCode", summary="驗證碼驗證")
+async def verify_code(user: VerifyCodeModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    Token.verifyClient(token.credentials)  # 驗證Token是否來自於官方APP與Website
+
+    # 連接到MongoDB
+    collection = await MongoDB.getCollection("traffic_hero", "user_data")
+
     # 檢查電子郵件是否存在於資料庫中
-    collection = await MongoDB.getCollection("traffic_hero","user_data")
     result = await collection.find_one({"email": user.email})
     if result is None:
         raise HTTPException(status_code=404, detail="此電子郵件不存在")
@@ -34,25 +36,27 @@ async def verifyCode(user: VerifyCodeModel, token: HTTPAuthorizationCredentials 
     if timestamp and current_time - timestamp > 600:
         raise HTTPException(status_code=400, detail="驗證碼已過期")
 
-    # 驗證碼驗證成功，生成並儲存 token
-    if result.get("email_confirmed") == False: # 如果是註冊驗證，則將email_confirmed改為True
+    # 處理新Email的驗證
+    pending_new_email = result.get("pending_new_email")
+    if pending_new_email:
         await collection.update_one(
+            {"email": user.email},
             {
-                "email": user.email
-            },
-            {
-                "$set": {"email_confirmed": True}, 
-                "$unset": {"timestamp": "", "verification_code": ""}
+                "$set": {"email": pending_new_email, "email_confirmed": True},
+                "$unset": {"pending_new_email": "", "timestamp": "", "verification_code": ""}
             }
         )
+        return {"message": "新Email驗證成功，Email地址已更新"}
 
+    # 處理一般的Email驗證（如註冊或忘記密碼）
+    if not result.get("email_confirmed") or 'password_reset' in result:
+        await collection.update_one(
+            {"email": user.email},
+            {
+                "$set": {"email_confirmed": True},
+                "$unset": {"timestamp": "", "verification_code": "", "password_reset": ""}
+            }
+        )
         return {"message": "Email驗證成功"}
-    else: # 如果是忘記密碼驗證，則生成token
-        payload = {
-            "email": user.email,
-            "verification_code": Code.generateCode(),
-        }
-        token = encodeToken(payload, 10)
-        await collection.update_one({"email": user.email}, {"$set": {"token": token}})
-        
-        return {"message": "驗證碼驗證成功", "token": token}
+
+    return {"message": "驗證碼驗證成功"}
