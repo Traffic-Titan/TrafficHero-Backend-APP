@@ -25,7 +25,7 @@ class ProfileModel(BaseModel):
     google_id: str
     google_avatar: str
 
-@router.post("/Register",summary="會員註冊(Dev)")
+@router.post("/Register",summary="會員註冊")
 async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     Token.verifyClient(token.credentials) # 驗證Token是否來自於官方APP與Website
     
@@ -72,7 +72,7 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=response.detail)
         
-        return {"message": Message.get("Sign up")}
+        return {"message": "註冊成功，請至Email收取驗證信"}
     else: # Google註冊
         # 建立新的使用者文件
         data = {
@@ -92,6 +92,6 @@ async def register(user: ProfileModel, token: HTTPAuthorizationCredentials = Dep
         # 新增使用者文件至資料庫
         collection.insert_one(data)
         
-        return {"message": Message.get("Sign up with Google")}
+        return {"message": "註冊成功"}
     
 
