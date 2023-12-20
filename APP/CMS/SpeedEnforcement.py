@@ -30,7 +30,7 @@ async def getSpeedEnforcement_car(longitude: str = "all", latitude: str = "all",
         collection.create_index([("location", "2dsphere")])
 
         # 資料庫查詢
-        documents = collection.aggregate([
+        cursor = collection.aggregate([
             {
                 "$geoNear": {
                     "near": {
@@ -58,4 +58,8 @@ async def getSpeedEnforcement_car(longitude: str = "all", latitude: str = "all",
             }
         ])
 
-    return list(documents)
+    documents = []
+    async for doc in cursor:
+        documents.append(doc)
+
+    return documents

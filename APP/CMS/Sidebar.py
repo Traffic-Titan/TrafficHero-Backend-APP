@@ -29,7 +29,7 @@ async def getSidebarContent_car(longitude: str = "all", latitude: str = "all", t
         collection.create_index([("location", "2dsphere")])
 
         # 資料庫查詢
-        documents = collection.aggregate([
+        cursor = collection.aggregate([
             {
                 "$geoNear": {
                     "near": {
@@ -57,7 +57,11 @@ async def getSidebarContent_car(longitude: str = "all", latitude: str = "all", t
             }
         ])
 
-    return list(documents)
+    documents = []
+    async for doc in cursor:
+        documents.append(doc)
+
+    return documents
     
 @router.get("/Sidebar/Scooter",summary="【Read】即時訊息推播-側邊欄-機車模式")
 async def getSidebarContent_scooter(longitude: str = "all", latitude: str = "all", token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
@@ -77,7 +81,7 @@ async def getSidebarContent_scooter(longitude: str = "all", latitude: str = "all
         collection.create_index([("location", "2dsphere")])
 
         # 資料庫查詢
-        documents = collection.aggregate([
+        cursor = collection.aggregate([
             {
                 "$geoNear": {
                     "near": {
@@ -105,4 +109,8 @@ async def getSidebarContent_scooter(longitude: str = "all", latitude: str = "all
             }
         ])
 
-    return list(documents)
+    documents = []
+    async for doc in cursor:
+        documents.append(doc)
+
+    return documents
