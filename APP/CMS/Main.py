@@ -30,7 +30,7 @@ async def getMainContent_car(longitude: str = "all", latitude: str = "all", toke
         collection.create_index([("location", "2dsphere")])
 
         # 資料庫查詢
-        documents = collection.aggregate([
+        cursor = collection.aggregate([
             {
                 "$geoNear": {
                     "near": {
@@ -58,7 +58,11 @@ async def getMainContent_car(longitude: str = "all", latitude: str = "all", toke
             }
         ])
 
-    return list(documents)
+    documents = []
+    async for doc in cursor:
+        documents.append(doc)
+
+    return documents
     
 @router.get("/Main/Scooter",summary="【Read】即時訊息推播-主要內容-機車模式")
 async def getMainContent_scooter(longitude: str = "all", latitude: str = "all", token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
@@ -79,7 +83,7 @@ async def getMainContent_scooter(longitude: str = "all", latitude: str = "all", 
         collection.create_index([("location", "2dsphere")])
 
         # 資料庫查詢
-        documents = collection.aggregate([
+        cursor = collection.aggregate([
             {
                 "$geoNear": {
                     "near": {
@@ -107,4 +111,8 @@ async def getMainContent_scooter(longitude: str = "all", latitude: str = "all", 
             }
         ])
 
-    return list(documents)
+    documents = []
+    async for doc in cursor:
+        documents.append(doc)
+
+    return documents

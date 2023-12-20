@@ -94,4 +94,9 @@ async def getConvenientStore(longitude:str, latitude:str):
 
     documents = collection.aggregate(pipeline)
 
-    return list(documents)[0]
+    cursor = collection.aggregate(pipeline)
+    documents = []
+    async for doc in cursor:
+        documents.append(doc)
+
+    return documents[0] if documents else None
