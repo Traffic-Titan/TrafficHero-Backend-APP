@@ -9,7 +9,7 @@ from Main import MongoDB # 引用MongoDB連線實例
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 
-# @router.get("/OperationalStatus", summary="【Read】大眾運輸-營運狀況") # 先初步以北中南東離島分類，以後再依照縣市分類
+@router.get("/OperationalStatus", summary="【Read】大眾運輸-營運狀況") # 先初步以北中南東離島分類，以後再依照縣市分類
 async def operationalstatus(longitude: str, latitude: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
