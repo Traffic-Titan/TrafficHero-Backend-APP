@@ -38,7 +38,7 @@ async def NearbyStationInfo_Train(latitude:str,longitude:str,token: HTTPAuthoriz
 
                 # 查詢指定臺鐵[車站]列車即時到離站資料 
                 TRA_data = TDX.getData(f"https://tdx.transportdata.tw/api/basic/v3/Rail/TRA/StationLiveBoard/Station/{TRA_StationUID}?%24format=JSON")
-                print(TRA_data)
+                
                 for context in TRA_data['StationLiveBoards']:
                     
                     # data['StationUID']:列車UID、TrainNo:列車編號、Direction: 1(逆行)、0(順行)、TrainTypeName:列車車種、StationName:本站名稱、EndingStationName:終點站名稱、ScheduleDepartureTime:預估出發時間
