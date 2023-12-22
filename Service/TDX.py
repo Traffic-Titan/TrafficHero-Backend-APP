@@ -19,8 +19,8 @@ request_counter = 0  # 用於追蹤請求次數
 def getData(url):
     global request_counter
     request_counter = (request_counter + 1) % 3  # 確保計數器值在 0, 1, 2 之間循環
-    app_id_key = f"TDX_app_id_{request_counter + 1}"
-    app_key_key = f"TDX_app_key_{request_counter + 1}"
+    app_id_key = f"TDX_app_id_1"
+    app_key_key = f"TDX_app_key_1"
     
     app_id = os.getenv(app_id_key)
     app_key = os.getenv(app_key_key)
