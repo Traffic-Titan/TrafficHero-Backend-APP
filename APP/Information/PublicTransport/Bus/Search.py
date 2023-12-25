@@ -26,10 +26,8 @@ async def search(area: str, route_id: str, token: HTTPAuthorizationCredentials =
     """
     Token.verifyToken(token.credentials, "user")  # JWT驗證
 
-    collection = await MongoDB.getCollection(
-        "traffic_hero", "information_bus_route")  # 連線MongoDB
-    data = list(await collection.find({"City": area, "RouteName.Zh_tw": {
-                "$regex": f"^{route_id}"}}, {"_id": 0}))  # 搜尋公車路線資料
+    collection = await MongoDB.getCollection("traffic_hero", "information_bus_route")  # 連線MongoDB
+    data = await collection.find({"City": area, "RouteName.Zh_tw": {"$regex": f"^{route_id}"}}, {"_id": 0}).to_list(length=None)  # 搜尋公車路線資料
 
     search_result = []
     route_set = set()
