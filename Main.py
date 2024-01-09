@@ -18,11 +18,13 @@ async def getExecutionTime(request: Request, call_next): # 計算執行時間
     print(f"執行時間: {end - start:.4f} 秒") # 輸出執行時間
     return response # 回傳結果
 
+app.middleware("http")(getExecutionTime) # 讓所有路由都可以計算執行時間
+
 # ---------------------------------------------------------------
 
 app = FastAPI() # 建立FastAPI物件
 app.add_middleware(Analytics, api_key="a2999611-b29a-4ade-a55b-2147b706da6e")  # Add middleware(Dev)
-app.middleware("http")(getExecutionTime) # 讓所有路由都可以計算執行時間
+
 MongoDB = MongoDBSingleton()
 
 # ---------------------------------------------------------------

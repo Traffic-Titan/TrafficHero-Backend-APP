@@ -1,6 +1,6 @@
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
-from dotenv import load_dotenv # 載入.env環境變數檔案(因此檔案無引用FastAPI路由，因此不會自動載入)
+from dotenv import load_dotenv
 
 # 確保環境變數在模塊開始時就載入
 load_dotenv()
