@@ -12,7 +12,7 @@ from typing import Optional
 
 router = APIRouter(tags=["1.首頁(APP)"],prefix="/APP/Home")
 
-@router.get("/ParkingFee", summary="【Read】取得各縣市路邊停車費查詢(Dev)")
+@router.get("/ParkingFee", summary="【Read】取得各縣市路邊停車費查詢")
 async def parkingFee(license_plate_number: str, type: str, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     一、資料來源: \n
